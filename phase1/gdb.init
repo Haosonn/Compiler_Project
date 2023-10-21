@@ -1,0 +1,5 @@
+b addParserDerivation
+run test/test_1_r03.spl
+c
+c
+c
