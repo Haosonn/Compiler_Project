@@ -1,6 +1,8 @@
 int test_spl()
 {
-    a = 1 - 3;
-    b = - 2;
-    c = -4 -5;
-    d = -6 - -7;
+    a = 1;
+    // does it work?
+    b = 2; // what about now?
+    c = 1; /* does nothing when
+     seeing comments */
+} // hey?

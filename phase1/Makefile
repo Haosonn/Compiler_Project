@@ -14,6 +14,7 @@ endif
 .PHONY: 
 	clean test
 main:
+	mkdir -p bin
 	$(BISON) -d -t syntax.y
 	$(FLEX) lex.l 
 	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS)
