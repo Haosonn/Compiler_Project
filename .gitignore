@@ -2,3 +2,5 @@
 *.yy.c
 *.tab.c
 *.tab.h
+
+/bin/

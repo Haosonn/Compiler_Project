@@ -131,6 +131,10 @@ identifier {letter_}({letter_}|{digit})*
 "&&" { PROCESS_TOKEN_AND_PRINT(TOKEN_AND) }
 "||" { PROCESS_TOKEN_AND_PRINT(TOKEN_OR) }
 "." { PROCESS_TOKEN_AND_PRINT(TOKEN_DOT) }
+"+" { PROCESS_TOKEN_AND_PRINT(TOKEN_PLUS) }
+"-" { PROCESS_TOKEN_AND_PRINT(TOKEN_MINUS) }
+"*" { PROCESS_TOKEN_AND_PRINT(TOKEN_MUL) }
+"/" { PROCESS_TOKEN_AND_PRINT(TOKEN_DIV) }
 
 [\n] { yycolno = 1; }
 [\t\r ]+ {/* does nothing when seeing white spaces except new line */ }
