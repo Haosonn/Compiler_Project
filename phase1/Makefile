@@ -1,10 +1,14 @@
 CC=gcc
 FLEX=flex
 BISON=bison
+PRINT_PARSER_TREE=true
 PRINT_DERIVATION=false
 PRINT_TOKEN=false
 TEST_CASE=test_1_r03.spl
 CFLAGS= 
+ifeq ($(PRINT_PARSER_TREE), true)
+	CFLAGS += -DPRINT_PARSER_TREE
+endif
 ifeq ($(PRINT_DERIVATION), true)
 	CFLAGS += -DPRINT_DERIVATION
 endif

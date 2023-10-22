@@ -29,6 +29,13 @@
         va_end(args);
     }
 
+    void printParserTree() {
+#ifndef PRINT_PARSER_TREE
+        return;
+#endif
+        printParserNode(rootNode, 0);
+    }
+
     void printDerivation(char* der) {
 
 #ifndef PRINT_DERIVATION
@@ -187,7 +194,7 @@ int main(int argc, char **argv){
             return EXIT_FAILURE;
         }
         yyparse();
-        printParserNode(rootNode, 0);
+        printParserTree();
         return EXIT_SUCCESS;
     } else {
         fputs("Too many arguments! Expected: 2.\n", stderr);

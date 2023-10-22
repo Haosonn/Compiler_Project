@@ -137,7 +137,7 @@ identifier {letter_}({letter_}|{digit})*
 "/" { PROCESS_TOKEN_AND_PRINT(TOKEN_DIV) }
 
 "//".* { yycolno = 1; }
-"/*"(.|\n)*?"*/" { yycolno = 1; }
+"/*"(.|\n)*?"*/" { yycolno = 1; printf("Comment: %s\n", yytext);}
 
 [\n] { yycolno = 1; }
 [\t\r ]+ {/* does nothing when seeing white spaces except new line */ }
