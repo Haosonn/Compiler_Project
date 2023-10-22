@@ -3,6 +3,7 @@ FLEX=flex
 BISON=bison
 PRINT_DERIVATION=false
 PRINT_TOKEN=false
+TEST_CASE=test_1_r03.spl
 CFLAGS= 
 ifeq ($(PRINT_DERIVATION), true)
 	CFLAGS += -DPRINT_DERIVATION
@@ -13,7 +14,7 @@ endif
 .PHONY: 
 	clean test
 main:
-	$(BISON) -d -t syntax.y -Wcounterexamples
+	$(BISON) -d -t syntax.y
 	$(FLEX) lex.l 
 	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS)
 lex: main
@@ -21,7 +22,7 @@ lex: main
 clean:
 	@rm -f lex.yy.c syntax.tab.c syntax.tab.h *.out
 test: main 
-	@bin/splc test/test_1_r03.spl
+	@bin/splc test/${TEST_CASE}
 debug: main
 	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS) -g
 	@gdb bin/splc -x gdb.init
