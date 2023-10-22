@@ -172,6 +172,7 @@ Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initPar
 void yyerror(const char *s) {
     /* fprintf(stderr, "%s\n", s); */
     printf("Error type B at Line %d: %s\n", yylineno, s);
+    exit(0);
 }
 
 int main(int argc, char **argv){
