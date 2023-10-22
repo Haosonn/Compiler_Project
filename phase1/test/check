@@ -1,0 +1,83 @@
+Program
+  ExtDefList
+    ExtDef
+      Specifier
+        TYPE: int
+      FunDec
+        ID: inner_spl
+        LP
+      CompSt
+        LC
+        DefList
+        StmtList
+          Stmt
+            Exp
+              Exp
+                ID: x
+              ASSIGN
+              Exp
+                INT: 555
+          StmtList
+        RC
+    ExtDefList
+      ExtDef
+        Specifier
+          TYPE: int
+        FunDec
+          ID: include_func
+          LP
+        CompSt
+          LC
+          DefList
+          StmtList
+            Stmt
+              Exp
+                ID: printf
+                LP
+                Args
+                  Exp
+                    LITERAL
+                  COMMA
+                  Args
+                    Exp
+                      INT: 0
+                RP
+            StmtList
+          RC
+      ExtDefList
+        ExtDef
+          Specifier
+            TYPE: int
+          FunDec
+            ID: test_spl
+            LP
+          CompSt
+            LC
+            DefList
+            StmtList
+              Stmt
+                Exp
+                  Exp
+                    ID: a
+                  ASSIGN
+                  Exp
+                    INT: 1
+              StmtList
+                Stmt
+                  Exp
+                    Exp
+                      ID: b
+                    ASSIGN
+                    Exp
+                      INT: 2
+                StmtList
+                  Stmt
+                    Exp
+                      Exp
+                        ID: c
+                      ASSIGN
+                      Exp
+                        INT: 1
+                  StmtList
+            RC
+        ExtDefList

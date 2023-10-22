@@ -1,0 +1,5 @@
+int inner_spl()
+{
+    // can you work?
+    x = 555;
+}

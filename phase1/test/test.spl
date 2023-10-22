@@ -1,3 +1,5 @@
+#include "test/test.splh"
+
 int test_spl()
 {
     a = 1;

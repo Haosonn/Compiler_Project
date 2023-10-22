@@ -84,6 +84,9 @@
     int yycolno = 1;
     int process_reserved(char *text);
     int print_token_info(int token, char *text);
+    void process_inclusion(char *text);
+
+
 %}
 %option yylineno
 letter [a-zA-Z]
@@ -136,15 +139,23 @@ identifier {letter_}({letter_}|{digit})*
 "*" { PROCESS_TOKEN_AND_PRINT(TOKEN_MUL) }
 "/" { PROCESS_TOKEN_AND_PRINT(TOKEN_DIV) }
 
+#include[ ]+\"[^\"]*\" {process_inclusion(yytext); }
+
+
 "//".* { yycolno = 1; }
-"/*"(.|\n)*?"*/" { yycolno = 1; printf("Comment: %s\n", yytext);}
+"/*"(.|\n)*?"*/" { yycolno = 1; }
 
 [\n] { yycolno = 1; }
 [\t\r ]+ {/* does nothing when seeing white spaces except new line */ }
 . { 
     printf("Lexical error at line %d: Unknown symbol %s\n", yylineno, yytext);
  }
-<<EOF>> { yyterminate(); }
+<<EOF>> { 
+    yypop_buffer_state();
+    if (!YY_CURRENT_BUFFER) {
+        yyterminate();
+    }
+ }
 
 %%
 
@@ -224,6 +235,34 @@ int print_token_info(int token, char *text) {
         case TOKEN_RC: printf("RC\n"); break;
     }
     return token;
+}
+
+void process_inclusion(char *text) {
+    // get the file path
+    int start = 0;
+    int end = 0;
+    int i = 0;
+    while(end == 0) {
+        if (text[i] == '\"') {
+            if (start == 0) {
+                start = i + 1;
+            } else {
+                end = i;
+            }
+        }
+        i++;
+    }
+    char *file_path = malloc(sizeof(char) * (end - start));
+    strncpy(file_path, text + start, end - start);
+    printf("file path: %s\n", file_path);
+
+    
+    yyin = fopen(file_path, "r");
+    yypush_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE));
+        
+    free(file_path);
+    BEGIN(INITIAL);
+    return;
 }
 
 #ifdef LEX_ONLY
