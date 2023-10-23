@@ -1,0 +1,97 @@
+Program
+  ExtDefList
+    ExtDef
+      Specifier
+        TYPE: int
+      FunDec
+        ID: test_1_r09
+        LP
+        RP
+      CompSt
+        LC
+        DefList
+          Def
+            Specifier
+              TYPE: int
+            DecList
+              Dec
+                VarDec
+                  ID: m
+                ASSIGN
+                Exp
+                  INT: 1
+            SEMI
+          DefList
+            Def
+              Specifier
+                TYPE: float
+              DecList
+                Dec
+                  VarDec
+                    ID: n
+                  ASSIGN
+                  Exp
+                    FLOAT: 2.200000
+              SEMI
+            DefList
+              Def
+                Specifier
+                  TYPE: int
+                DecList
+                  Dec
+                    VarDec
+                      VarDec
+                        ID: x
+                      LB
+                      INT: 5
+                      RB
+                  COMMA
+                  DecList
+                    Dec
+                      VarDec
+                        VarDec
+                          ID: y
+                        LB
+                        INT: 10
+                        RB
+                SEMI
+              DefList
+        StmtList
+          Stmt
+            Exp
+              Exp
+                Exp
+                  ID: x
+                LB
+                Exp
+                  ID: m
+                RB
+              ASSIGN
+              Exp
+                INT: 7
+          StmtList
+            Stmt
+              Exp
+                Exp
+                  Exp
+                    ID: y
+                  LB
+                  Exp
+                    ID: n
+                  RB
+                ASSIGN
+                Exp
+                  INT: 8
+            StmtList
+              Stmt
+                RETURN
+                Exp
+                  Exp
+                    ID: x
+                  LB
+                  Exp
+                    ID: y
+                  RB
+              StmtList
+        RC
+    ExtDefList

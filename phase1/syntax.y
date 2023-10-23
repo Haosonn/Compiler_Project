@@ -103,7 +103,7 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec"); a
     ;
 
 FunDec: ID LP VarList RP { printDerivation("FunDec -> ID LP VarList RP\n"); $$ = initParserNode("FunDec"); addParserDerivation($$, $1, $2, $3, $4, NULL); }
-    | ID LP RP { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec"); addParserDerivation($$, $1, $2, NULL); }
+    | ID LP RP { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec"); addParserDerivation($$, $1, $2, $3, NULL); }
     ;
 
 VarList: ParamDec COMMA VarList { printDerivation("VarList -> ParamDec COMMA VarList\n"); $$ = initParserNode("VarList"); addParserDerivation($$, $1, $2, $3, NULL); }
@@ -127,7 +127,7 @@ Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stm
     | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, NULL); }
     | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); }
     | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, NULL); }
-    | FOR LP DefList Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP DefList Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, NULL); }
+    | FOR LP Def Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Def Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, NULL); }
     ;
 
 DefList: Def DefList { printDerivation("DefList -> Def DefList\n"); $$ = initParserNode("DefList"); addParserDerivation($$, $1, $2, NULL); }

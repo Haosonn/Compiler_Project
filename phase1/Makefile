@@ -4,7 +4,7 @@ BISON=bison
 PRINT_PARSER_TREE=true
 PRINT_DERIVATION=false
 PRINT_TOKEN=false
-TEST_CASE=test-ex/test.spl
+TEST_CASE=test-ex/test_include.spl
 CFLAGS= 
 ifeq ($(PRINT_PARSER_TREE), true)
 	CFLAGS += -DPRINT_PARSER_TREE
@@ -28,6 +28,11 @@ clean:
 	@rm -f lex.yy.c syntax.tab.c syntax.tab.h *.out
 test: main 
 	@bin/splc ${TEST_CASE}
+test_all: main
+	@for file in test/*.spl; do \
+		echo "Testing $$file"; \
+		bin/splc $$file > $$file.myout; \
+	done
 debug: main
 	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS) -g
 	@gdb bin/splc -x gdb.init

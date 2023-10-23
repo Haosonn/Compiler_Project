@@ -1,4 +1,4 @@
-#define var 5
+#include "test_include.splh"
 
 int test_spl()
 {
