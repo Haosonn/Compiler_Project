@@ -27,7 +27,6 @@ Program
                 Exp
                   INT: 1
             SEMI
-          DefList
         StmtList
           Stmt
             WHILE
@@ -42,7 +41,6 @@ Program
             Stmt
               CompSt
                 LC
-                DefList
                 StmtList
                   Stmt
                     Exp
@@ -55,6 +53,7 @@ Program
                         MUL
                         Exp
                           ID: n
+                    SEMI
                   StmtList
                     Stmt
                       Exp
@@ -67,13 +66,12 @@ Program
                           MINUS
                           Exp
                             INT: 1
-                    StmtList
+                      SEMI
                 RC
           StmtList
             Stmt
               RETURN
               Exp
                 ID: res
-            StmtList
+              SEMI
         RC
-    ExtDefList

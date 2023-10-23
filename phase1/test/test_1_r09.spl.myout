@@ -55,7 +55,6 @@ Program
                         INT: 10
                         RB
                 SEMI
-              DefList
         StmtList
           Stmt
             Exp
@@ -69,6 +68,7 @@ Program
               ASSIGN
               Exp
                 INT: 7
+            SEMI
           StmtList
             Stmt
               Exp
@@ -82,6 +82,7 @@ Program
                 ASSIGN
                 Exp
                   INT: 8
+              SEMI
             StmtList
               Stmt
                 RETURN
@@ -92,6 +93,5 @@ Program
                   Exp
                     ID: y
                   RB
-              StmtList
+                SEMI
         RC
-    ExtDefList

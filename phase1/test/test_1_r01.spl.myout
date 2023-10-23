@@ -22,7 +22,6 @@ Program
         RP
       CompSt
         LC
-        DefList
         StmtList
           Stmt
             Exp
@@ -31,6 +30,7 @@ Program
               ASSIGN
               Exp
                 CHAR: 'c'
+            SEMI
           StmtList
             Stmt
               IF
@@ -45,15 +45,22 @@ Program
               Stmt
                 CompSt
                   LC
-                  DefList
                   StmtList
                     Stmt
                       RETURN
                       Exp
                         ID: a
-                    StmtList
+                      SEMI
                   RC
               ELSE
-            StmtList
+              Stmt
+                CompSt
+                  LC
+                  StmtList
+                    Stmt
+                      RETURN
+                      Exp
+                        ID: b
+                      SEMI
+                  RC
         RC
-    ExtDefList

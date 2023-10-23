@@ -78,11 +78,11 @@ Program: ExtDefList { printDerivation("Program -> ExtDefList\n"); $$ = initParse
     ;
 
 ExtDefList: ExtDef ExtDefList { printDerivation("ExtDefList -> ExtDef ExtDefList\n"); $$ = initParserNode("ExtDefList"); addParserDerivation($$, $1, $2, NULL); }
-    | { printDerivation("ExtDefList -> empty\n"); $$ = initParserNode("ExtDefList"); }
+    | { printDerivation("ExtDefList -> empty\n"); $$ = initParserNode("ExtDefList"); $$->empty_value = 1; }
     ;
 
 ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); $$ = initParserNode("ExtDef"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef"); addParserDerivation($$, $1, NULL); }
+    | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef"); addParserDerivation($$, $1, $2, NULL); }
     | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); $$ = initParserNode("ExtDef"); addParserDerivation($$, $1, $2, $3, NULL); }
     ;
 
@@ -94,7 +94,7 @@ Specifier: TYPE { printDerivation("Specifier -> TYPE\n"); $$ = initParserNode("S
     | StructSpecifier { printDerivation("Specifier -> StructSpecifier\n"); $$ = initParserNode("Specifier"); addParserDerivation($$, $1, NULL); }
     ;
 
-StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> STRUCT ID LC DefList RC\n"); $$ = initParserNode("StructSpecifier"); addParserDerivation($$, $1, $2, $3, $4, NULL); }
+StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> STRUCT ID LC DefList RC\n"); $$ = initParserNode("StructSpecifier"); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); }
     | STRUCT ID { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier"); addParserDerivation($$, $1, $2, NULL); }
     ;
 
@@ -117,21 +117,21 @@ CompSt: LC DefList StmtList RC { printDerivation("CompSt -> LC DefList StmtList 
     ;
 
 StmtList: Stmt StmtList { printDerivation("StmtList -> Stmt StmtList\n"); $$ = initParserNode("StmtList"); addParserDerivation($$, $1, $2, NULL); }
-    | { printDerivation("StmtList -> empty\n"); $$ = initParserNode("StmtList"); }
+    | { printDerivation("StmtList -> empty\n"); $$ = initParserNode("StmtList"); $$->empty_value = 1; }
     ;
 
-Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, NULL); }
+Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, NULL); }
     | CompSt { printDerivation("Stmt -> CompSt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, NULL); }
-    | RETURN Exp SEMI { printDerivation("Stmt -> RETURN Exp SEMI\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, NULL); }
+    | RETURN Exp SEMI { printDerivation("Stmt -> RETURN Exp SEMI\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, NULL); }
     | IF LP Exp RP Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); }
-    | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, NULL); }
+    | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, NULL); }
     | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); }
-    | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, NULL); }
-    | FOR LP Def Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Def Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, NULL); }
+    | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, $9, NULL); }
+    | FOR LP Def Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Def Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, NULL); }
     ;
 
 DefList: Def DefList { printDerivation("DefList -> Def DefList\n"); $$ = initParserNode("DefList"); addParserDerivation($$, $1, $2, NULL); }
-    | { printDerivation("DefList -> empty\n"); $$ = initParserNode("DefList"); }
+    | { printDerivation("DefList -> empty\n"); $$ = initParserNode("DefList"); $$->empty_value = 1; }
     ;
 
 Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n"); $$ = initParserNode("Def"); addParserDerivation($$, $1, $2, $3, NULL); }
@@ -163,7 +163,7 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
     | MINUS Exp { printDerivation("Exp -> MINUS Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, NULL); }
     | NOT Exp { printDerivation("Exp -> NOT Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, NULL); }
     | ID LP Args RP { printDerivation("Exp -> ID LP Args RP\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, $4, NULL); }
-    | ID LP RP { printDerivation("Exp -> ID LP RP\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, NULL); }
+    | ID LP RP { printDerivation("Exp -> ID LP RP\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
     | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, $4, NULL); }
     | Exp DOT ID { printDerivation("Exp -> Exp DOT ID\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
     | ID { printDerivation("Exp -> ID\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, NULL); }

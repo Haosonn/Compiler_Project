@@ -7,6 +7,7 @@ typedef struct ParserNode{
     char name[20];
     int line;
     int child_num;
+    int empty_value;
     struct ParserNode *child[10];
     union parser_node_value
     {
@@ -25,11 +26,14 @@ ParserNode* initParserNode(const char *name) {
     strcpy(node->name, name);
     node->line = 0;
     node->child_num = 0;
+    node->empty_value = 0;
     // printf("initParserNode: %s at address %p\n", name, node);
     return node;
 }
 void printParserNode(struct ParserNode *node, int depth) {
     // print tabs according to depth
+    if (node->empty_value)
+        return;
     for (int i = 0; i < depth; i++) {
         printf("  ");
     }
