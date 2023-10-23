@@ -4,7 +4,6 @@ BISON=bison
 PRINT_PARSER_TREE=true
 PRINT_DERIVATION=false
 PRINT_TOKEN=false
-# TEST_CASE=test/test_1_r03.spl
 TEST_CASE=test-ex/test.spl
 CFLAGS= 
 ifeq ($(PRINT_PARSER_TREE), true)

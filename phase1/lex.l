@@ -139,7 +139,7 @@ identifier {letter_}({letter_}|{digit})*
 "*" { PROCESS_TOKEN_AND_PRINT(TOKEN_MUL) }
 "/" { PROCESS_TOKEN_AND_PRINT(TOKEN_DIV) }
 
-#include[ ]+\"[^\"]*\" {process_inclusion(yytext); }
+#include[ ]+\"[^\"]*\" { process_inclusion(yytext); }
 
 
 "//".* { yycolno = 1; }
@@ -254,7 +254,6 @@ void process_inclusion(char *text) {
     }
     char *file_path = malloc(sizeof(char) * (end - start));
     strncpy(file_path, text + start, end - start);
-    printf("file path: %s\n", file_path);
     extern char* source_path;
     char *last_slash = strrchr(source_path, '/');
     if(last_slash) {
