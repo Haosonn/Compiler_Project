@@ -46,6 +46,9 @@ void printParserNode(struct ParserNode *node, int depth) {
     if (strcmp(node->name, "TYPE") == 0) {
         printf(": %s", node->value.string_value);
     }
+    if (strcmp(node->name, "LITERAL") == 0) {
+        printf(": %s", node->value.string_value);
+    }
     printf("\n");
     for (int i = 0; i < node->child_num; i++) {
         printParserNode(node->child[i], depth + 1);

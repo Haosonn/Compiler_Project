@@ -13,6 +13,7 @@
     //     yycolno += yyleng;
     // yydebug = 1;
 
+    char *source_path;
     struct ParserNode * rootNode = NULL;
 
     void yyerror(const char*);
@@ -193,6 +194,8 @@ int main(int argc, char **argv){
             perror(argv[1]);
             return EXIT_FAILURE;
         }
+        source_path = (char *) malloc(sizeof(char) * (strlen(file_path) + 1));
+        strcpy(source_path, file_path);
         yyparse();
         printParserTree();
         return EXIT_SUCCESS;

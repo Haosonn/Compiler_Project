@@ -10,7 +10,7 @@
             case TOKEN_ID: yylval.parser_node = initParserNode("ID"); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return ID; \
             case TOKEN_ASSIGN: yylval.parser_node = initParserNode("ASSIGN"); return ASSIGN; \
             case TOKEN_SEMI: yylval.parser_node = initParserNode("SEMI"); return SEMI; \
-            case TOKEN_LITERAL: yylval.parser_node = initParserNode("LITERAL"); return LITERAL; \
+            case TOKEN_LITERAL: yylval.parser_node = initParserNode("LITERAL"); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return LITERAL; \
             case TOKEN_INT: yylval.parser_node = initParserNode("INT"); yylval.parser_node->value.int_value = atoi(yytext); return INT; \
             case TOKEN_FLOAT: yylval.parser_node = initParserNode("FLOAT"); yylval.parser_node->value.float_value = atof(yytext); return FLOAT; \
             case TOKEN_CHAR: yylval.parser_node = initParserNode("CHAR"); yylval.parser_node->value.int_value = yytext[1]; return CHAR; \
@@ -255,9 +255,16 @@ void process_inclusion(char *text) {
     char *file_path = malloc(sizeof(char) * (end - start));
     strncpy(file_path, text + start, end - start);
     printf("file path: %s\n", file_path);
-
-    
-    yyin = fopen(file_path, "r");
+    extern char* source_path;
+    char *last_slash = strrchr(source_path, '/');
+    if(last_slash) {
+        *(last_slash + 1) = '\0';
+    } else {
+        source_path[0] = '\0';
+    }
+    strcat(source_path, file_path);
+    printf("source path: %s\n", source_path);
+    yyin = fopen(source_path, "r");
     yypush_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE));
         
     free(file_path);
