@@ -1,6 +1,7 @@
 %{
     #include "syntax.tab.h"
     #include "parser_node.h"
+    #include "string_map.h"
 
     #define EXIT_OK 0
     #define EXIT_FAIL 1
@@ -85,7 +86,9 @@
     int process_reserved(char *text);
     int print_token_info(int token, char *text);
     void process_inclusion(char *text);
+    void process_define(char *text);
 
+    struct Map * define_map = NULL;
 
 %}
 %option yylineno
@@ -140,6 +143,7 @@ identifier {letter_}({letter_}|{digit})*
 "/" { PROCESS_TOKEN_AND_PRINT(TOKEN_DIV) }
 
 #include[ ]+\"[^\"]*\" { process_inclusion(yytext); }
+#define[ ]+[a-zA-Z_][ ]+[.]* { printf("found #define: %s", yytext); process_define(yytext);}
 
 
 "//".* { yycolno = 1; }
@@ -263,12 +267,49 @@ void process_inclusion(char *text) {
     }
     strcat(source_path, file_path);
     printf("source path: %s\n", source_path);
+   
     yyin = fopen(source_path, "r");
     yypush_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE));
-        
+    printf("here a\n");
     free(file_path);
+    
     BEGIN(INITIAL);
     return;
+}
+
+void process_define(char *text) {
+    // get the macro name
+    int start = 0;
+    int end = 0;
+    int i = 0;
+    while(end == 0) {
+        if (text[i] == ' ') {
+            if (start == 0) {
+                start = i + 1;
+            } else {
+                end = i;
+            }
+        }
+        i++;
+    }
+    char *macro_name = malloc(sizeof(char) * (end - start));
+    strncpy(macro_name, text + start, end - start);
+    printf("macro name: %s\n", macro_name);
+    // get the macro value
+    start = end + 1;
+    end = 0;
+    i = start;
+    while(end == 0) {
+        if (text[i] == '\n') {
+            end = i;
+        }
+        i++;
+    }
+    char *macro_value = malloc(sizeof(char) * (end - start));
+    strncpy(macro_value, text + start, end - start);
+    printf("macro value: %s\n", macro_value);
+    // replace the macro name with macro value
+
 }
 
 #ifdef LEX_ONLY
