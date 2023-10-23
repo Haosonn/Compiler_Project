@@ -30,7 +30,7 @@ Program
                 ID: c
               ASSIGN
               Exp
-                CHAR
+                CHAR: 'c'
           StmtList
             Stmt
               IF

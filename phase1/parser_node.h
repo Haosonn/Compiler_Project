@@ -40,6 +40,9 @@ void printParserNode(struct ParserNode *node, int depth) {
     if (strcmp(node->name, "FLOAT") == 0) {
         printf(": %f", node->value.float_value);
     }
+    if (strcmp(node->name, "CHAR") == 0) {
+        printf(": '%c'", node->value.int_value);
+    }
     if (strcmp(node->name, "ID") == 0) {
         printf(": %s", node->value.string_value);
     }
