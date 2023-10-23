@@ -1,11 +1,6 @@
-#include "inner/inner.splh"
-#include "test.splh" // problem exists here?
+#define var 5
 
 int test_spl()
 {
-    a = 1;
-    // does it work?
-    b = 2; // what about now?
-    c = 1; /* does nothing when
-     seeing comments */
+    a = var + 100;
 } // hey?

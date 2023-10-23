@@ -58,7 +58,7 @@
 }
 
 %token <parser_node> INT FLOAT CHAR
-%token <parser_node> TYPE ID ASSIGN SEMI LITERAL COMMA IF ELSE WHILE RETURN PLUS MINUS MUL DIV EQ NEQ LT GT LEQ GEQ LP RP LB RB LC RC AND OR NOT STRUCT DOT
+%token <parser_node> TYPE ID ASSIGN SEMI LITERAL COMMA IF ELSE WHILE FOR RETURN PLUS MINUS MUL DIV EQ NEQ LT GT LEQ GEQ LP RP LB RB LC RC AND OR NOT STRUCT DOT
 
 %right ASSIGN
 %left OR
@@ -126,6 +126,8 @@ Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stm
     | IF LP Exp RP Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); }
     | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, NULL); }
     | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); }
+    | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, NULL); }
+    | FOR LP DefList Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP DefList Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, NULL); }
     ;
 
 DefList: Def DefList { printDerivation("DefList -> Def DefList\n"); $$ = initParserNode("DefList"); addParserDerivation($$, $1, $2, NULL); }

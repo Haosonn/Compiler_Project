@@ -19,6 +19,7 @@
             case TOKEN_IF: yylval.parser_node = initParserNode("IF"); return IF; \
             case TOKEN_ELSE: yylval.parser_node = initParserNode("ELSE"); return ELSE; \
             case TOKEN_WHILE: yylval.parser_node = initParserNode("WHILE"); return WHILE; \
+            case TOKEN_FOR: yylval.parser_node = initParserNode("FOR"); return FOR; \
             case TOKEN_RETURN: yylval.parser_node = initParserNode("RETURN"); return RETURN; \
             case TOKEN_PLUS: yylval.parser_node = initParserNode("PLUS"); return PLUS; \
             case TOKEN_MINUS: yylval.parser_node = initParserNode("MINUS"); return MINUS; \
@@ -58,6 +59,7 @@
         TOKEN_IF, 
         TOKEN_ELSE, 
         TOKEN_WHILE, 
+        TOKEN_FOR,
         TOKEN_RETURN, 
         TOKEN_PLUS, 
         TOKEN_MINUS, 
@@ -87,15 +89,16 @@
     int print_token_info(int token, char *text);
     void process_inclusion(char *text);
     void process_define(char *text);
+    void replace_macro(char *text);
 
-    struct Map * define_map = NULL;
+    struct Map *define_map;
 
 %}
 %option yylineno
 letter [a-zA-Z]
 letter_ {letter}|_
 digit [0-9]
-reserved (int|char|float|return|if|else|while)
+reserved (int|char|float|return|if|else|while|for)
 int {digit}+
 float {digit}+"."{digit}+
 char \'.\'
@@ -115,10 +118,10 @@ identifier {letter_}({letter_}|{digit})*
     PROCESS_TOKEN(token)
 }
 {digit}({letter_}|{letter})+ {}
-{identifier} { PROCESS_TOKEN_AND_PRINT(TOKEN_ID); } 
-{int} { PROCESS_TOKEN_AND_PRINT(TOKEN_INT);}
-{float} { PROCESS_TOKEN_AND_PRINT(TOKEN_FLOAT); }
-{char} { PROCESS_TOKEN_AND_PRINT(TOKEN_CHAR); }
+{identifier} { PROCESS_TOKEN_AND_PRINT(TOKEN_ID) } 
+{int} { PROCESS_TOKEN_AND_PRINT(TOKEN_INT)}
+{float} { PROCESS_TOKEN_AND_PRINT(TOKEN_FLOAT) }
+{char} { PROCESS_TOKEN_AND_PRINT(TOKEN_CHAR) }
 "," { PROCESS_TOKEN_AND_PRINT(TOKEN_COMMA) }
 "(" { PROCESS_TOKEN_AND_PRINT(TOKEN_LP) }
 ")" { PROCESS_TOKEN_AND_PRINT(TOKEN_RP) }
@@ -143,7 +146,6 @@ identifier {letter_}({letter_}|{digit})*
 "/" { PROCESS_TOKEN_AND_PRINT(TOKEN_DIV) }
 
 #include[ ]+\"[^\"]*\" { process_inclusion(yytext); }
-#define[ ]+[a-zA-Z_][ ]+[.]* { printf("found #define: %s", yytext); process_define(yytext);}
 
 
 "//".* { yycolno = 1; }
@@ -179,6 +181,9 @@ int process_reserved(char *text) {
     } else if (strcmp(text, "while") == 0) {
         print_token_info(TOKEN_WHILE, NULL);
         return TOKEN_WHILE;
+    } else if (strcmp(text, "for") == 0) {
+        print_token_info(TOKEN_FOR, NULL);
+        return TOKEN_FOR;
     }
 }
 
@@ -220,6 +225,7 @@ int print_token_info(int token, char *text) {
         case TOKEN_IF: printf("IF\n"); break;
         case TOKEN_ELSE: printf("ELSE\n"); break;
         case TOKEN_WHILE: printf("WHILE\n"); break;
+        case TOKEN_FOR: printf("FOR\n"); break;
         case TOKEN_RETURN: printf("RETURN\n"); break;
         case TOKEN_PLUS: printf("PLUS\n"); break;
         case TOKEN_MINUS: printf("MINUS\n"); break;
@@ -291,7 +297,9 @@ void process_define(char *text) {
     }
     char *macro_name = malloc(sizeof(char) * (end - start));
     strncpy(macro_name, text + start, end - start);
+
     printf("macro name: %s\n", macro_name);
+
     // get the macro value
     start = end + 1;
     end = 0;
@@ -304,9 +312,16 @@ void process_define(char *text) {
     }
     char *macro_value = malloc(sizeof(char) * (end - start));
     strncpy(macro_value, text + start, end - start);
-    printf("macro value: %s\n", macro_value);
-    // replace the macro name with macro value
 
+    printf("macro value: %s\n", macro_value);
+    
+    if(!define_map) {
+        /* initMap(define_map); */
+    }
+    /* setMap(define_map, macro_name, macro_value); */
+}
+
+void replace_macro(char *text) {
 }
 
 #ifdef LEX_ONLY

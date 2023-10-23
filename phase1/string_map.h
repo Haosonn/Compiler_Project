@@ -32,7 +32,7 @@ void setMap(Map* map, const char* key, const char* value) {
     unsigned long index = hash(key);
     Entry* entry = map->entries[index];
     if (entry == NULL) {
-        entry = malloc(sizeof(Entry));
+        entry = (Entry*)malloc(sizeof(Entry));
         entry->key = strdup(key);
         map->entries[index] = entry;
     }
