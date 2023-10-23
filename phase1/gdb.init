@@ -1,5 +1,5 @@
 b addParserDerivation
-run test/test_1_r03.spl
+run test-ex/test.spl
 c
 c
 c
