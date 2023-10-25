@@ -13,6 +13,7 @@
             case TOKEN_SEMI: yylval.parser_node = initParserNode("SEMI"); return SEMI; \
             case TOKEN_LITERAL: yylval.parser_node = initParserNode("LITERAL"); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return LITERAL; \
             case TOKEN_INT: yylval.parser_node = initParserNode("INT"); yylval.parser_node->value.int_value = atoi(yytext); return INT; \
+            case TOKEN_HEXINT: yylval.parser_node = initParserNode("INT"); yylval.parser_node->value.int_value = hexstr_to_int(yytext); return INT; \
             case TOKEN_FLOAT: yylval.parser_node = initParserNode("FLOAT"); yylval.parser_node->value.float_value = atof(yytext); return FLOAT; \
             case TOKEN_CHAR: yylval.parser_node = initParserNode("CHAR"); yylval.parser_node->value.int_value = yytext[1]; return CHAR; \
             case TOKEN_COMMA: yylval.parser_node = initParserNode("COMMA"); return COMMA; \
@@ -98,8 +99,10 @@
 letter [a-zA-Z]
 letter_ {letter}|_
 digit [0-9]
+hex_digit [0-9a-fA-F]
 reserved (int|char|float|return|if|else|while|for)
 int {digit}+
+hex_int 0x{hex_digit}+
 float {digit}+"."{digit}+
 char \'.\'
 identifier {letter_}({letter_}|{digit})* 
@@ -120,6 +123,7 @@ identifier {letter_}({letter_}|{digit})*
 {digit}({letter_}|{letter})+ {}
 {identifier} { PROCESS_TOKEN_AND_PRINT(TOKEN_ID) } 
 {int} { PROCESS_TOKEN_AND_PRINT(TOKEN_INT)}
+{hex_int} { PROCESS_TOKEN_AND_PRINT(TOKEN_HEXINT)}
 {float} { PROCESS_TOKEN_AND_PRINT(TOKEN_FLOAT) }
 {char} { PROCESS_TOKEN_AND_PRINT(TOKEN_CHAR) }
 "," { PROCESS_TOKEN_AND_PRINT(TOKEN_COMMA) }
@@ -245,6 +249,12 @@ int print_token_info(int token, char *text) {
         case TOKEN_RC: printf("RC\n"); break;
     }
     return token;
+}
+
+int hexstr_to_int(char *hexstr) {
+    // TODO: check if the result is valid
+    int result = (int)strtol(hexstr + 2, NULL, 16);
+    return result;
 }
 
 void process_inclusion(char *text) {
