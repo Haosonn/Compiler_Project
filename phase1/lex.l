@@ -102,10 +102,11 @@
 letter [a-zA-Z]
 letter_ {letter}|_
 digit [0-9]
+non_zero_digit [1-9]
 hex_digit [a-fA-F]
 reserved (int|char|float|return|if|else|while|for)
-int {digit}+
-hex_int 0x({digit}|{hex_digit})+
+int ({non_zero_digit}{digit}*)|0
+hex_int 0(x|X)(0|({non_zero_digit}|({hex_digit})({digit}|{hex_digit})*))
 float {digit}+"."{digit}+
 char \'.\'
 identifier {letter_}({letter_}|{digit})* 
