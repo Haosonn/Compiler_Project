@@ -8,6 +8,7 @@
     #define PROCESS_TOKEN(_token) \
         switch(_token) { \
             case TOKEN_TYPE: yylval.parser_node = initParserNode("TYPE", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return TYPE; \
+            case TOKEN_STRUCT: yylval.parser_node = initParserNode("STRUCT", yylineno); return STRUCT; \
             case TOKEN_ID: yylval.parser_node = initParserNode("ID", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return ID; \
             case TOKEN_ASSIGN: yylval.parser_node = initParserNode("ASSIGN", yylineno); return ASSIGN; \
             case TOKEN_SEMI: yylval.parser_node = initParserNode("SEMI", yylineno); return SEMI; \
@@ -48,6 +49,7 @@
     // global variables
     enum TOKENS {
         TOKEN_TYPE,
+        TOKEN_STRUCT,
         TOKEN_ID, 
         TOKEN_ASSIGN, 
         TOKEN_SEMI, 
@@ -98,7 +100,7 @@
 letter [a-zA-Z]
 letter_ {letter}|_
 digit [0-9]
-reserved (int|char|float|return|if|else|while|for)
+reserved (int|char|float|struct|return|if|else|while|for)
 int {digit}+
 float {digit}+"."{digit}+
 char \'.\'
@@ -169,6 +171,9 @@ int process_reserved(char *text) {
     if (strcmp(text, "int") == 0 || strcmp(text, "float") == 0 || strcmp(text, "char") == 0) {
         print_token_info(TOKEN_TYPE, text);
         return TOKEN_TYPE;
+    } else if (strcmp(text, "struct") == 0) {
+        print_token_info(TOKEN_STRUCT, NULL);
+        return TOKEN_STRUCT;
     } else if (strcmp(text, "return") == 0) {
         print_token_info(TOKEN_RETURN, NULL);
         return TOKEN_RETURN;
@@ -199,6 +204,7 @@ int print_token_info(int token, char *text) {
             printf("TYPE ");
             printf("%s\n", text); 
             break;
+        case TOKEN_STRUCT: printf("STRUCT\n"); break;
         case TOKEN_ID: 
             printf("ID "); 
             printf("%s\n", text);
