@@ -8,7 +8,7 @@
     #define PROCESS_TOKEN(_token) \
         switch(_token) { \
             case TOKEN_TYPE: yylval.parser_node = initParserNode("TYPE"); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return TYPE; \
-            case TOKEN_STRUCT: yylval.parser_node = initParserNode("STRUCT"); return STRUCT; \
+            case TOKEN_STRUCT: yylval.parser_node = initParserNode("STRUCT"); return STRUCT; \ // TODO: reformat the init
             case TOKEN_ID: yylval.parser_node = initParserNode("ID"); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return ID; \
             case TOKEN_ASSIGN: yylval.parser_node = initParserNode("ASSIGN"); return ASSIGN; \
             case TOKEN_SEMI: yylval.parser_node = initParserNode("SEMI"); return SEMI; \
