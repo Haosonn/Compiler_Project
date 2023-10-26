@@ -54,6 +54,7 @@
         TOKEN_SEMI, 
         TOKEN_LITERAL, 
         TOKEN_INT, 
+        TOKEN_HEXINT,
         TOKEN_FLOAT,
         TOKEN_CHAR, 
         TOKEN_COMMA, 
@@ -88,6 +89,8 @@
     int yycolno = 1;
     int process_reserved(char *text);
     int print_token_info(int token, char *text);
+    int hexstr_to_int(char *hexstr);
+
     void process_inclusion(char *text);
     void process_define(char *text);
     void replace_macro(char *text);
@@ -99,10 +102,10 @@
 letter [a-zA-Z]
 letter_ {letter}|_
 digit [0-9]
-hex_digit [0-9a-fA-F]
+hex_digit [a-fA-F]
 reserved (int|char|float|return|if|else|while|for)
 int {digit}+
-hex_int 0x{hex_digit}+
+hex_int 0x({digit}|{hex_digit})+
 float {digit}+"."{digit}+
 char \'.\'
 identifier {letter_}({letter_}|{digit})* 
@@ -120,10 +123,9 @@ identifier {letter_}({letter_}|{digit})*
     int token = process_reserved(yytext); 
     PROCESS_TOKEN(token)
 }
-{digit}({letter_}|{letter})+ {}
 {identifier} { PROCESS_TOKEN_AND_PRINT(TOKEN_ID) } 
-{int} { PROCESS_TOKEN_AND_PRINT(TOKEN_INT)}
-{hex_int} { PROCESS_TOKEN_AND_PRINT(TOKEN_HEXINT)}
+{int} { PROCESS_TOKEN_AND_PRINT(TOKEN_INT) }
+{hex_int} { PROCESS_TOKEN_AND_PRINT(TOKEN_HEXINT) }
 {float} { PROCESS_TOKEN_AND_PRINT(TOKEN_FLOAT) }
 {char} { PROCESS_TOKEN_AND_PRINT(TOKEN_CHAR) }
 "," { PROCESS_TOKEN_AND_PRINT(TOKEN_COMMA) }
