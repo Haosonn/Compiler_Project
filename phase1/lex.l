@@ -13,7 +13,7 @@
             case TOKEN_SEMI: yylval.parser_node = initParserNode("SEMI"); return SEMI; \
             case TOKEN_LITERAL: yylval.parser_node = initParserNode("LITERAL"); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return LITERAL; \
             case TOKEN_INT: yylval.parser_node = initParserNode("INT"); yylval.parser_node->value.int_value = atoi(yytext); return INT; \
-            case TOKEN_HEXINT: yylval.parser_node = initParserNode("INT"); yylval.parser_node->value.int_value = hexstr_to_int(yytext); return INT; \
+            case TOKEN_HEXINT: yylval.parser_node = initParserNode("INT"); yylval.parser_node->value.int_value = hexstr_to_int(yytext); return INT; \ // TODO: reformat the init
             case TOKEN_FLOAT: yylval.parser_node = initParserNode("FLOAT"); yylval.parser_node->value.float_value = atof(yytext); return FLOAT; \
             case TOKEN_CHAR: yylval.parser_node = initParserNode("CHAR"); yylval.parser_node->value.int_value = yytext[1]; return CHAR; \
             case TOKEN_COMMA: yylval.parser_node = initParserNode("COMMA"); return COMMA; \
@@ -255,7 +255,6 @@ int print_token_info(int token, char *text) {
 }
 
 int hexstr_to_int(char *hexstr) {
-    // TODO: check if the result is valid
     int result = (int)strtol(hexstr + 2, NULL, 16);
     return result;
 }
