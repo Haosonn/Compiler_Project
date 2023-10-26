@@ -108,7 +108,7 @@ reserved (int|char|float|return|if|else|while|for)
 int ({non_zero_digit}{digit}*)|0
 hex_int 0(x|X)(0|({non_zero_digit}|({hex_digit})({digit}|{hex_digit})*))
 float {digit}+"."{digit}+
-char \'.\'
+char (\'.\')|(\'\\(x|X)(({digit}|{hex_digit})|({digit}|{hex_digit})({digit}|{hex_digit}))\')
 identifier {letter_}({letter_}|{digit})* 
 
 %%
