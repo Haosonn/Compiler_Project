@@ -74,107 +74,107 @@
 
 %%
 
-Program: ExtDefList { printDerivation("Program -> ExtDefList\n"); $$ = initParserNode("Program"); rootNode = $$; addParserDerivation($$, $1, NULL); }
+Program: ExtDefList { printDerivation("Program -> ExtDefList\n"); $$ = initParserNode("Program", yylineno); rootNode = $$; addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
-ExtDefList: ExtDef ExtDefList { printDerivation("ExtDefList -> ExtDef ExtDefList\n"); $$ = initParserNode("ExtDefList"); addParserDerivation($$, $1, $2, NULL); }
-    | { printDerivation("ExtDefList -> empty\n"); $$ = initParserNode("ExtDefList"); $$->empty_value = 1; }
+ExtDefList: ExtDef ExtDefList { printDerivation("ExtDefList -> ExtDef ExtDefList\n"); $$ = initParserNode("ExtDefList", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+    | { printDerivation("ExtDefList -> empty\n"); $$ = initParserNode("ExtDefList", yylineno); $$->empty_value = 1; }
     ;
 
-ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); $$ = initParserNode("ExtDef"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef"); addParserDerivation($$, $1, $2, NULL); }
-    | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); $$ = initParserNode("ExtDef"); addParserDerivation($$, $1, $2, $3, NULL); }
+ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+    | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     ;
 
-ExtDecList: VarDec { printDerivation("ExtDecList -> VarDec\n"); $$ = initParserNode("ExtDecList"); addParserDerivation($$, $1, NULL); }
-    | VarDec COMMA ExtDecList { printDerivation("ExtDecList -> VarDec COMMA ExtDecList\n"); $$ = initParserNode("ExtDecList"); addParserDerivation($$, $1, $2, $3, NULL); }
+ExtDecList: VarDec { printDerivation("ExtDecList -> VarDec\n"); $$ = initParserNode("ExtDecList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+    | VarDec COMMA ExtDecList { printDerivation("ExtDecList -> VarDec COMMA ExtDecList\n"); $$ = initParserNode("ExtDecList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     ;
 
-Specifier: TYPE { printDerivation("Specifier -> TYPE\n"); $$ = initParserNode("Specifier"); addParserDerivation($$, $1, NULL); }
-    | StructSpecifier { printDerivation("Specifier -> StructSpecifier\n"); $$ = initParserNode("Specifier"); addParserDerivation($$, $1, NULL); }
+Specifier: TYPE { printDerivation("Specifier -> TYPE\n"); $$ = initParserNode("Specifier", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+    | StructSpecifier { printDerivation("Specifier -> StructSpecifier\n"); $$ = initParserNode("Specifier", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
-StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> STRUCT ID LC DefList RC\n"); $$ = initParserNode("StructSpecifier"); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); }
-    | STRUCT ID { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier"); addParserDerivation($$, $1, $2, NULL); }
+StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> STRUCT ID LC DefList RC\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); }
+    | STRUCT ID { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     ;
 
-VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec"); addParserDerivation($$, $1, NULL); }
-    | VarDec LB INT RB { printDerivation("VarDec -> VarDec LB INT RB\n"); $$ = initParserNode("VarDec"); addParserDerivation($$, $1, $2, $3, $4, NULL); }
+VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+    | VarDec LB INT RB { printDerivation("VarDec -> VarDec LB INT RB\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
     ;
 
-FunDec: ID LP VarList RP { printDerivation("FunDec -> ID LP VarList RP\n"); $$ = initParserNode("FunDec"); addParserDerivation($$, $1, $2, $3, $4, NULL); }
-    | ID LP RP { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec"); addParserDerivation($$, $1, $2, $3, NULL); }
+FunDec: ID LP VarList RP { printDerivation("FunDec -> ID LP VarList RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
+    | ID LP RP { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     ;
 
-VarList: ParamDec COMMA VarList { printDerivation("VarList -> ParamDec COMMA VarList\n"); $$ = initParserNode("VarList"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | ParamDec { printDerivation("VarList -> ParamDec\n"); $$ = initParserNode("VarList"); addParserDerivation($$, $1, NULL); }
+VarList: ParamDec COMMA VarList { printDerivation("VarList -> ParamDec COMMA VarList\n"); $$ = initParserNode("VarList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | ParamDec { printDerivation("VarList -> ParamDec\n"); $$ = initParserNode("VarList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
-ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); $$ = initParserNode("ParamDec"); addParserDerivation($$, $1, $2, NULL); }
+ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); $$ = initParserNode("ParamDec", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     ;
 
-CompSt: LC DefList StmtList RC { printDerivation("CompSt -> LC DefList StmtList RC\n"); $$ = initParserNode("CompSt"); addParserDerivation($$, $1, $2, $3, $4, NULL); }
+CompSt: LC DefList StmtList RC { printDerivation("CompSt -> LC DefList StmtList RC\n"); $$ = initParserNode("CompSt", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
     ;
 
-StmtList: Stmt StmtList { printDerivation("StmtList -> Stmt StmtList\n"); $$ = initParserNode("StmtList"); addParserDerivation($$, $1, $2, NULL); }
-    | { printDerivation("StmtList -> empty\n"); $$ = initParserNode("StmtList"); $$->empty_value = 1; }
+StmtList: Stmt StmtList { printDerivation("StmtList -> Stmt StmtList\n"); $$ = initParserNode("StmtList", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+    | { printDerivation("StmtList -> empty\n"); $$ = initParserNode("StmtList", yylineno); $$->empty_value = 1; }
     ;
 
-Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, NULL); }
-    | CompSt { printDerivation("Stmt -> CompSt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, NULL); }
-    | RETURN Exp SEMI { printDerivation("Stmt -> RETURN Exp SEMI\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | IF LP Exp RP Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); }
-    | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, NULL); }
-    | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); }
-    | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, $9, NULL); }
-    | FOR LP Def Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Def Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt"); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, NULL); }
+Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+    | CompSt { printDerivation("Stmt -> CompSt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+    | RETURN Exp SEMI { printDerivation("Stmt -> RETURN Exp SEMI\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | IF LP Exp RP Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); }
+    | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, NULL); cal_line($$); }
+    | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); }
+    | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, $9, NULL); cal_line($$); }
+    | FOR LP Def Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Def Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, NULL); cal_line($$); }
     ;
 
-DefList: Def DefList { printDerivation("DefList -> Def DefList\n"); $$ = initParserNode("DefList"); addParserDerivation($$, $1, $2, NULL); }
-    | { printDerivation("DefList -> empty\n"); $$ = initParserNode("DefList"); $$->empty_value = 1; }
+DefList: Def DefList { printDerivation("DefList -> Def DefList\n"); $$ = initParserNode("DefList", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+    | { printDerivation("DefList -> empty\n"); $$ = initParserNode("DefList", yylineno); $$->empty_value = 1; }
     ;
 
-Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n"); $$ = initParserNode("Def"); addParserDerivation($$, $1, $2, $3, NULL); }
+Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n"); $$ = initParserNode("Def", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     ;
 
-DecList: Dec { printDerivation("DecList -> Dec\n"); $$ = initParserNode("DecList"); addParserDerivation($$, $1, NULL); }
-    | Dec COMMA DecList { printDerivation("DecList -> Dec COMMA DecList\n"); $$ = initParserNode("DecList"); addParserDerivation($$, $1, $2, $3, NULL); }
+DecList: Dec { printDerivation("DecList -> Dec\n"); $$ = initParserNode("DecList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+    | Dec COMMA DecList { printDerivation("DecList -> Dec COMMA DecList\n"); $$ = initParserNode("DecList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     ;
 
-Dec: VarDec { printDerivation("Dec -> VarDec\n"); $$ = initParserNode("Dec"); addParserDerivation($$, $1, NULL); }
-    | VarDec ASSIGN Exp { printDerivation("Dec -> VarDec ASSIGN Exp\n"); $$ = initParserNode("Dec"); addParserDerivation($$, $1, $2, $3, NULL); }
+Dec: VarDec { printDerivation("Dec -> VarDec\n"); $$ = initParserNode("Dec", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+    | VarDec ASSIGN Exp { printDerivation("Dec -> VarDec ASSIGN Exp\n"); $$ = initParserNode("Dec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     ;
 
-Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp OR Exp { printDerivation("Exp -> Exp OR Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp AND Exp { printDerivation("Exp -> Exp AND Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp EQ Exp { printDerivation("Exp -> Exp EQ Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp NEQ Exp { printDerivation("Exp -> Exp NEQ Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp LT Exp { printDerivation("Exp -> Exp LT Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp GT Exp { printDerivation("Exp -> Exp GT Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp LEQ Exp { printDerivation("Exp -> Exp LEQ Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp GEQ Exp { printDerivation("Exp -> Exp GEQ Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp PLUS Exp { printDerivation("Exp -> Exp PLUS Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp MINUS Exp { printDerivation("Exp -> Exp MINUS Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp MUL Exp { printDerivation("Exp -> Exp MUL Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp DIV Exp { printDerivation("Exp -> Exp DIV Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | LP Exp RP { printDerivation("Exp -> LP Exp RP\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
+Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp OR Exp { printDerivation("Exp -> Exp OR Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp AND Exp { printDerivation("Exp -> Exp AND Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp EQ Exp { printDerivation("Exp -> Exp EQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp NEQ Exp { printDerivation("Exp -> Exp NEQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp LT Exp { printDerivation("Exp -> Exp LT Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp GT Exp { printDerivation("Exp -> Exp GT Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp LEQ Exp { printDerivation("Exp -> Exp LEQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp GEQ Exp { printDerivation("Exp -> Exp GEQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp PLUS Exp { printDerivation("Exp -> Exp PLUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp MINUS Exp { printDerivation("Exp -> Exp MINUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp MUL Exp { printDerivation("Exp -> Exp MUL Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp DIV Exp { printDerivation("Exp -> Exp DIV Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | LP Exp RP { printDerivation("Exp -> LP Exp RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     // | MINUS Exp %prec UMINUS 
-    | MINUS Exp { printDerivation("Exp -> MINUS Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, NULL); }
-    | NOT Exp { printDerivation("Exp -> NOT Exp\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, NULL); }
-    | ID LP Args RP { printDerivation("Exp -> ID LP Args RP\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, $4, NULL); }
-    | ID LP RP { printDerivation("Exp -> ID LP RP\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, $4, NULL); }
-    | Exp DOT ID { printDerivation("Exp -> Exp DOT ID\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | ID { printDerivation("Exp -> ID\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, NULL); }
-    | INT { printDerivation("Exp -> INT\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, NULL); }
-    | FLOAT { printDerivation("Exp -> FLOAT\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, NULL); }
-    | CHAR { printDerivation("Exp -> CHAR\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, NULL); }
-    | LITERAL { printDerivation("Exp -> LITERAL\n"); $$ = initParserNode("Exp"); addParserDerivation($$, $1, NULL); }
+    | MINUS Exp { printDerivation("Exp -> MINUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+    | NOT Exp { printDerivation("Exp -> NOT Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+    | ID LP Args RP { printDerivation("Exp -> ID LP Args RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
+    | ID LP RP { printDerivation("Exp -> ID LP RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
+    | Exp DOT ID { printDerivation("Exp -> Exp DOT ID\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | ID { printDerivation("Exp -> ID\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+    | INT { printDerivation("Exp -> INT\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+    | FLOAT { printDerivation("Exp -> FLOAT\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+    | CHAR { printDerivation("Exp -> CHAR\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+    | LITERAL { printDerivation("Exp -> LITERAL\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
-Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initParserNode("Args"); addParserDerivation($$, $1, $2, $3, NULL); }
-    | Exp { printDerivation("Args -> Exp\n"); $$ = initParserNode("Args"); addParserDerivation($$, $1, NULL); }
+Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initParserNode("Args", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp { printDerivation("Args -> Exp\n"); $$ = initParserNode("Args", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
 %%
