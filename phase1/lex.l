@@ -7,40 +7,41 @@
     #define EXIT_FAIL 1
     #define PROCESS_TOKEN(_token) \
         switch(_token) { \
-            case TOKEN_TYPE: yylval.parser_node = initParserNode("TYPE"); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return TYPE; \
-            case TOKEN_ID: yylval.parser_node = initParserNode("ID"); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return ID; \
-            case TOKEN_ASSIGN: yylval.parser_node = initParserNode("ASSIGN"); return ASSIGN; \
-            case TOKEN_SEMI: yylval.parser_node = initParserNode("SEMI"); return SEMI; \
-            case TOKEN_LITERAL: yylval.parser_node = initParserNode("LITERAL"); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return LITERAL; \
-            case TOKEN_INT: yylval.parser_node = initParserNode("INT"); yylval.parser_node->value.int_value = atoi(yytext); return INT; \
-            case TOKEN_HEXINT: yylval.parser_node = initParserNode("INT"); yylval.parser_node->value.int_value = hexstr_to_int(yytext); return INT; \ // TODO: reformat the init
-            case TOKEN_FLOAT: yylval.parser_node = initParserNode("FLOAT"); yylval.parser_node->value.float_value = atof(yytext); return FLOAT; \
-            case TOKEN_CHAR: yylval.parser_node = initParserNode("CHAR"); yylval.parser_node->value.int_value = yytext[1]; return CHAR; \
-            case TOKEN_COMMA: yylval.parser_node = initParserNode("COMMA"); return COMMA; \
-            case TOKEN_IF: yylval.parser_node = initParserNode("IF"); return IF; \
-            case TOKEN_ELSE: yylval.parser_node = initParserNode("ELSE"); return ELSE; \
-            case TOKEN_WHILE: yylval.parser_node = initParserNode("WHILE"); return WHILE; \
-            case TOKEN_FOR: yylval.parser_node = initParserNode("FOR"); return FOR; \
-            case TOKEN_RETURN: yylval.parser_node = initParserNode("RETURN"); return RETURN; \
-            case TOKEN_PLUS: yylval.parser_node = initParserNode("PLUS"); return PLUS; \
-            case TOKEN_MINUS: yylval.parser_node = initParserNode("MINUS"); return MINUS; \
-            case TOKEN_MUL: yylval.parser_node = initParserNode("MUL"); return MUL; \
-            case TOKEN_DIV: yylval.parser_node = initParserNode("DIV"); return DIV; \
-            case TOKEN_EQ: yylval.parser_node = initParserNode("EQ"); return EQ; \
-            case TOKEN_NEQ: yylval.parser_node = initParserNode("NEQ"); return NEQ; \
-            case TOKEN_LT: yylval.parser_node = initParserNode("LT"); return LT; \
-            case TOKEN_GT: yylval.parser_node = initParserNode("GT"); return GT; \
-            case TOKEN_LEQ: yylval.parser_node = initParserNode("LEQ"); return LEQ; \
-            case TOKEN_GEQ: yylval.parser_node = initParserNode("GEQ"); return GEQ; \
-            case TOKEN_LP: yylval.parser_node = initParserNode("LP"); return LP; \
-            case TOKEN_RP: yylval.parser_node = initParserNode("RP"); return RP; \
-            case TOKEN_LB: yylval.parser_node = initParserNode("LB"); return LB; \
-            case TOKEN_RB: yylval.parser_node = initParserNode("RB"); return RB; \
-            case TOKEN_LC: yylval.parser_node = initParserNode("LC"); return LC; \
-            case TOKEN_RC: yylval.parser_node = initParserNode("RC"); return RC; \
-            case TOKEN_AND: yylval.parser_node = initParserNode("AND"); return AND; \
-            case TOKEN_OR: yylval.parser_node = initParserNode("OR"); return OR; \
-            case TOKEN_DOT: yylval.parser_node = initParserNode("DOT"); return DOT; \
+            case TOKEN_TYPE: yylval.parser_node = initParserNode("TYPE", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return TYPE; \
+            case TOKEN_STRUCT: yylval.parser_node = initParserNode("STRUCT", yylineno); return STRUCT; \
+            case TOKEN_ID: yylval.parser_node = initParserNode("ID", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return ID; \
+            case TOKEN_ASSIGN: yylval.parser_node = initParserNode("ASSIGN", yylineno); return ASSIGN; \
+            case TOKEN_SEMI: yylval.parser_node = initParserNode("SEMI", yylineno); return SEMI; \
+            case TOKEN_LITERAL: yylval.parser_node = initParserNode("LITERAL", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return LITERAL; \
+            case TOKEN_INT: yylval.parser_node = initParserNode("INT", yylineno); yylval.parser_node->value.int_value = atoi(yytext); return INT; \
+            case TOKEN_HEXINT: yylval.parser_node = initParserNode("INT", yylineno); yylval.parser_node->value.int_value = hexstr_to_int(yytext); return INT; \
+            case TOKEN_FLOAT: yylval.parser_node = initParserNode("FLOAT", yylineno); yylval.parser_node->value.float_value = atof(yytext); return FLOAT; \
+            case TOKEN_CHAR: yylval.parser_node = initParserNode("CHAR", yylineno); yylval.parser_node->value.int_value = yytext[1]; return CHAR; \
+            case TOKEN_COMMA: yylval.parser_node = initParserNode("COMMA", yylineno); return COMMA; \
+            case TOKEN_IF: yylval.parser_node = initParserNode("IF", yylineno); return IF; \
+            case TOKEN_ELSE: yylval.parser_node = initParserNode("ELSE", yylineno); return ELSE; \
+            case TOKEN_WHILE: yylval.parser_node = initParserNode("WHILE", yylineno); return WHILE; \
+            case TOKEN_FOR: yylval.parser_node = initParserNode("FOR", yylineno); return FOR; \
+            case TOKEN_RETURN: yylval.parser_node = initParserNode("RETURN", yylineno); return RETURN; \
+            case TOKEN_PLUS: yylval.parser_node = initParserNode("PLUS", yylineno); return PLUS; \
+            case TOKEN_MINUS: yylval.parser_node = initParserNode("MINUS", yylineno); return MINUS; \
+            case TOKEN_MUL: yylval.parser_node = initParserNode("MUL", yylineno); return MUL; \
+            case TOKEN_DIV: yylval.parser_node = initParserNode("DIV", yylineno); return DIV; \
+            case TOKEN_EQ: yylval.parser_node = initParserNode("EQ", yylineno); return EQ; \
+            case TOKEN_NEQ: yylval.parser_node = initParserNode("NEQ", yylineno); return NEQ; \
+            case TOKEN_LT: yylval.parser_node = initParserNode("LT", yylineno); return LT; \
+            case TOKEN_GT: yylval.parser_node = initParserNode("GT", yylineno); return GT; \
+            case TOKEN_LEQ: yylval.parser_node = initParserNode("LEQ", yylineno); return LEQ; \
+            case TOKEN_GEQ: yylval.parser_node = initParserNode("GEQ", yylineno); return GEQ; \
+            case TOKEN_LP: yylval.parser_node = initParserNode("LP", yylineno); return LP; \
+            case TOKEN_RP: yylval.parser_node = initParserNode("RP", yylineno); return RP; \
+            case TOKEN_LB: yylval.parser_node = initParserNode("LB", yylineno); return LB; \
+            case TOKEN_RB: yylval.parser_node = initParserNode("RB", yylineno); return RB; \
+            case TOKEN_LC: yylval.parser_node = initParserNode("LC", yylineno); return LC; \
+            case TOKEN_RC: yylval.parser_node = initParserNode("RC", yylineno); return RC; \
+            case TOKEN_AND: yylval.parser_node = initParserNode("AND", yylineno); return AND; \
+            case TOKEN_OR: yylval.parser_node = initParserNode("OR", yylineno); return OR; \
+            case TOKEN_DOT: yylval.parser_node = initParserNode("DOT", yylineno); return DOT; \
         }
     #define PROCESS_TOKEN_AND_PRINT(_token) \
         int token = print_token_info(_token, yytext); \
@@ -49,6 +50,7 @@
     // global variables
     enum TOKENS {
         TOKEN_TYPE,
+        TOKEN_STRUCT,
         TOKEN_ID, 
         TOKEN_ASSIGN, 
         TOKEN_SEMI, 
@@ -104,7 +106,7 @@ letter_ {letter}|_
 digit [0-9]
 non_zero_digit [1-9]
 hex_digit [a-fA-F]
-reserved (int|char|float|return|if|else|while|for)
+reserved (int|char|float|struct|return|if|else|while|for)
 int ({non_zero_digit}{digit}*)|0
 hex_int 0(x|X)(0|({non_zero_digit}|({hex_digit})({digit}|{hex_digit})*))
 float {digit}+"."{digit}+
@@ -176,6 +178,9 @@ int process_reserved(char *text) {
     if (strcmp(text, "int") == 0 || strcmp(text, "float") == 0 || strcmp(text, "char") == 0) {
         print_token_info(TOKEN_TYPE, text);
         return TOKEN_TYPE;
+    } else if (strcmp(text, "struct") == 0) {
+        print_token_info(TOKEN_STRUCT, NULL);
+        return TOKEN_STRUCT;
     } else if (strcmp(text, "return") == 0) {
         print_token_info(TOKEN_RETURN, NULL);
         return TOKEN_RETURN;
@@ -206,6 +211,7 @@ int print_token_info(int token, char *text) {
             printf("TYPE ");
             printf("%s\n", text); 
             break;
+        case TOKEN_STRUCT: printf("STRUCT\n"); break;
         case TOKEN_ID: 
             printf("ID "); 
             printf("%s\n", text);
