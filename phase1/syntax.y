@@ -15,6 +15,7 @@
 
     char *source_path;
     struct ParserNode * rootNode = NULL;
+    int lexeme_error = 0;
 
     void yyerror(const char*);
 
@@ -34,6 +35,8 @@
 #ifndef PRINT_PARSER_TREE
         return;
 #endif
+        if(lexeme_error)
+            return;
         printParserNode(rootNode, 0);
     }
 
@@ -182,7 +185,7 @@ Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initPar
 void yyerror(const char *s) {
     /* fprintf(stderr, "%s\n", s); */
     printf("Error type B at Line %d: %s\n", yylineno, s);
-    exit(0);
+    /* exit(0); */
 }
 
 int main(int argc, char **argv){

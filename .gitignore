@@ -3,3 +3,5 @@
 *.tab.h
 *.out
 **/bin/
+**.spl.myout
+**/test/difference/

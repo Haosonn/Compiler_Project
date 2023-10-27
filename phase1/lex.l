@@ -113,6 +113,7 @@ float {digit}+"."{digit}+
 char (\'.\')|(\'\\(x|X)({digit}|{hex_digit})({digit}|{hex_digit})?\')
 identifier {letter_}({letter_}|{digit})* 
 
+illegal_id {int}{identifier}
 %%
 \"[^\"]*\" {
     if(yytext[yyleng-2] == '\\') {
@@ -127,6 +128,7 @@ identifier {letter_}({letter_}|{digit})*
     PROCESS_TOKEN(token)
 }
 {identifier} { PROCESS_TOKEN_AND_PRINT(TOKEN_ID) } 
+{illegal_id} { extern int lexeme_error; lexeme_error = 1; printf("Lexical error at line %d: Illegal identifier %s\n", yylineno, yytext); PROCESS_TOKEN(TOKEN_ID) }
 {int} { PROCESS_TOKEN_AND_PRINT(TOKEN_INT) }
 {hex_int} { PROCESS_TOKEN_AND_PRINT(TOKEN_HEXINT) }
 {float} { PROCESS_TOKEN_AND_PRINT(TOKEN_FLOAT) }
@@ -164,6 +166,7 @@ identifier {letter_}({letter_}|{digit})*
 [\t\r ]+ {/* does nothing when seeing white spaces except new line */ }
 . { 
     printf("Lexical error at line %d: Unknown symbol %s\n", yylineno, yytext);
+    extern int lexeme_error; lexeme_error = 1; PROCESS_TOKEN(TOKEN_ID)
  }
 <<EOF>> { 
     yypop_buffer_state();

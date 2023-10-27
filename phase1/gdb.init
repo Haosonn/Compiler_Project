@@ -1,5 +1,2 @@
-b addParserDerivation
-run test-ex/test.spl
-c
-c
-c
+b yyerror
+run test/test_1_r03.spl

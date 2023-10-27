@@ -5,6 +5,8 @@ PRINT_PARSER_TREE=true
 PRINT_DERIVATION=false
 PRINT_TOKEN=false
 TEST_CASE=test-ex/test_include.spl
+TEST_CASE_BASE=test/test_1_r
+N=01
 CFLAGS= 
 ifeq ($(PRINT_PARSER_TREE), true)
 	CFLAGS += -DPRINT_PARSER_TREE
@@ -28,15 +30,23 @@ lex: main
 	$(CC) lex.yy.c -lfl -o bin/lex -DLEX_ONLY
 clean:
 	@rm -f lex.yy.c syntax.tab.c syntax.tab.h *.out
+
 test: main 
-	@bin/splc ${TEST_CASE}
+	@bin/splc ${TEST_CASE} > ${TEST_CASE}.myout
+	@diff ${TEST_CASE}.out ${TEST_CASE}.myout -u || true
+test_case: main
+	@bin/splc ${TEST_CASE_BASE}${N}.spl > ${TEST_CASE_BASE}${N}.spl.myout
+	@diff ${TEST_CASE_BASE}${N}.out ${TEST_CASE_BASE}${N}.spl.myout -u || true
+
+
 test_all: main
-	$(CC) difference.c -o difference.out
 	@for file in test/*.spl; do \
 		echo "Testing $$file"; \
 		bin/splc $$file > $$file.myout; \
-		diff $$(echo $$file | sed 's/\.spl$$/.out/') $$file.myout > test/difference/$$(basename $$file).diff -u;\
+		diff $$(echo $${file:0:-3}out) $$file.myout > test/difference/$$(basename $$file).diff -u || true;\
 	done
+
+
 debug: main
 	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS) -g
 	@gdb bin/splc -x gdb.init
