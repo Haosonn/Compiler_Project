@@ -1,3 +1,6 @@
-Line 1:
-	in file1: Error type B at Line 9: Missing closing parenthesis ')'
-	in file2: Error type B at Line 10: syntax error
+--- test/test_1_r04.out	2023-10-23 19:29:23.950279692 +0800
++++ test/test_1_r04.spl.myout	2023-10-27 14:11:59.257014149 +0800
+@@ -1,2 +1 @@
+-Error type B at Line 9: Missing closing parenthesis ')'
+-Error type B at Line 12: Missing closing parenthesis ')'
++Error type B at Line 10: syntax error

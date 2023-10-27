@@ -35,7 +35,7 @@ test_all: main
 	@for file in test/*.spl; do \
 		echo "Testing $$file"; \
 		bin/splc $$file > $$file.myout; \
-		./difference.out $$(echo $$file | sed 's/\.spl$$/.out/') $$file.myout test/difference/$$(basename $$file).diff; \
+		diff $$(echo $$file | sed 's/\.spl$$/.out/') $$file.myout > test/difference/$$(basename $$file).diff -u;\
 	done
 debug: main
 	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS) -g

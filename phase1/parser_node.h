@@ -30,6 +30,7 @@ ParserNode* initParserNode(const char *name, int lineno) {
     node->to_print_lineno = 0;
     node->child_num = 0;
     node->empty_value = 0;
+    memset(node->child, 0, sizeof(node->child));
     // printf("initParserNode: %s at address %p\n", name, node);
     return node;
 }
@@ -44,6 +45,8 @@ void cal_line(struct ParserNode *node) {
 
 void printParserNode(struct ParserNode *node, int depth) {
     // print tabs according to depth
+    if (node == NULL)
+        return;
     if (node->empty_value)
         return;
     for (int i = 0; i < depth; i++) {

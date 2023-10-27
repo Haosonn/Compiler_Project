@@ -1,3 +1,11 @@
-Line 34:
-	in file1:                     FLOAT: 2.2
-	in file2:                     FLOAT: 2.200000
+--- test/test_1_r09.out	2023-10-23 19:29:23.950279692 +0800
++++ test/test_1_r09.spl.myout	2023-10-27 14:11:59.267014149 +0800
+@@ -31,7 +31,7 @@
+                     ID: n
+                   ASSIGN
+                   Exp (4)
+-                    FLOAT: 2.2
++                    FLOAT: 2.200000
+               SEMI
+             DefList (5)
+               Def (5)
