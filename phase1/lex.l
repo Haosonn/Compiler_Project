@@ -132,12 +132,12 @@ undefined_symbol (\'.{3,}\')|($)|(@)
 }
 {identifier} { PROCESS_TOKEN_AND_PRINT(TOKEN_ID) } 
 {hex_int} { PROCESS_TOKEN_AND_PRINT(TOKEN_HEXINT) }
-{illegal_id} { extern int lexeme_error; lexeme_error = 1; printf("Lexical error at line %d: Illegal identifier %s\n", yylineno, yytext); PROCESS_TOKEN(TOKEN_ID) }
+{illegal_id} { extern int lexeme_error; lexeme_error = 1; printf("Error type A at Line %d: unknown lexeme %s\n", yylineno, yytext); PROCESS_TOKEN(TOKEN_ID) }
 {int} { PROCESS_TOKEN_AND_PRINT(TOKEN_INT) }
 {float} { PROCESS_TOKEN_AND_PRINT(TOKEN_FLOAT) }
 {char} { PROCESS_TOKEN_AND_PRINT(TOKEN_CHAR) }
 {undefined_symbol} {
-    printf("Lexical error at line %d: Unknown symbol %s\n", yylineno, yytext);
+    printf("Error type A at Line %d: unknown lexeme %s\n", yylineno, yytext);
     extern int lexeme_error; lexeme_error = 1; PROCESS_TOKEN(TOKEN_ID)
 }
 "," { PROCESS_TOKEN_AND_PRINT(TOKEN_COMMA) }
@@ -172,7 +172,7 @@ undefined_symbol (\'.{3,}\')|($)|(@)
 [\n] { yycolno = 1; }
 [\t\r ]+ {/* does nothing when seeing white spaces except new line */ }
 . { 
-    printf("Lexical error at line %d: Unknown symbol %s\n", yylineno, yytext);
+    printf("Lexical error at Line %d: Unknown symbol %s\n", yylineno, yytext);
     extern int lexeme_error; lexeme_error = 1; PROCESS_TOKEN(TOKEN_ID)
 }
 
