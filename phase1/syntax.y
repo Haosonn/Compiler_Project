@@ -16,11 +16,16 @@
     char *source_path;
     struct ParserNode * rootNode = NULL;
     int lexeme_error = 0;
+    int syntax_error = 0;
 
     void yyerror(const char*);
 
+    void printSyntaxError(char *s, const int lineno) {
+        syntax_error = 1;
+        printf("Error type B at Line %d: %s\n", lineno, s);
+    }
+
     void addParserDerivation(struct ParserNode *node, ...) {
-        // return;
         va_list args;
         va_start(args, node);
         while(1) {
@@ -31,11 +36,11 @@
         va_end(args);
     }
 
-    void printParserTree() {
+     void printParserTree() {
 #ifndef PRINT_PARSER_TREE
         return;
 #endif
-        if(lexeme_error)
+        if(lexeme_error || syntax_error)
             return;
         printParserNode(rootNode, 0);
     }
@@ -86,6 +91,8 @@ ExtDefList: ExtDef ExtDefList { printDerivation("ExtDefList -> ExtDef ExtDefList
 
 ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+    | Specifier error { printSyntaxError("Missing semicolon ';'", $1->line);}
+    | Specifier ExtDecList error { printSyntaxError("Missing semicolon ';'", $2->line);}
     | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     ;
 
@@ -107,6 +114,7 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
 
 FunDec: ID LP VarList RP { printDerivation("FunDec -> ID LP VarList RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
     | ID LP RP { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | ID LP error { printSyntaxError("Missing closing parenthesis ')'",$2->line); }
     ;
 
 VarList: ParamDec COMMA VarList { printDerivation("VarList -> ParamDec COMMA VarList\n"); $$ = initParserNode("VarList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
@@ -124,13 +132,18 @@ StmtList: Stmt StmtList { printDerivation("StmtList -> Stmt StmtList\n"); $$ = i
     ;
 
 Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+    | Exp error { printSyntaxError("Missing semicolon ';'", $1->line);}
     | CompSt { printDerivation("Stmt -> CompSt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     | RETURN Exp SEMI { printDerivation("Stmt -> RETURN Exp SEMI\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | RETURN Exp error { printSyntaxError("Missing semicolon ';'", $2->line);}
     | IF LP Exp RP Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); }
     | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, NULL); cal_line($$); }
+    | IF LP error { printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
     | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); }
-    | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, $9, NULL); cal_line($$); }
+    | WHILE LP error {}
+    | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
     | FOR LP Def Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Def Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, NULL); cal_line($$); }
+    | FOR LP error { printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
     ;
 
 DefList: Def DefList { printDerivation("DefList -> Def DefList\n"); $$ = initParserNode("DefList", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
@@ -138,6 +151,7 @@ DefList: Def DefList { printDerivation("DefList -> Def DefList\n"); $$ = initPar
     ;
 
 Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n"); $$ = initParserNode("Def", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Specifier DecList error { printSyntaxError("Missing semicolon ';'", $2->line);}
     ;
 
 DecList: Dec { printDerivation("DecList -> Dec\n"); $$ = initParserNode("DecList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
@@ -162,11 +176,13 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
     | Exp MUL Exp { printDerivation("Exp -> Exp MUL Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     | Exp DIV Exp { printDerivation("Exp -> Exp DIV Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     | LP Exp RP { printDerivation("Exp -> LP Exp RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | LP error { printSyntaxError("Missing closing parenthesis ')'", (int)$1->line); }
     // | MINUS Exp %prec UMINUS 
     | MINUS Exp { printDerivation("Exp -> MINUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     | NOT Exp { printDerivation("Exp -> NOT Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     | ID LP Args RP { printDerivation("Exp -> ID LP Args RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
     | ID LP RP { printDerivation("Exp -> ID LP RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | ID LP error { printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
     | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
     | Exp DOT ID { printDerivation("Exp -> Exp DOT ID\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     | ID { printDerivation("Exp -> ID\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
@@ -183,8 +199,7 @@ Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initPar
 %%
 
 void yyerror(const char *s) {
-    /* fprintf(stderr, "%s\n", s); */
-    printf("Error type B at Line %d: %s\n", yylineno, s);
+    /* printf("Error type B at Line %d: %s\n", yylineno, s); */
     /* exit(0); */
 }
 
