@@ -105,15 +105,18 @@ letter [a-zA-Z]
 letter_ {letter}|_
 digit [0-9]
 non_zero_digit [1-9]
-hex_digit [a-fA-F]
+non_zero_hex_digit [1-9a-fA-F]
+hex_digit [0-9a-fA-F]
 reserved (int|char|float|struct|return|if|else|while|for)
 int ({non_zero_digit}{digit}*)|0
-hex_int 0(x|X)(0|({non_zero_digit}|({hex_digit})({digit}|{hex_digit})*))
+hex_int 0(x|X)(0|({non_zero_hex_digit}({hex_digit})*))
 float {digit}+"."{digit}+
 char (\'.\')|(\'\\(x|X)({digit}|{hex_digit})({digit}|{hex_digit})?\')
 identifier {letter_}({letter_}|{digit})* 
 
 illegal_id {int}{identifier}
+undefined_symbol (\'.{3,}\')|($)|(@)
+
 %%
 \"[^\"]*\" {
     if(yytext[yyleng-2] == '\\') {
@@ -128,11 +131,15 @@ illegal_id {int}{identifier}
     PROCESS_TOKEN(token)
 }
 {identifier} { PROCESS_TOKEN_AND_PRINT(TOKEN_ID) } 
+{hex_int} { PROCESS_TOKEN_AND_PRINT(TOKEN_HEXINT) }
 {illegal_id} { extern int lexeme_error; lexeme_error = 1; printf("Lexical error at line %d: Illegal identifier %s\n", yylineno, yytext); PROCESS_TOKEN(TOKEN_ID) }
 {int} { PROCESS_TOKEN_AND_PRINT(TOKEN_INT) }
-{hex_int} { PROCESS_TOKEN_AND_PRINT(TOKEN_HEXINT) }
 {float} { PROCESS_TOKEN_AND_PRINT(TOKEN_FLOAT) }
 {char} { PROCESS_TOKEN_AND_PRINT(TOKEN_CHAR) }
+{undefined_symbol} {
+    printf("Lexical error at line %d: Unknown symbol %s\n", yylineno, yytext);
+    extern int lexeme_error; lexeme_error = 1; PROCESS_TOKEN(TOKEN_ID)
+}
 "," { PROCESS_TOKEN_AND_PRINT(TOKEN_COMMA) }
 "(" { PROCESS_TOKEN_AND_PRINT(TOKEN_LP) }
 ")" { PROCESS_TOKEN_AND_PRINT(TOKEN_RP) }
@@ -167,7 +174,8 @@ illegal_id {int}{identifier}
 . { 
     printf("Lexical error at line %d: Unknown symbol %s\n", yylineno, yytext);
     extern int lexeme_error; lexeme_error = 1; PROCESS_TOKEN(TOKEN_ID)
- }
+}
+
 <<EOF>> { 
     yypop_buffer_state();
     if (!YY_CURRENT_BUFFER) {
