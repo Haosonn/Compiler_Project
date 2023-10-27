@@ -1,65 +1,65 @@
-Program
-  ExtDefList
-    ExtDef
-      Specifier
+Program (1)
+  ExtDefList (1)
+    ExtDef (1)
+      Specifier (1)
         TYPE: int
-      FunDec
+      FunDec (1)
         ID: test_1_r01
         LP
-        VarList
-          ParamDec
-            Specifier
+        VarList (1)
+          ParamDec (1)
+            Specifier (1)
               TYPE: int
-            VarDec
+            VarDec (1)
               ID: a
           COMMA
-          VarList
-            ParamDec
-              Specifier
+          VarList (1)
+            ParamDec (1)
+              Specifier (1)
                 TYPE: int
-              VarDec
+              VarDec (1)
                 ID: b
         RP
-      CompSt
+      CompSt (2)
         LC
-        StmtList
-          Stmt
-            Exp
-              Exp
+        StmtList (3)
+          Stmt (3)
+            Exp (3)
+              Exp (3)
                 ID: c
               ASSIGN
-              Exp
+              Exp (3)
                 CHAR: 'c'
             SEMI
-          StmtList
-            Stmt
+          StmtList (4)
+            Stmt (4)
               IF
               LP
-              Exp
-                Exp
+              Exp (4)
+                Exp (4)
                   ID: a
                 GT
-                Exp
+                Exp (4)
                   ID: b
               RP
-              Stmt
-                CompSt
+              Stmt (5)
+                CompSt (5)
                   LC
-                  StmtList
-                    Stmt
+                  StmtList (6)
+                    Stmt (6)
                       RETURN
-                      Exp
+                      Exp (6)
                         ID: a
                       SEMI
                   RC
               ELSE
-              Stmt
-                CompSt
+              Stmt (9)
+                CompSt (9)
                   LC
-                  StmtList
-                    Stmt
+                  StmtList (10)
+                    Stmt (10)
                       RETURN
-                      Exp
+                      Exp (10)
                         ID: b
                       SEMI
                   RC

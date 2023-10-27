@@ -1,0 +1,3 @@
+Line 1:
+	in file1: Error type A at Line 4: unknown lexeme 3_wrong_id
+	in file2: Error type B at Line 4: syntax error

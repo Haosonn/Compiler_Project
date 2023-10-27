@@ -1,96 +1,96 @@
-Program
-  ExtDefList
-    ExtDef
-      Specifier
+Program (1)
+  ExtDefList (1)
+    ExtDef (1)
+      Specifier (1)
         TYPE: int
-      FunDec
+      FunDec (1)
         ID: test_1_r09
         LP
         RP
-      CompSt
+      CompSt (2)
         LC
-        DefList
-          Def
-            Specifier
+        DefList (3)
+          Def (3)
+            Specifier (3)
               TYPE: int
-            DecList
-              Dec
-                VarDec
+            DecList (3)
+              Dec (3)
+                VarDec (3)
                   ID: m
                 ASSIGN
-                Exp
+                Exp (3)
                   INT: 1
             SEMI
-          DefList
-            Def
-              Specifier
+          DefList (4)
+            Def (4)
+              Specifier (4)
                 TYPE: float
-              DecList
-                Dec
-                  VarDec
+              DecList (4)
+                Dec (4)
+                  VarDec (4)
                     ID: n
                   ASSIGN
-                  Exp
+                  Exp (4)
                     FLOAT: 2.200000
               SEMI
-            DefList
-              Def
-                Specifier
+            DefList (5)
+              Def (5)
+                Specifier (5)
                   TYPE: int
-                DecList
-                  Dec
-                    VarDec
-                      VarDec
+                DecList (5)
+                  Dec (5)
+                    VarDec (5)
+                      VarDec (5)
                         ID: x
                       LB
                       INT: 5
                       RB
                   COMMA
-                  DecList
-                    Dec
-                      VarDec
-                        VarDec
+                  DecList (5)
+                    Dec (5)
+                      VarDec (5)
+                        VarDec (5)
                           ID: y
                         LB
                         INT: 10
                         RB
                 SEMI
-        StmtList
-          Stmt
-            Exp
-              Exp
-                Exp
+        StmtList (6)
+          Stmt (6)
+            Exp (6)
+              Exp (6)
+                Exp (6)
                   ID: x
                 LB
-                Exp
+                Exp (6)
                   ID: m
                 RB
               ASSIGN
-              Exp
+              Exp (6)
                 INT: 7
             SEMI
-          StmtList
-            Stmt
-              Exp
-                Exp
-                  Exp
+          StmtList (7)
+            Stmt (7)
+              Exp (7)
+                Exp (7)
+                  Exp (7)
                     ID: y
                   LB
-                  Exp
+                  Exp (7)
                     ID: n
                   RB
                 ASSIGN
-                Exp
+                Exp (7)
                   INT: 8
               SEMI
-            StmtList
-              Stmt
+            StmtList (8)
+              Stmt (8)
                 RETURN
-                Exp
-                  Exp
+                Exp (8)
+                  Exp (8)
                     ID: x
                   LB
-                  Exp
+                  Exp (8)
                     ID: y
                   RB
                 SEMI

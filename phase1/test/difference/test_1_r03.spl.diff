@@ -1,0 +1,6 @@
+Line 1:
+	in file1: Error type A at Line 4: unknown lexeme $
+	in file2: Lexical error at line 4: Unknown symbol $
+Line 2:
+	in file1: Error type B at Line 6: Missing semicolon ';'
+	in file2: Error type B at Line 4: syntax error

@@ -36,9 +36,10 @@ ParserNode* initParserNode(const char *name, int lineno) {
 
 void cal_line(struct ParserNode *node) {
     node->to_print_lineno = 1;
-    for (int i = 0; i < node->child_num; i++) {
-        node->line = node->line > node->child[i]->line ? node->child[i]->line : node->line;
-    }
+    // for (int i = 0; i < node->child_num; i++) {
+    //     node->line = node->line > node->child[i]->line ? node->child[i]->line : node->line;
+    // }
+    node->line = node->child[0]->line;
 }
 
 void printParserNode(struct ParserNode *node, int depth) {
@@ -59,7 +60,7 @@ void printParserNode(struct ParserNode *node, int depth) {
         printf(": %f", node->value.float_value);
     }
     else if (strcmp(node->name, "CHAR") == 0) {
-        printf(": '%c'", node->value.int_value);
+        printf(": %s", node->value.string_value); // some day after the phase test, I will delete this
     }
     else if (strcmp(node->name, "ID") == 0) {
         printf(": %s", node->value.string_value);

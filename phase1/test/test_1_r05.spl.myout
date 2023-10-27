@@ -1,77 +1,77 @@
-Program
-  ExtDefList
-    ExtDef
-      Specifier
+Program (1)
+  ExtDefList (1)
+    ExtDef (1)
+      Specifier (1)
         TYPE: int
-      FunDec
+      FunDec (1)
         ID: test_1_r05
         LP
-        VarList
-          ParamDec
-            Specifier
+        VarList (1)
+          ParamDec (1)
+            Specifier (1)
               TYPE: int
-            VarDec
+            VarDec (1)
               ID: n
         RP
-      CompSt
+      CompSt (2)
         LC
-        DefList
-          Def
-            Specifier
+        DefList (3)
+          Def (3)
+            Specifier (3)
               TYPE: int
-            DecList
-              Dec
-                VarDec
+            DecList (3)
+              Dec (3)
+                VarDec (3)
                   ID: res
                 ASSIGN
-                Exp
+                Exp (3)
                   INT: 1
             SEMI
-        StmtList
-          Stmt
+        StmtList (4)
+          Stmt (4)
             WHILE
             LP
-            Exp
-              Exp
+            Exp (4)
+              Exp (4)
                 ID: n
               GT
-              Exp
+              Exp (4)
                 INT: 0
             RP
-            Stmt
-              CompSt
+            Stmt (5)
+              CompSt (5)
                 LC
-                StmtList
-                  Stmt
-                    Exp
-                      Exp
+                StmtList (6)
+                  Stmt (6)
+                    Exp (6)
+                      Exp (6)
                         ID: res
                       ASSIGN
-                      Exp
-                        Exp
+                      Exp (6)
+                        Exp (6)
                           ID: res
                         MUL
-                        Exp
+                        Exp (6)
                           ID: n
                     SEMI
-                  StmtList
-                    Stmt
-                      Exp
-                        Exp
+                  StmtList (7)
+                    Stmt (7)
+                      Exp (7)
+                        Exp (7)
                           ID: n
                         ASSIGN
-                        Exp
-                          Exp
+                        Exp (7)
+                          Exp (7)
                             ID: n
                           MINUS
-                          Exp
+                          Exp (7)
                             INT: 1
                       SEMI
                 RC
-          StmtList
-            Stmt
+          StmtList (9)
+            Stmt (9)
               RETURN
-              Exp
+              Exp (9)
                 ID: res
               SEMI
         RC

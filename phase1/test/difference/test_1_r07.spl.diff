@@ -1,0 +1,6 @@
+Line 1:
+	in file1: Error type A at Line 7: unknown lexeme |
+	in file2: Lexical error at line 7: Unknown symbol |
+Line 2:
+	in file1: Error type A at Line 8: unknown lexeme &
+	in file2: Error type B at Line 7: syntax error

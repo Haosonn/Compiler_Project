@@ -16,7 +16,7 @@
             case TOKEN_INT: yylval.parser_node = initParserNode("INT", yylineno); yylval.parser_node->value.int_value = atoi(yytext); return INT; \
             case TOKEN_HEXINT: yylval.parser_node = initParserNode("INT", yylineno); yylval.parser_node->value.int_value = hexstr_to_int(yytext); return INT; \
             case TOKEN_FLOAT: yylval.parser_node = initParserNode("FLOAT", yylineno); yylval.parser_node->value.float_value = atof(yytext); return FLOAT; \
-            case TOKEN_CHAR: yylval.parser_node = initParserNode("CHAR", yylineno); yylval.parser_node->value.int_value = yytext[1]; return CHAR; \
+            case TOKEN_CHAR: yylval.parser_node = initParserNode("CHAR", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return CHAR; \
             case TOKEN_COMMA: yylval.parser_node = initParserNode("COMMA", yylineno); return COMMA; \
             case TOKEN_IF: yylval.parser_node = initParserNode("IF", yylineno); return IF; \
             case TOKEN_ELSE: yylval.parser_node = initParserNode("ELSE", yylineno); return ELSE; \
@@ -110,7 +110,7 @@ reserved (int|char|float|struct|return|if|else|while|for)
 int ({non_zero_digit}{digit}*)|0
 hex_int 0(x|X)(0|({non_zero_digit}|({hex_digit})({digit}|{hex_digit})*))
 float {digit}+"."{digit}+
-char (\'.\')|(\'\\(x|X)(({digit}|{hex_digit})|({digit}|{hex_digit})({digit}|{hex_digit}))\')
+char (\'.\')|(\'\\(x|X)({digit}|{hex_digit})({digit}|{hex_digit})?\')
 identifier {letter_}({letter_}|{digit})* 
 
 %%

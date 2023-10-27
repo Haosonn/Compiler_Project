@@ -22,6 +22,8 @@ main:
 	$(BISON) -d -t syntax.y
 	$(FLEX) lex.l 
 	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS)
+difference:
+	
 lex: main
 	$(CC) lex.yy.c -lfl -o bin/lex -DLEX_ONLY
 clean:
@@ -29,9 +31,11 @@ clean:
 test: main 
 	@bin/splc ${TEST_CASE}
 test_all: main
+	$(CC) difference.c -o difference.out
 	@for file in test/*.spl; do \
 		echo "Testing $$file"; \
 		bin/splc $$file > $$file.myout; \
+		./difference.out $$(echo $$file | sed 's/\.spl$$/.out/') $$file.myout test/difference/$$(basename $$file).diff; \
 	done
 debug: main
 	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS) -g
