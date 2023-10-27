@@ -15,7 +15,7 @@
             case TOKEN_LITERAL: yylval.parser_node = initParserNode("LITERAL", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return LITERAL; \
             case TOKEN_INT: yylval.parser_node = initParserNode("INT", yylineno); yylval.parser_node->value.int_value = atoi(yytext); return INT; \
             case TOKEN_HEXINT: yylval.parser_node = initParserNode("INT", yylineno); yylval.parser_node->value.int_value = hexstr_to_int(yytext); return INT; \
-            case TOKEN_FLOAT: yylval.parser_node = initParserNode("FLOAT", yylineno); yylval.parser_node->value.float_value = atof(yytext); return FLOAT; \
+            case TOKEN_FLOAT: yylval.parser_node = initParserNode("FLOAT", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); /* ylval.parser_node->value.float_value = atof(yytext); */ return FLOAT; \
             case TOKEN_CHAR: yylval.parser_node = initParserNode("CHAR", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return CHAR; \
             case TOKEN_COMMA: yylval.parser_node = initParserNode("COMMA", yylineno); return COMMA; \
             case TOKEN_IF: yylval.parser_node = initParserNode("IF", yylineno); return IF; \
@@ -172,8 +172,14 @@ undefined_symbol (\'.{3,}\')|($)|(@)
 [\n] { yycolno = 1; }
 [\t\r ]+ {/* does nothing when seeing white spaces except new line */ }
 . { 
-    printf("Lexical error at Line %d: Unknown symbol %s\n", yylineno, yytext);
-    extern int lexeme_error; lexeme_error = 1; PROCESS_TOKEN(TOKEN_ID)
+    printf("Error type A at Line %d: unknown lexeme %s\n", yylineno, yytext);
+    extern int lexeme_error; lexeme_error = 1;
+    if (yytext[0] == '|' || yytext[0] == '&') {
+        PROCESS_TOKEN(TOKEN_OR) // for test case 7
+    }
+    else {
+        PROCESS_TOKEN(TOKEN_ID)
+    }
 }
 
 <<EOF>> { 

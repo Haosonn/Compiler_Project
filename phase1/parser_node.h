@@ -60,7 +60,8 @@ void printParserNode(struct ParserNode *node, int depth) {
         printf(": %d", node->value.int_value);
     }
     else if (strcmp(node->name, "FLOAT") == 0) {
-        printf(": %f", node->value.float_value);
+        // printf(": %f", node->value.float_value);
+        printf(": %s", node->value.string_value);
     }
     else if (strcmp(node->name, "CHAR") == 0) {
         printf(": %s", node->value.string_value); // some day after the phase test, I will delete this
