@@ -46,6 +46,26 @@ int main(int argc, char *argv[]) {
             fprintf(diff, "\tin file2: %s", line2);
         }
     }
+    fprintf(diff, "\n");
+    if (line1 != NULL) {
+        has_diff = 1;
+        fprintf(diff, "context left in .out:\n");
+        fprintf(diff, "\t%s", line1);
+        while (fgets(line1, MAX_LEN, out) != NULL) {
+            fprintf(diff, "\t%s", line1);
+        }
+    } else if (line2 != NULL) {
+        has_diff = 1;
+        fprintf(diff, "context left in .myout:\n");
+        fprintf(diff, "\t%s", line2);
+        while (fgets(line2, MAX_LEN, myout) != NULL) {
+            fprintf(diff, "\t%s", line2);
+        }
+    }
+    {
+        /* code */
+    }
+    
 
     if (has_diff == 0) {
         fprintf(diff, "No differences found.\n");
