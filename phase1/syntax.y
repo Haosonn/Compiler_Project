@@ -78,8 +78,8 @@
 %left LP RP LB RB LC RC DOT
 %nonassoc ELSE
 
-/* %type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args */
-%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DefMS DecList Dec Exp Args
+%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args
+/* %type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DefMS DecList Dec Exp Args */
 
 %%
 
@@ -129,7 +129,8 @@ CompSt: LC DefList StmtList RC { printDerivation("CompSt -> LC DefList StmtList 
     ;
 
 StmtList: Stmt StmtList { printDerivation("StmtList -> Stmt StmtList\n"); $$ = initParserNode("StmtList", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
-| { printDerivation("StmtList -> empty\n"); $$ = initParserNode("StmtList", yylineno); $$->empty_value = 1; }
+    | Stmt Def StmtList {printDerivation("StmtList -> Stmt Def DefList\n"); printSyntaxError("Missing specifier", $$->line);}
+    | { printDerivation("StmtList -> empty\n"); $$ = initParserNode("StmtList", yylineno); $$->empty_value = 1; }
 ;
 
 Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
@@ -150,19 +151,18 @@ Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stm
 
 DefList: Def DefList { printDerivation("DefList -> Def DefList\n"); $$ = initParserNode("DefList", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     /* | Def DefMS DefList { printDerivation("DefList -> DefMS Def DefList\n"); $$ = initParserNode("DefList", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); } */
-    | Def DefMS DefList { printDerivation("DefList -> DefMS Def DefList\n"); printSyntaxError("Missing specifier", $2->line); }
+    /* | Def DefMS DefList { printDerivation("DefList -> DefMS Def DefList\n"); printSyntaxError("Missing specifier", $2->line); } */
     | { printDerivation("DefList -> empty\n"); $$ = initParserNode("DefList", yylineno); $$->empty_value = 1; }
     ;
 
 Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n"); $$ = initParserNode("Def", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     | Specifier DecList error { printDerivation("Def -> Specifier DecList error\n"); printSyntaxError("Missing semicolon ';'", $2->line);}
-    /* | error DecList SEMI { printDerivation("ExtDef -> error DecList SEMI\n"); printSyntaxError("Missing specifier", $3->line);} */
     ;
 
-DefMS: DecList SEMI DefMS{ printDerivation("DefMS -> DecList SEMI DefMS\n"); $$ = initParserNode("DefMS", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);}
-    | DecList SEMI Specifier DecList SEMI{ printDerivation("DefMS -> DecList SEMI Specifier DecList SEMI\n"); $$ = initParserNode("DefMS", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$);}
+/* DefMS: DecList SEMI DefMS{ printDerivation("DefMS -> DecList SEMI DefMS\n"); $$ = initParserNode("DefMS", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);} */
+    /* | DecList SEMI Specifier DecList SEMI{ printDerivation("DefMS -> DecList SEMI Specifier DecList SEMI\n"); $$ = initParserNode("DefMS", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$);} */
     /* | DecList SEMI Specifier DecList SEMI{ printDerivation("DefMS -> DecList SEMI Specifier DecList SEMI\n"); printSyntaxError("Missing specifier", $1->line);} */
-    ;
+    /* ; */
 
 /* DefMS: DecList SEMI { printDerivation("DefMS -> DecList SEMI\n"); printSyntaxError("Missing specifier", $2->line);} */
     /* ; */
