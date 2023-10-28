@@ -47,6 +47,11 @@ test_all: main
 		diff $$(echo $${file:0:-3}out) $$file.myout > test/difference/$$(basename $$file).diff -u || true;\
 	done
 
+test_extra: main
+	@for file in test-ex/*.spl; do \
+		echo "Testing $$file"; \
+		bin/splc $$file > $$file.myout; \
+	done
 
 debug: main
 	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS) -g
