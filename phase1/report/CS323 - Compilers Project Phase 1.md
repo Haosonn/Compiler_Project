@@ -1,0 +1,160 @@
+# CS323 - Compilers Project Phase 1
+
+## Basic features
+
+### Lexical error
+
+We match illegal tokens. The implementation is as follows.
+
+```
+illegal_id {int}{identifier}
+undefined_symbol (\'.{3,}\')|($)|(@)
+...
+{illegal_id} { 	extern int lexeme_error; lexeme_error = 1; 
+				printf("Error type A at Line %d: unknown lexeme %s\n", yylineno, yytext); 	 	   
+				PROCESS_TOKEN(TOKEN_ID) }
+...
+```
+
+### Syntax error
+
+As required, we find syntax errors and do error recovery as far as we can. As a result, we pass all given basic test cases, many of which contain various syntax error detections. The syntax error we implemented is summarized below.
+
++ Missing semicolon ';'
++ Missing closing parenthesis ')'
++ Missing specifier
+
+As for implementation, we simply place the error token in a correct context for the first two case. But for the last one, we soon found that we had to add incorrect productions into the syntax specification. And in this process, we realize its difficulties. Any incorrect syntax addition will lead to a failure caused by the destruction of the original LALR parsing. 
+
+## Extended features
+
+### for statement
+
+We simple add some syntax specification into our bison implementation, the detail is as follow:
+
++ Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Stmt
++ Stmt -> FOR LP Def Exp SEMI Exp RP Stmt
+
+Our test case for this part is as follows:
+
+```
+int main() {
+    for (int i = 1; i = 2; i = 3) {
+        for (x = 5; x = 1; x = 2) {
+            x = 5;
+        }
+    }
+}
+```
+
+The output is:
+
+```
+Program (1)
+  ExtDefList (1)
+    ExtDef (1)
+      Specifier (1)
+        TYPE: int
+      FunDec (1)
+        ID: main
+        LP
+        RP
+      CompSt (1)
+        LC
+        StmtList (2)
+          Stmt (2)
+            FOR
+            LP
+            Def (2)
+              Specifier (2)
+                TYPE: int
+              DecList (2)
+                Dec (2)
+                  VarDec (2)
+                    ID: i
+                  ASSIGN
+                  Exp (2)
+                    INT: 1
+              SEMI
+            Exp (2)
+              Exp (2)
+                ID: i
+              ASSIGN
+              Exp (2)
+                INT: 2
+            SEMI
+            Exp (2)
+              Exp (2)
+                ID: i
+              ASSIGN
+              Exp (2)
+                INT: 3
+            RP
+            Stmt (2)
+              CompSt (2)
+                LC
+                StmtList (3)
+                  Stmt (3)
+                    FOR
+                    LP
+                    Exp (3)
+                      Exp (3)
+                        ID: x
+                      ASSIGN
+                      Exp (3)
+                        INT: 5
+                    SEMI
+                    Exp (3)
+                      Exp (3)
+                        ID: x
+                      ASSIGN
+                      Exp (3)
+                        INT: 1
+                    SEMI
+                    Exp (3)
+                      Exp (3)
+                        ID: x
+                      ASSIGN
+                      Exp (3)
+                        INT: 2
+                    RP
+                    Stmt (3)
+                      CompSt (3)
+                        LC
+                        StmtList (4)
+                          Stmt (4)
+                            Exp (4)
+                              Exp (4)
+                                ID: x
+                              ASSIGN
+                              Exp (4)
+                                INT: 5
+                            SEMI
+                        RC
+                RC
+        RC
+```
+
+### file inclusion
+
+We use the file stream management in Flex to implement file inclusion.
+
+Whenever we find an inclusion in the text, we create a new stream for the included file, and push it into the buffer stack in Flex, the core part of the code is as follow:
+```c
+yyin = fopen(addr, "r");
+yypush_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE));
+free(addr);
+BEGIN(INITIAL);
+```
+
+And after analyzing one file, we pop the current buffer out of the stack, and continue to work with the buffer at the top of the stack.
+
+```c
+<<EOF>> { 
+    yypop_buffer_state();
+    if (!YY_CURRENT_BUFFER) {
+        yyterminate();
+    }
+ }
+```
+
