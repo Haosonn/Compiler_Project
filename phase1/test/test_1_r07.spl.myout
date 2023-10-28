@@ -1,2 +1,3 @@
-Lexical error at line 7: Unknown lexeme |
-Error type B at Line 7: syntax error
+Error type A at Line 7: unknown lexeme |
+Error type A at Line 8: unknown lexeme &
+Error type B at Line 1: Missing semicolon ';'

@@ -6,7 +6,7 @@ PRINT_DERIVATION=false
 PRINT_TOKEN=false
 TEST_CASE=test-ex/test_include.spl
 TEST_CASE_BASE=test/test_1_r
-N=01
+N=10
 CFLAGS= 
 ifeq ($(PRINT_PARSER_TREE), true)
 	CFLAGS += -DPRINT_PARSER_TREE

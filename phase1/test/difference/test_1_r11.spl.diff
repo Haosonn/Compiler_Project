@@ -1,8 +1,0 @@
---- test/test_1_r11.out	2023-10-23 19:29:23.950279692 +0800
-+++ test/test_1_r11.spl.myout	2023-10-27 14:11:59.277014147 +0800
-@@ -1,4 +1 @@
--Error type A at Line 3: unknown lexeme 0x77G
--Error type A at Line 4: unknown lexeme 0xCS
--Error type A at Line 7: unknown lexeme '\x6u'
--Error type A at Line 8: unknown lexeme '\x910'
-+Error type B at Line 3: syntax error

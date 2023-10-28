@@ -28,50 +28,5 @@ Program (1)
                   INT: 1
             SEMI
         StmtList (4)
-          Stmt (4)
-            WHILE
-            LP
-            Exp (4)
-              Exp (4)
-                ID: n
-              GT
-              Exp (4)
-                INT: 0
-            RP
-            Stmt (5)
-              CompSt (5)
-                LC
-                StmtList (6)
-                  Stmt (6)
-                    Exp (6)
-                      Exp (6)
-                        ID: res
-                      ASSIGN
-                      Exp (6)
-                        Exp (6)
-                          ID: res
-                        MUL
-                        Exp (6)
-                          ID: n
-                    SEMI
-                  StmtList (7)
-                    Stmt (7)
-                      Exp (7)
-                        Exp (7)
-                          ID: n
-                        ASSIGN
-                        Exp (7)
-                          Exp (7)
-                            ID: n
-                          MINUS
-                          Exp (7)
-                            INT: 1
-                      SEMI
-                RC
-          StmtList (9)
-            Stmt (9)
-              RETURN
-              Exp (9)
-                ID: res
-              SEMI
+          WHILE
         RC

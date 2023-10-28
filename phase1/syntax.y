@@ -78,7 +78,8 @@
 %left LP RP LB RB LC RC DOT
 %nonassoc ELSE
 
-%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args
+/* %type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args */
+%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DefMS DecList Dec Exp Args
 
 %%
 
@@ -140,20 +141,31 @@ Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stm
     | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, NULL); cal_line($$); }
     | IF LP error { printDerivation("Stmt -> IF LP error\n"); printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
     | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); }
-    | WHILE LP error {}
+    | WHILE LP error {printDerivation("Stmt -> WHILE LP error\n");}
     | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Stmt\n"); printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
     | FOR LP Def Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Def Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, NULL); cal_line($$); }
     | FOR LP error { printDerivation("Stmt -> FOR LP error\n"); printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
+    /* | DefMS{printDerivation("Stmt -> DefMS\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, NULL); cal_line($$);} */
     ;
 
 DefList: Def DefList { printDerivation("DefList -> Def DefList\n"); $$ = initParserNode("DefList", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+    /* | Def DefMS DefList { printDerivation("DefList -> DefMS Def DefList\n"); $$ = initParserNode("DefList", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); } */
+    | Def DefMS DefList { printDerivation("DefList -> DefMS Def DefList\n"); printSyntaxError("Missing specifier", $2->line); }
     | { printDerivation("DefList -> empty\n"); $$ = initParserNode("DefList", yylineno); $$->empty_value = 1; }
     ;
 
 Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n"); $$ = initParserNode("Def", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     | Specifier DecList error { printDerivation("Def -> Specifier DecList error\n"); printSyntaxError("Missing semicolon ';'", $2->line);}
-    | error DecList SEMI { printDerivation("ExtDef -> error DecList SEMI\n"); printSyntaxError("Missing specifier", $3->line);}
+    /* | error DecList SEMI { printDerivation("ExtDef -> error DecList SEMI\n"); printSyntaxError("Missing specifier", $3->line);} */
     ;
+
+DefMS: DecList SEMI DefMS{ printDerivation("DefMS -> DecList SEMI DefMS\n"); $$ = initParserNode("DefMS", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);}
+    | DecList SEMI Specifier DecList SEMI{ printDerivation("DefMS -> DecList SEMI Specifier DecList SEMI\n"); $$ = initParserNode("DefMS", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$);}
+    /* | DecList SEMI Specifier DecList SEMI{ printDerivation("DefMS -> DecList SEMI Specifier DecList SEMI\n"); printSyntaxError("Missing specifier", $1->line);} */
+    ;
+
+/* DefMS: DecList SEMI { printDerivation("DefMS -> DecList SEMI\n"); printSyntaxError("Missing specifier", $2->line);} */
+    /* ; */
 
 DecList: Dec { printDerivation("DecList -> Dec\n"); $$ = initParserNode("DecList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     | Dec COMMA DecList { printDerivation("DecList -> Dec COMMA DecList\n"); $$ = initParserNode("DecList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
