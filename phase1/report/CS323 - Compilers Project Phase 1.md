@@ -126,3 +126,10 @@ And after analyzing one file, we pop the current buffer out of the stack, and co
 
 ### comment
 
+We match two types of the comment in Flex and ignore them.
+
+```
+"//".* { }
+"/*"(.|\n)*?"*/" { }
+```
+
