@@ -2,11 +2,54 @@
 
 ## Basic features
 
+### Parser tree
+
+First we need to set the type of ``yylval`` of our defined `ParserTreeNode`, notice that we use a union structure to record the different values of different terminals. For example, `int` is used to record the value of `INT` while `LITERAL` uses `char *`
+
+```c
+typedef struct ParserNode{
+    char name[20];
+    int line;
+    int to_print_lineno;
+    int child_num;
+    int empty_value;
+    struct ParserNode *child[10];
+    union parser_node_value
+    {
+        int int_value;
+        float float_value;
+        char* string_value;
+    } value;
+    
+} ParserNode;
+```
+
+We use a linked tree structure to record the parser tree.
+
+For any derivation, we link an edge which uses variadic function. 
+
+Here is an example
+
+```c
+Stmt: WHILE LP Exp RP Stmt { $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); }
+
+void addParserDerivation(struct ParserNode *node, ...) {
+        va_list args;
+        va_start(args, node);
+        while(1) {
+            struct ParserNode *child = va_arg(args, struct ParserNode*);
+            if(child == NULL) break;
+            addParserNode(node, child);
+        }
+        va_end(args);
+    }
+```
+
 ### Lexical error
 
 We match illegal tokens. The implementation is as follows.
 
-```
+```c
 illegal_id {int}{identifier}
 undefined_symbol (\'.{3,}\')|($)|(@)
 ...
