@@ -1,0 +1,12 @@
+int test_function1(int a, int b) {
+    return test_function2(a, b);
+}
+float test_function2(float a, float b) {
+    return a + b;
+}
+int main(int useless) {
+    int a = 1;
+    int b = 2;
+    int c = test_function1(a, b);
+    return c;
+}

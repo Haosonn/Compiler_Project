@@ -1,0 +1,6 @@
+int test_variable(int a, int b, int c) {
+    float d = 1.0;
+    char e = 'a';
+    char f = '\xfff';
+    char g = '12333';
+}

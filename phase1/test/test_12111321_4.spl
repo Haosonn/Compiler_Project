@@ -1,0 +1,4 @@
+int main() {
+    assignment = '\xff';
+    int declaration = '\x00';
+}

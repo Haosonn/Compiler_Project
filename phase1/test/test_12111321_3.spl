@@ -1,0 +1,4 @@
+int test_missing_parentheses(int a, {
+    int missing_semicolon = 0
+    return ans;
+}
