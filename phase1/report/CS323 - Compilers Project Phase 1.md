@@ -67,7 +67,56 @@ As required, we find syntax errors and do error recovery as far as we can. As a 
 + Missing closing parenthesis ')'
 + Missing specifier
 
-As for implementation, we simply place the error token in a correct context for the first two case. But for the last one, we soon found that we had to add incorrect productions into the syntax specification. And in this process, we realize its difficulties. Any incorrect syntax addition will lead to a failure caused by the destruction of the original LALR parsing. 
+As for implementation, we simply place the error token in a correct context for the first two case. But for the last one, we soon found that we had to add incorrect productions into the syntax specification. And in this process, we realize its difficulties. Any incorrect syntax addition will lead to a failure caused by the destruction of the original LALR parsing. The syntax specifications added are as follows:
+
+##### Missing semicolon ';'
+
++ ExtDef -> Specifier error
++ ExtDef -> Specifier ExtDecList error
++ Stmt -> Exp error
++ Stmt -> RETURN Exp error
++ Def -> Specifier DecList error
+
+##### Missing closing parenthesis ')'
+
++ FunDec -> ID LP error
++ Stmt -> IF LP error
++ Stmt -> FOR LP error
++ Exp -> LP error
++ Exp -> ID LP error
+
+##### Missing specifier
+
++ StmtList -> Stmt Def StmtList
+
+### Parse tree
+
+We use a parse node struct to manage tree nodes in a unified manner. In addition, we implement several functions associated with it, which can be used in bison to help easily build tree structures. The implementation is as follows:
+
+```
+typedef struct ParserNode{
+    char name[20];
+    int line;
+    int to_print_lineno;
+    int child_num;
+    int empty_value;
+    struct ParserNode *child[10];
+    union parser_node_value
+    {
+        int int_value;
+        float float_value;
+        char* string_value;
+    } value;
+} ParserNode;
+
+// some more functions
+void addParserNode(struct ParserNode *node, struct ParserNode *child);
+ParserNode* initParserNode(const char *name, int lineno);
+void cal_line(struct ParserNode *node);
+void printParserNode(struct ParserNode *node, int depth);
+```
+
+
 
 ## Extended features
 
@@ -77,6 +126,11 @@ We simple add some syntax specification into our bison implementation, the detai
 
 + Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Stmt
 + Stmt -> FOR LP Def Exp SEMI Exp RP Stmt
+
+These two syntax can cover two different situations of for statement:
+
++ for (int i = 0; 3 < 1; i = i + 1)
++ for (declared_variable = 0; declared_variable < 3 ; declared_variable = declared_variable+1)
 
 Our test case for this part is as follows:
 
@@ -88,94 +142,6 @@ int main() {
         }
     }
 }
-```
-
-The output is:
-
-```
-Program (1)
-  ExtDefList (1)
-    ExtDef (1)
-      Specifier (1)
-        TYPE: int
-      FunDec (1)
-        ID: main
-        LP
-        RP
-      CompSt (1)
-        LC
-        StmtList (2)
-          Stmt (2)
-            FOR
-            LP
-            Def (2)
-              Specifier (2)
-                TYPE: int
-              DecList (2)
-                Dec (2)
-                  VarDec (2)
-                    ID: i
-                  ASSIGN
-                  Exp (2)
-                    INT: 1
-              SEMI
-            Exp (2)
-              Exp (2)
-                ID: i
-              ASSIGN
-              Exp (2)
-                INT: 2
-            SEMI
-            Exp (2)
-              Exp (2)
-                ID: i
-              ASSIGN
-              Exp (2)
-                INT: 3
-            RP
-            Stmt (2)
-              CompSt (2)
-                LC
-                StmtList (3)
-                  Stmt (3)
-                    FOR
-                    LP
-                    Exp (3)
-                      Exp (3)
-                        ID: x
-                      ASSIGN
-                      Exp (3)
-                        INT: 5
-                    SEMI
-                    Exp (3)
-                      Exp (3)
-                        ID: x
-                      ASSIGN
-                      Exp (3)
-                        INT: 1
-                    SEMI
-                    Exp (3)
-                      Exp (3)
-                        ID: x
-                      ASSIGN
-                      Exp (3)
-                        INT: 2
-                    RP
-                    Stmt (3)
-                      CompSt (3)
-                        LC
-                        StmtList (4)
-                          Stmt (4)
-                            Exp (4)
-                              Exp (4)
-                                ID: x
-                              ASSIGN
-                              Exp (4)
-                                INT: 5
-                            SEMI
-                        RC
-                RC
-        RC
 ```
 
 ### file inclusion
@@ -199,5 +165,14 @@ And after analyzing one file, we pop the current buffer out of the stack, and co
         yyterminate();
     }
  }
+```
+
+### comment
+
+We match two types of the comment in Flex and ignore them.
+
+```
+"//".* { }
+"/*"(.|\n)*?"*/" { }
 ```
 
