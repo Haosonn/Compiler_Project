@@ -42,6 +42,7 @@
             case TOKEN_AND: yylval.parser_node = initParserNode("AND", yylineno); return AND; \
             case TOKEN_OR: yylval.parser_node = initParserNode("OR", yylineno); return OR; \
             case TOKEN_DOT: yylval.parser_node = initParserNode("DOT", yylineno); return DOT; \
+            case TOKEN_NOT: yylval.parser_node = initParserNode("NOT", yylineno); return NOT; \
         }
     #define PROCESS_TOKEN_AND_PRINT(_token) \
         int token = print_token_info(_token, yytext); \
@@ -83,7 +84,8 @@
         TOKEN_RC, 
         TOKEN_AND, 
         TOKEN_OR,
-        TOKEN_DOT
+        TOKEN_DOT,
+        TOKEN_NOT
     };
     enum TYPES {
         TYPE_INT, TYPE_FLOAT, TYPE_CHAR
@@ -162,6 +164,7 @@ undefined_symbol (\'.{3,}\')|($)|(@)
 "-" { PROCESS_TOKEN_AND_PRINT(TOKEN_MINUS) }
 "*" { PROCESS_TOKEN_AND_PRINT(TOKEN_MUL) }
 "/" { PROCESS_TOKEN_AND_PRINT(TOKEN_DIV) }
+"!" { PROCESS_TOKEN_AND_PRINT(TOKEN_NOT) }
 
 #include[ ]+\"[^\"]*\" { process_inclusion(yytext); }
 
