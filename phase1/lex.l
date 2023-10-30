@@ -110,6 +110,7 @@ non_zero_digit [1-9]
 non_zero_hex_digit [1-9a-fA-F]
 hex_digit [0-9a-fA-F]
 reserved (int|char|float|struct|return|if|else|while|for)
+illegal_int 0{digit}+
 int ({non_zero_digit}{digit}*)|0
 hex_int 0(x|X)(0|({non_zero_hex_digit}({hex_digit})*))
 float {digit}+"."{digit}+
@@ -135,6 +136,7 @@ undefined_symbol (\'.{3,}\')|($)|(@)
 {identifier} { PROCESS_TOKEN_AND_PRINT(TOKEN_ID) } 
 {hex_int} { PROCESS_TOKEN_AND_PRINT(TOKEN_HEXINT) }
 {illegal_id} { extern int lexeme_error; lexeme_error = 1; printf("Error type A at Line %d: unknown lexeme %s\n", yylineno, yytext); PROCESS_TOKEN(TOKEN_ID) }
+{illegal_int} { extern int lexeme_error; lexeme_error = 1; printf("Error type A at Line %d: unknown lexeme %s\n", yylineno, yytext); PROCESS_TOKEN(TOKEN_INT) }
 {int} { PROCESS_TOKEN_AND_PRINT(TOKEN_INT) }
 {float} { PROCESS_TOKEN_AND_PRINT(TOKEN_FLOAT) }
 {char} { PROCESS_TOKEN_AND_PRINT(TOKEN_CHAR) }
