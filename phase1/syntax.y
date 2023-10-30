@@ -146,6 +146,7 @@ Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stm
     | IF LP error { printDerivation("Stmt -> IF LP error\n"); printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
     | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); }
     | WHILE LP error {printDerivation("Stmt -> WHILE LP error\n");}
+    | WHILE error Exp RP Stmt { printDerivation("Stmt -> WHILE error Exp RP Stmt\n"); printSyntaxError("Missing start parenthesis '('", (int)$3->line); }
     | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Semt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, $9, NULL); cal_line($$);}
     | FOR LP Def Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Def Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, NULL); cal_line($$); }
     | FOR LP error { printDerivation("Stmt -> FOR LP error\n"); printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
