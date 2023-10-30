@@ -95,6 +95,7 @@ ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecL
     | Specifier error { printDerivation("ExtDef -> Specifier error\n"); printSyntaxError("Missing semicolon ';'", $1->line);}
     | Specifier ExtDecList error { printDerivation("ExtDef -> Specifier ExtDecList error\n"); printSyntaxError("Missing semicolon ';'", $2->line);}
     | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | ExtDecList SEMI { printDerivation("ExtDef -> ExtDecList SEMI\n"); printSyntaxError("Missing specifier", $1->line);}
     ;
 
 ExtDecList: VarDec { printDerivation("ExtDecList -> VarDec\n"); $$ = initParserNode("ExtDecList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
