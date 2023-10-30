@@ -144,6 +144,8 @@ Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stm
     | IF LP Exp RP Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); }
     | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, NULL); cal_line($$); }
     | IF LP error { printDerivation("Stmt -> IF LP error\n"); printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
+    | IF error Exp RP Stmt { printDerivation("Stmt -> IF error Exp RP Stmt\n"); printSyntaxError("Missing start parenthesis '('", (int)$3->line); }
+    | IF error Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF error Exp RP Stmt ELSE Stmt\n"); printSyntaxError("Missing start parenthesis '('", (int)$3->line); }
     | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); }
     | WHILE LP error {printDerivation("Stmt -> WHILE LP error\n");}
     | WHILE error Exp RP Stmt { printDerivation("Stmt -> WHILE error Exp RP Stmt\n"); printSyntaxError("Missing start parenthesis '('", (int)$3->line); }
