@@ -2,6 +2,7 @@
 *.tab.c
 *.tab.h
 *.out
+!**/test/*.out
 **/bin/
 **.spl.myout
 **/test/difference/

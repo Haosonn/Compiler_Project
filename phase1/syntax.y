@@ -106,11 +106,13 @@ Specifier: TYPE { printDerivation("Specifier -> TYPE\n"); $$ = initParserNode("S
     ;
 
 StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> STRUCT ID LC DefList RC\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); }
+    | STRUCT ID LC DefList error { printDerivation("StructSpecifier -> STRUCT ID LC DefList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$4->line); }
     | STRUCT ID { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     ;
 
 VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     | VarDec LB INT RB { printDerivation("VarDec -> VarDec LB INT RB\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
+    | VarDec LB INT error { printDerivation("VarDec -> VarDec LB INT error\n"); printSyntaxError("Missing closing brace ']'", (int)$3->line); }
     ;
 
 FunDec: ID LP VarList RP { printDerivation("FunDec -> ID LP VarList RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
@@ -126,6 +128,7 @@ ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); 
     ;
 
 CompSt: LC DefList StmtList RC { printDerivation("CompSt -> LC DefList StmtList RC\n"); $$ = initParserNode("CompSt", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
+    | LC DefList StmtList error { printDerivation("CompSt -> LC DefList StmtList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$3->line); }
     ;
 
 StmtList: Stmt StmtList { printDerivation("StmtList -> Stmt StmtList\n"); $$ = initParserNode("StmtList", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
@@ -186,6 +189,7 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
     | ID LP RP { printDerivation("Exp -> ID LP RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     | ID LP error { printDerivation("Exp -> ID LP error\n"); printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
     | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
+    | Exp LB Exp error { printDerivation("Exp -> Exp LB Exp error\n"); printSyntaxError("Missing closing brace ']'", (int)$3->line); }
     | Exp DOT ID { printDerivation("Exp -> Exp DOT ID\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     | ID { printDerivation("Exp -> ID\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     | INT { printDerivation("Exp -> INT\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
