@@ -4,6 +4,8 @@
 #include <string.h>
 #include "parser_node.h"
 typedef struct Type Type;
+int type_equal(Type* type1, Type* type2);
+void type_print(Type* type);
 typedef struct symbol_list_node
 {
     Type *type;
@@ -64,6 +66,17 @@ typedef struct symbol_table
     symbol_table_node *head;
     symbol_table_node *tail;
 } symbol_table;
+
+void symbol_table_print(symbol_table *table)
+{
+    symbol_table_node *node = table->head;
+    while (node != NULL)
+    {
+        printf("%s: ", node->name);
+        type_print(node->list->head->type);
+        printf("\n");
+    }
+}
 
 int symbol_table_equal(symbol_table *table1, symbol_table *table2)
 {
@@ -224,3 +237,4 @@ int symbol_table_declare(symbol_table *global_table, scope_list *stack, char *na
     symbol_table_add_node(table, symbol_table_insert(global_table, name, type));
     return 0;
 }
+

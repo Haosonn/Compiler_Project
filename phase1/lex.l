@@ -7,16 +7,16 @@
     #define EXIT_FAIL 1
     #define PROCESS_TOKEN(_token) \
         switch(_token) { \
-            case TOKEN_TYPE: yylval.parser_node = initParserNode("TYPE", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return TYPE; \
+            case TOKEN_TYPE: yylval.parser_node = initParserNode("TYPE", yylineno); setParserNodeType(yylval.parser_node,yytext); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return TYPE; \
             case TOKEN_STRUCT: yylval.parser_node = initParserNode("STRUCT", yylineno); return STRUCT; \
             case TOKEN_ID: yylval.parser_node = initParserNode("ID", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return ID; \
             case TOKEN_ASSIGN: yylval.parser_node = initParserNode("ASSIGN", yylineno); return ASSIGN; \
             case TOKEN_SEMI: yylval.parser_node = initParserNode("SEMI", yylineno); return SEMI; \
             case TOKEN_LITERAL: yylval.parser_node = initParserNode("LITERAL", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return LITERAL; \
-            case TOKEN_INT: yylval.parser_node = initParserNode("INT", yylineno);setParserNodeType(yylval.parser_node,0);yylval.parser_node->value.int_value = atoi(yytext); return INT; \
-            case TOKEN_HEXINT: yylval.parser_node = initParserNode("INT", yylineno);setParserNodeType(yylval.parser_node,0);yylval.parser_node->value.int_value = hexstr_to_int(yytext); return INT; \
-            case TOKEN_FLOAT: yylval.parser_node = initParserNode("FLOAT", yylineno);setParserNodeType(yylval.parser_node,1);yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); /* ylval.parser_node->value.float_value = atof(yytext); */ return FLOAT; \
-            case TOKEN_CHAR: yylval.parser_node = initParserNode("CHAR", yylineno);setParserNodeType(yylval.parser_node,2);yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return CHAR; \
+            case TOKEN_INT: yylval.parser_node = initParserNode("INT", yylineno);setParserNodeType(yylval.parser_node,"int");yylval.parser_node->value.int_value = atoi(yytext); return INT; \
+            case TOKEN_HEXINT: yylval.parser_node = initParserNode("INT", yylineno);setParserNodeType(yylval.parser_node,"int");yylval.parser_node->value.int_value = hexstr_to_int(yytext); return INT; \
+            case TOKEN_FLOAT: yylval.parser_node = initParserNode("FLOAT", yylineno);setParserNodeType(yylval.parser_node,"float");yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); /* ylval.parser_node->value.float_value = atof(yytext); */ return FLOAT; \
+            case TOKEN_CHAR: yylval.parser_node = initParserNode("CHAR", yylineno);setParserNodeType(yylval.parser_node,"char");yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return CHAR; \
             case TOKEN_COMMA: yylval.parser_node = initParserNode("COMMA", yylineno); return COMMA; \
             case TOKEN_IF: yylval.parser_node = initParserNode("IF", yylineno); return IF; \
             case TOKEN_ELSE: yylval.parser_node = initParserNode("ELSE", yylineno); return ELSE; \

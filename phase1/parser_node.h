@@ -26,6 +26,12 @@ typedef struct Type
     };
 } Type;
 
+typedef struct Array
+{
+    struct Type *base;
+    int size;
+} Array;
+
 int type_equal(Type *type1, Type *type2)
 {
     if (type1 == NULL || type2 == NULL)
@@ -71,11 +77,7 @@ int type_equal(Type *type1, Type *type2)
     }
     return 1;
 }
-typedef struct Array
-{
-    struct Type *base;
-    int size;
-} Array;
+
 
 void type_print(Type *type)
 {
@@ -133,30 +135,43 @@ typedef struct ParserNode
 
 } ParserNode;
 
+void passType(struct ParserNode *node, Type *type)
+{
+    if (strcat(node->name, "ExtDecList") == 0)
+    {
+        for (int i = 0; i < node->child_num; i++)
+        {
+            passType(node->child[i], type);
+        }
+    }
+    if (strcat(node->name, "VarDec") == 0)
+    {
+        *(node->type) = *type;
+    }
+}
+
 void addParserNode(struct ParserNode *node, struct ParserNode *child)
 {
     node->child[node->child_num++] = child;
 }
 
-void setParserNodeType(struct ParserNode *node, int type)
+void setParserNodeType(struct ParserNode *node, char* type_name)
 {
     node->type = (struct Type *)malloc(sizeof(struct Type));
-    switch (type)
+    if(strcat(type_name, "int") == 0)
     {
-    case 0:
         node->type->category = PRIMITIVE;
         node->type->primitive = SEMANTIC_TYPE_INT;
-        break;
-    case 1:
+    }
+    else if(strcat(type_name, "float") == 0)
+    {
         node->type->category = PRIMITIVE;
         node->type->primitive = SEMANTIC_TYPE_FLOAT;
-        break;
-    case 2:
+    }
+    else if(strcat(type_name, "char") == 0)
+    {
         node->type->category = PRIMITIVE;
         node->type->primitive = SEMANTIC_TYPE_CHAR;
-        break;
-    default:
-        break;
     }
 }
 
