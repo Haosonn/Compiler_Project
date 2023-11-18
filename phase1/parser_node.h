@@ -26,6 +26,51 @@ typedef struct Type
     };
 } Type;
 
+int type_equal(Type *type1, Type *type2)
+{
+    if (type1 == NULL || type2 == NULL)
+    {
+        return 0;
+    }
+    if (type1->category != type2->category)
+    {
+        return 0;
+    }
+    switch (type1->category)
+    {
+    case PRIMITIVE:
+        if (type1->primitive != type2->primitive)
+        {
+            return 0;
+        }
+        break;
+    case ARRAY:
+        if (type1->array->size != type2->array->size)
+        {
+            return 0;
+        }
+        if (!type_equal(type1->array->base, type2->array->base))
+        {
+            return 0;
+        }
+        break;
+    case STRUCTURE:
+        if (!symbol_table_equal(type1->structure, type2->structure))
+        {
+            return 0;
+        }
+        break;
+    case FUNCTION:
+        if (!symbol_table_equal(type1->function, type2->function))
+        {
+            return 0;
+        }
+        break;
+    default:
+        break;
+    }
+    return 1;
+}
 typedef struct Array
 {
     struct Type *base;

@@ -65,6 +65,26 @@ typedef struct symbol_table
     symbol_table_node *tail;
 } symbol_table;
 
+int symbol_table_equal(symbol_table *table1, symbol_table *table2)
+{
+    symbol_table_node *node1 = table1->head;
+    symbol_table_node *node2 = table2->head;
+    while (node1 != NULL && node2 != NULL)
+    {
+        if (strcmp(node1->name, node2->name) != 0||!type_equal(node1->list->head->type,node2->list->head->type))
+        {
+            return 0;
+        }
+        node1 = node1->next;
+        node2 = node2->next;
+    }
+    if (node1 != NULL || node2 != NULL)
+    {
+        return 0;
+    }
+    return 1;
+}
+
 symbol_table *symbol_table_init()
 {
     symbol_table *table = (symbol_table *)malloc(sizeof(symbol_table));
