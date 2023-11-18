@@ -101,6 +101,7 @@
 %left MUL DIV
 %right NOT
 %left LPT RPT LB RB LC RC DOT
+%nonassoc IF error
 %nonassoc ELSE
 
 %type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LP RP
