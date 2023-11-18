@@ -2,7 +2,7 @@ SHELL := /bin/bash
 CC=gcc
 FLEX=flex
 BISON=bison
-PRINT_PARSER_TREE=false
+PRINT_PARSER_TREE=true
 PRINT_DERIVATION=false
 PRINT_TOKEN=false
 TEST_CASE=test-ex/test_include.spl
@@ -22,7 +22,7 @@ endif
 	clean test
 main:
 	mkdir -p bin
-	$(BISON) -d -t syntax.y
+	$(BISON) -d -t syntax.y 
 	$(FLEX) lex.l 
 	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS)
 difference:

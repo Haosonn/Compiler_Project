@@ -145,7 +145,7 @@ scope_list *scope_list_init()
     return list;
 }
 
-void scope_list_insert(scope_list *list)
+void scope_list_add(scope_list *list)
 {
     scope_list_node *node = (scope_list_node *)malloc(sizeof(scope_list_node));
     node->table = symbol_table_init();
@@ -161,7 +161,16 @@ void scope_list_insert(scope_list *list)
         list->head = node;
     }
 }
-
+void scope_list_pop(scope_list *list)
+{
+    if (list->head == NULL)
+    {
+        return;
+    }
+    scope_list_node *node = list->head;
+    list->head = list->head->next;
+    free(node);
+}
 Type *symbol_table_lookup(symbol_table *table, char *name)
 {
     symbol_table_node *node = table->head;

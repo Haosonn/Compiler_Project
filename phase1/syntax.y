@@ -91,7 +91,7 @@
 }
 
 %token <parser_node> INT FLOAT CHAR
-%token <parser_node> TYPE ID ASSIGN SEMI LITERAL COMMA IF ELSE WHILE FOR RETURN PLUS MINUS MUL DIV EQ NEQ LT GT LEQ GEQ LP RP LB RB LC RC AND OR NOT STRUCT DOT
+%token <parser_node> TYPE ID ASSIGN SEMI LITERAL COMMA IF ELSE WHILE FOR RETURN PLUS MINUS MUL DIV EQ NEQ LT GT LEQ GEQ LPT RPT LB RB LC RC AND OR NOT STRUCT DOT
 
 %right ASSIGN
 %left OR
@@ -100,14 +100,13 @@
 %left PLUS MINUS
 %left MUL DIV
 %right NOT
-%left LP RP LB RB LC RC DOT
+%left LPT RPT LB RB LC RC DOT
 %nonassoc ELSE
 
-%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args
+%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LP RP
 /* %type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DefMS DecList Dec Exp Args */
 
 %%
-
 Program: ExtDefList { printDerivation("Program -> ExtDefList\n"); $$ = initParserNode("Program", yylineno); rootNode = $$; addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
@@ -136,8 +135,10 @@ StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> S
     | STRUCT ID { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     ;
 
-VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
-    | VarDec LB INT RB { printDerivation("VarDec -> VarDec LB INT RB\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
+VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+    }
+    | VarDec LB INT RB { printDerivation("VarDec -> VarDec LB INT RB\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
+    }
     | VarDec LB INT error { printDerivation("VarDec -> VarDec LB INT error\n"); printSyntaxError("Missing closing brace ']'", (int)$3->line); }
     ;
 
@@ -242,6 +243,13 @@ Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initPar
     | Exp { printDerivation("Args -> Exp\n"); $$ = initParserNode("Args", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
+LP: LPT { printDerivation("LP -> LPT\n"); $$ = initParserNode("LP", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+}
+    ;
+
+RP: RPT { printDerivation("RP -> RPT\n"); $$ = initParserNode("RP", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+}
+    ;
 %%
 
 void yyerror(const char *s) {
