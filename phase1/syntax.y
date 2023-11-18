@@ -30,7 +30,7 @@
         va_start(args, node);
         while(1) {
             struct ParserNode *child = va_arg(args, struct ParserNode*);
-            if(child == NULL) break;
+           if(child == NULL) break;
             addParserNode(node, child);
         }
         va_end(args);
