@@ -124,8 +124,26 @@ ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecL
     ;
 
 ExtDecList: VarDec { printDerivation("ExtDecList -> VarDec\n"); $$ = initParserNode("ExtDecList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        if($1->type->category == ARRAY){
+            Array *array = $1->type->array;
+            while(array->base!=NULL && array->base->category == ARRAY){
+                array = array->base->array;
+            }
+            Type *type = (Type *)malloc(sizeof(Type));
+            array->base = type;
+            $1->type = type;
+        }
     }
     | VarDec COMMA ExtDecList { printDerivation("ExtDecList -> VarDec COMMA ExtDecList\n"); $$ = initParserNode("ExtDecList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
+        if($1->type->category == ARRAY){
+            Array *array = $1->type->array;
+            while(array->base!=NULL && array->base->category == ARRAY){
+                array = array->base->array;
+            }
+            Type *type = (Type *)malloc(sizeof(Type));
+            array->base = type;
+            $1->type = type;
+        }
     }
     ;
 
@@ -159,7 +177,7 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
             type->array->size = $3->value.int_value;
             type->array->base = NULL;
             Array *array = $1->type->array;
-            while(array->base->category == ARRAY){
+            while(array->base!=NULL && array->base->category == ARRAY){
                 array = array->base->array;
             }
             array->base = type;

@@ -9,7 +9,8 @@ typedef struct Type
     {
         PRIMITIVE,
         ARRAY,
-        STRUCTURE
+        STRUCTURE,
+        FUNCTION
     } category;
     union
     {
@@ -21,6 +22,7 @@ typedef struct Type
         } primitive;
         struct Array *array;
         symbol_table *structure;
+        symbol_table *function;
     };
 } Type;
 
