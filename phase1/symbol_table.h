@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "parser_node.h"
-
+typedef struct Type Type;
 typedef struct symbol_list_node
 {
     Type *type;
@@ -161,6 +161,7 @@ void scope_list_add(scope_list *list)
         list->head = node;
     }
 }
+
 void scope_list_pop(scope_list *list)
 {
     if (list->head == NULL)
@@ -169,8 +170,15 @@ void scope_list_pop(scope_list *list)
     }
     scope_list_node *node = list->head;
     list->head = list->head->next;
+    symbol_table_node *table_node = node->table->head;
+    while (table_node != NULL)
+    {
+        symbol_list_pop(table_node->list);
+        table_node = table_node->next;
+    }
     free(node);
 }
+
 Type *symbol_table_lookup(symbol_table *table, char *name)
 {
     symbol_table_node *node = table->head;
@@ -185,14 +193,14 @@ Type *symbol_table_lookup(symbol_table *table, char *name)
     return NULL;
 }
 
-int symbol_table_declare(scope_list *stack, char *name, Type *type)
+int symbol_table_declare(symbol_table *global_table, scope_list *stack, char *name, Type *type)
 {
     symbol_table *table = stack->head->table;
     symbol_table_node *node = symbol_table_find(table, name);
     if (node != NULL)
     {
-        return 0;
+        return 1;
     }
-    symbol_table_add_node(table, symbol_table_insert(table, name, type));
-    return 1;
+    symbol_table_add_node(table, symbol_table_insert(global_table, name, type));
+    return 0;
 }

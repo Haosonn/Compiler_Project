@@ -123,8 +123,10 @@ ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecL
     | ExtDecList SEMI { printDerivation("ExtDef -> ExtDecList SEMI\n"); printSyntaxError("Missing specifier", $1->line);}
     ;
 
-ExtDecList: VarDec { printDerivation("ExtDecList -> VarDec\n"); $$ = initParserNode("ExtDecList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
-    | VarDec COMMA ExtDecList { printDerivation("ExtDecList -> VarDec COMMA ExtDecList\n"); $$ = initParserNode("ExtDecList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+ExtDecList: VarDec { printDerivation("ExtDecList -> VarDec\n"); $$ = initParserNode("ExtDecList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+    }
+    | VarDec COMMA ExtDecList { printDerivation("ExtDecList -> VarDec COMMA ExtDecList\n"); $$ = initParserNode("ExtDecList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
+    }
     ;
 
 Specifier: TYPE { printDerivation("Specifier -> TYPE\n"); $$ = initParserNode("Specifier", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
@@ -137,8 +139,32 @@ StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> S
     ;
 
 VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        $1->type = (Type *)malloc(sizeof(Type));
+        $1->type->category = PRIMITIVE;
+        if(symbol_table_declare(global_table, scope_stack, $1->value.string_value,$1->type)){
+            printSemanticError(3, $1->line);
+        }
+        $$->type = $1->type;
     }
     | VarDec LB INT RB { printDerivation("VarDec -> VarDec LB INT RB\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
+        if($1->type->category != ARRAY){
+            Type *type = (Type *)malloc(sizeof(Type));
+            type->category = ARRAY;
+            type->array->size = $3->value.int_value;
+            type->array->base = NULL;
+            *($1->type) = *type;
+        }else{
+            Type *type = (Type *)malloc(sizeof(Type));
+            type->category = ARRAY;
+            type->array->size = $3->value.int_value;
+            type->array->base = NULL;
+            Array *array = $1->type->array;
+            while(array->base->category == ARRAY){
+                array = array->base->array;
+            }
+            array->base = type;
+        }
+        $$->type = $1->type;
     }
     | VarDec LB INT error { printDerivation("VarDec -> VarDec LB INT error\n"); printSyntaxError("Missing closing brace ']'", (int)$3->line); }
     ;
@@ -245,10 +271,12 @@ Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initPar
     ;
 
 LP: LPT { printDerivation("LP -> LPT\n"); $$ = initParserNode("LP", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        scope_list_add(scope_stack);
 }
     ;
 
 RP: RPT { printDerivation("RP -> RPT\n"); $$ = initParserNode("RP", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        scope_list_pop(scope_stack);
 }
     ;
 %%

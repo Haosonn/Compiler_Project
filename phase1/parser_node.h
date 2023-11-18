@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "symbol_table.h"
 typedef struct Type
 {
     enum
@@ -19,7 +20,7 @@ typedef struct Type
             SEMANTIC_TYPE_CHAR
         } primitive;
         struct Array *array;
-        struct FieldList *structure;
+        symbol_table *structure;
     };
 } Type;
 
@@ -29,13 +30,43 @@ typedef struct Array
     int size;
 } Array;
 
-typedef struct FieldList
+void type_print(Type *type)
 {
-    char name[32];
-    struct Type *type;
-    struct FieldList *next;
-} FieldList;
-
+    if (type == NULL)
+    {
+        printf("NULL");
+        return;
+    }
+    switch (type->category)
+    {
+    case PRIMITIVE:
+        switch (type->primitive)
+        {
+        case SEMANTIC_TYPE_INT:
+            printf("int");
+            break;
+        case SEMANTIC_TYPE_FLOAT:
+            printf("float");
+            break;
+        case SEMANTIC_TYPE_CHAR:
+            printf("char");
+            break;
+        default:
+            break;
+        }
+        break;
+    case ARRAY:
+        // recursively print
+        type_print(type->array->base);
+        printf("[%d]", type->array->size);
+        break;
+    case STRUCTURE:
+        printf("struct");
+        break;
+    default:
+        break;
+    }
+}
 typedef struct ParserNode
 {
     char name[20];
