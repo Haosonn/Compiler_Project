@@ -5,6 +5,7 @@
     #include <stdarg.h>
     #include "lex.yy.c"
     #include "parser_node.h"
+    #include "symbol_table.h"
     // #define YY_USER_ACTION \
     //     yylloc.first_line = yylineno; \
     //     yylloc.first_column = yycolno; \
@@ -13,16 +14,40 @@
     //     yycolno += yyleng;
     // yydebug = 1;
 
-    char *source_path;
-    struct ParserNode * rootNode = NULL;
+    char *source_path; 
+    struct ParserNode * rootNode = NULL; 
     int lexeme_error = 0;
     int syntax_error = 0;
+    // phase 2
+    char *semantic_error_msg[] = {
+        "a variable is used without a definition",
+        "a function is used without a definition",
+        "a variable is redefined in the same scope",
+        "a function is redefined",
+        "unmatching types appear at both sides of the assignment operator",
+        "rvalue appears on the left-hand side of the assignment operator",
+        "unmatching operands",
+        "a function's return value type mismatches the declared type",
+        "a function's arguments mismatch the declared parameters",
+        "applying indexing operator on non-array type variables",
+        "applying function invocation operator on non-function names",
+        "array indexing with a non-integer type expression",
+        "accessing members of a non-structure variable",
+        "accessing an undefined structure member",
+        "redefine the same structure type"};
+
+    symbol_table *global_table = NULL;
+    scope_list *scope_stack = NULL;
 
     void yyerror(const char*);
 
     void printSyntaxError(char *s, const int lineno) {
         syntax_error = 1;
         printf("Error type B at Line %d: %s\n", lineno, s);
+    }
+
+    void printSemanticError(int typeId , const int lineno) {
+        printf("Error type %d at Line %d: %s\n",typeId,lineno,semantic_error_msg[typeId - 1]);
     }
 
     void addParserDerivation(struct ParserNode *node, ...) {
@@ -36,7 +61,7 @@
         va_end(args);
     }
 
-     void printParserTree() {
+    void printParserTree() {
 #ifndef PRINT_PARSER_TREE
         return;
 #endif
@@ -226,6 +251,8 @@ void yyerror(const char *s) {
 
 int main(int argc, char **argv){
     char *file_path;
+    global_table = symbol_table_init();
+    scope_stack = scope_list_init();
     if(argc < 2) {
         fprintf(stderr, "Usage: %s <file_path>\n", argv[0]);
         return EXIT_FAILURE;

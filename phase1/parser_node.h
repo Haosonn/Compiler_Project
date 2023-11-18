@@ -14,9 +14,9 @@ typedef struct Type
     {
         enum
         {
-            INT,
-            FLOAT,
-            CHAR
+            SEMANTIC_TYPE_INT,
+            SEMANTIC_TYPE_FLOAT,
+            SEMANTIC_TYPE_CHAR
         } primitive;
         struct Array *array;
         struct FieldList *structure;
@@ -67,15 +67,15 @@ void setParserNodeType(struct ParserNode *node, int type)
     {
     case 0:
         node->type->category = PRIMITIVE;
-        node->type->primitive = INT;
+        node->type->primitive = SEMANTIC_TYPE_INT;
         break;
     case 1:
         node->type->category = PRIMITIVE;
-        node->type->primitive = FLOAT;
+        node->type->primitive = SEMANTIC_TYPE_FLOAT;
         break;
     case 2:
         node->type->category = PRIMITIVE;
-        node->type->primitive = CHAR;
+        node->type->primitive = SEMANTIC_TYPE_CHAR;
         break;
     default:
         break;

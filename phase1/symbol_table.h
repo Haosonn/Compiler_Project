@@ -86,7 +86,19 @@ void symbol_table_add_node(symbol_table *table, symbol_table_node *node)
         table->tail = node;
     }
 }
-
+symbol_table_node *symbol_table_find(symbol_table *table, char *name)
+{
+    symbol_table_node *node = table->head;
+    while (node != NULL)
+    {
+        if (strcmp(node->name, name) == 0)
+        {
+            return node;
+        }
+        node = node->next;
+    }
+    return NULL;
+}
 symbol_table_node *symbol_table_insert(symbol_table *table, char *name, Type *type)
 {
     symbol_table_node *node = symbol_table_find(table, name);
@@ -111,20 +123,6 @@ symbol_table_node *symbol_table_insert(symbol_table *table, char *name, Type *ty
         table->tail = node;
     }
     return node;
-}
-
-symbol_table_node *symbol_table_find(symbol_table *table, char *name)
-{
-    symbol_table_node *node = table->head;
-    while (node != NULL)
-    {
-        if (strcmp(node->name, name) == 0)
-        {
-            return node;
-        }
-        node = node->next;
-    }
-    return NULL;
 }
 
 typedef struct scope_list_node
