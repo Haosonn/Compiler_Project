@@ -6,3 +6,4 @@
 **/bin/
 **.spl.myout
 **/test/difference/
+.vscode/settings.json
