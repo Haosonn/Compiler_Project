@@ -137,6 +137,7 @@ ExtDecList: VarDec { printDerivation("ExtDecList -> VarDec\n"); $$ = initParserN
             array->base = type;
             $1->type = type;
         }
+        symbol_table_print(global_table);
     }
     | VarDec COMMA ExtDecList { printDerivation("ExtDecList -> VarDec COMMA ExtDecList\n"); $$ = initParserNode("ExtDecList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         if($1->type->category == ARRAY){
@@ -148,10 +149,13 @@ ExtDecList: VarDec { printDerivation("ExtDecList -> VarDec\n"); $$ = initParserN
             array->base = type;
             $1->type = type;
         }
+        symbol_table_print(global_table);
     }
     ;
 
-Specifier: TYPE { printDerivation("Specifier -> TYPE\n"); $$ = initParserNode("Specifier", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+Specifier: TYPE { printDerivation("Specifier -> TYPE\n"); $$ = initParserNode("Specifier", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        $$->type = $1->type;
+}
     | StructSpecifier { printDerivation("Specifier -> StructSpecifier\n"); $$ = initParserNode("Specifier", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
@@ -310,7 +314,6 @@ void yyerror(const char *s) {
 
 int main(int argc, char **argv){
     char *file_path;
-    printf("Start parsing...\n");
     global_table = symbol_table_init();
     scope_stack = scope_list_init();
     if(argc < 2) {

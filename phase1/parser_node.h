@@ -145,7 +145,7 @@ void passType(struct ParserNode *node, Type *type)
     }
     if (strcmp(node->name, "VarDec") == 0)
     {
-        *(node->type) = *type;
+        memcpy(node->type, type, sizeof(Type));
     }
 }
 
@@ -184,8 +184,8 @@ ParserNode *initParserNode(const char *name, int lineno)
     node->empty_value = 0;
     node->is_left_value = 0;
     memset(node->child, 0, sizeof(node->child));
-    node->type=NULL;
-    printf("init %s\n", node->name);
+    node->type = NULL;
+    // printf("init %s\n", node->name);
     return node;
 }
 

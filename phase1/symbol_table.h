@@ -4,8 +4,8 @@
 #include <string.h>
 #include "parser_node.h"
 typedef struct Type Type;
-int type_equal(Type* type1, Type* type2);
-void type_print(Type* type);
+int type_equal(Type *type1, Type *type2);
+void type_print(Type *type);
 typedef struct symbol_list_node
 {
     Type *type;
@@ -75,6 +75,7 @@ void symbol_table_print(symbol_table *table)
         printf("%s: ", node->name);
         type_print(node->list->head->type);
         printf("\n");
+        node = node->next;
     }
 }
 
@@ -84,7 +85,7 @@ int symbol_table_equal(symbol_table *table1, symbol_table *table2)
     symbol_table_node *node2 = table2->head;
     while (node1 != NULL && node2 != NULL)
     {
-        if (strcmp(node1->name, node2->name) != 0||!type_equal(node1->list->head->type,node2->list->head->type))
+        if (strcmp(node1->name, node2->name) != 0 || !type_equal(node1->list->head->type, node2->list->head->type))
         {
             return 0;
         }
@@ -170,14 +171,6 @@ typedef struct scope_list
     scope_list_node *tail;
 } scope_list;
 
-scope_list *scope_list_init()
-{
-    scope_list *list = (scope_list *)malloc(sizeof(scope_list));
-    list->head = NULL;
-    list->tail = NULL;
-    return list;
-}
-
 void scope_list_add(scope_list *list)
 {
     scope_list_node *node = (scope_list_node *)malloc(sizeof(scope_list_node));
@@ -193,6 +186,15 @@ void scope_list_add(scope_list *list)
         node->next = list->head;
         list->head = node;
     }
+}
+
+scope_list *scope_list_init()
+{
+    scope_list *list = (scope_list *)malloc(sizeof(scope_list));
+    list->head = NULL;
+    list->tail = NULL;
+    scope_list_add(list);
+    return list;
 }
 
 void scope_list_pop(scope_list *list)
@@ -237,4 +239,3 @@ int symbol_table_declare(symbol_table *global_table, scope_list *stack, char *na
     symbol_table_add_node(table, symbol_table_insert(global_table, name, type));
     return 0;
 }
-
