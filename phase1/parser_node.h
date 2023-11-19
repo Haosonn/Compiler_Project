@@ -9,7 +9,8 @@ typedef struct Type
     {
         PRIMITIVE,
         ARRAY,
-        STRUCTURE,
+        STRUCTURE,      // struct variable
+        STRUCTURE_TYPE, // struct type
         FUNCTION
     } category;
     union
@@ -31,6 +32,13 @@ typedef struct Array
     struct Type *base;
     int size;
 } Array;
+
+int type_same_namespace(Type *type1, Type *type2)
+{
+    return (type1->category == type2->category ||
+            type1->category == PRIMITIVE && type2->category == ARRAY ||
+            type1->category == ARRAY && type2->category == PRIMITIVE);
+}
 
 int type_equal(Type *type1, Type *type2)
 {
@@ -61,6 +69,7 @@ int type_equal(Type *type1, Type *type2)
         }
         break;
     case STRUCTURE:
+    case STRUCTURE_TYPE:
         if (!symbol_table_equal(type1->structure, type2->structure))
         {
             return 0;
@@ -105,8 +114,8 @@ void type_print(Type *type)
         break;
     case ARRAY:
         // recursively print
-        type_print(type->array->base);
         printf("[%d]", type->array->size);
+        type_print(type->array->base);
         break;
     case STRUCTURE:
         printf("struct");
@@ -244,4 +253,28 @@ void printParserNode(struct ParserNode *node, int depth)
     {
         printParserNode(node->child[i], depth + 1);
     }
+}
+
+int symbol_table_declare(symbol_table *global_table, scope_list *stack, char *name, Type *type)
+{
+    symbol_table *table = stack->head->table;
+    symbol_table_node *node = symbol_table_find(table, name);
+    if (node != NULL && type_same_namespace(node->list->head->type, type))
+    {
+        if (type->category == STRUCTURE_TYPE)
+        {
+            if (node->list->head->type->structure == NULL)
+            {
+                node->list->head->type->structure == type->structure;
+                return 0;
+            }
+            if (type->structure == NULL)
+            {
+                return 0;
+            }
+        }
+        return 1;
+    }
+    symbol_table_add_node(table, symbol_table_insert(global_table, name, type));
+    return 0;
 }

@@ -37,6 +37,7 @@
         "redefine the same structure type"};
 
     symbol_table *global_table = NULL;
+    symbol_table *struct_member_table = NULL;
     scope_list *scope_stack = NULL;
 
     void yyerror(const char*);
@@ -137,7 +138,6 @@ ExtDecList: VarDec { printDerivation("ExtDecList -> VarDec\n"); $$ = initParserN
             array->base = type;
             $1->type = type;
         }
-        symbol_table_print(global_table);
     }
     | VarDec COMMA ExtDecList { printDerivation("ExtDecList -> VarDec COMMA ExtDecList\n"); $$ = initParserNode("ExtDecList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         if($1->type->category == ARRAY){
@@ -149,7 +149,6 @@ ExtDecList: VarDec { printDerivation("ExtDecList -> VarDec\n"); $$ = initParserN
             array->base = type;
             $1->type = type;
         }
-        symbol_table_print(global_table);
     }
     ;
 
@@ -159,9 +158,11 @@ Specifier: TYPE { printDerivation("Specifier -> TYPE\n"); $$ = initParserNode("S
     | StructSpecifier { printDerivation("Specifier -> StructSpecifier\n"); $$ = initParserNode("Specifier", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
-StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> STRUCT ID LC DefList RC\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); }
+StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> STRUCT ID LC DefList RC\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); 
+    }
     | STRUCT ID LC DefList error { printDerivation("StructSpecifier -> STRUCT ID LC DefList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$4->line); }
-    | STRUCT ID { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+    | STRUCT ID { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
+    }
     ;
 
 VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
@@ -176,12 +177,14 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
         if($1->type->category != ARRAY){
             Type *type = (Type *)malloc(sizeof(Type));
             type->category = ARRAY;
+            type->array=(Array *)malloc(sizeof(Array));
             type->array->size = $3->value.int_value;
             type->array->base = NULL;
-            *($1->type) = *type;
+            memcpy($1->type, type, sizeof(Type));
         }else{
             Type *type = (Type *)malloc(sizeof(Type));
             type->category = ARRAY;
+            type->array=(Array *)malloc(sizeof(Array));
             type->array->size = $3->value.int_value;
             type->array->base = NULL;
             Array *array = $1->type->array;
@@ -246,12 +249,32 @@ Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n")
     | Specifier DecList error { printDerivation("Def -> Specifier DecList error\n"); printSyntaxError("Missing semicolon ';'", $2->line);}
     ;
 
-DecList: Dec { printDerivation("DecList -> Dec\n"); $$ = initParserNode("DecList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
-    | Dec COMMA DecList { printDerivation("DecList -> Dec COMMA DecList\n"); $$ = initParserNode("DecList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+DecList: Dec { printDerivation("DecList -> Dec\n"); $$ = initParserNode("DecList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        if($1->type->category == ARRAY){
+            Array *array = $1->type->array;
+            while(array->base!=NULL && array->base->category == ARRAY){
+                array = array->base->array;
+            }
+            Type *type = (Type *)malloc(sizeof(Type));
+            array->base = type;
+            $1->type = type;
+        }
+    }        
+    | Dec COMMA DecList { printDerivation("DecList -> Dec COMMA DecList\n"); $$ = initParserNode("DecList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
+           if($1->type->category == ARRAY){
+            Array *array = $1->type->array;
+            while(array->base!=NULL && array->base->category == ARRAY){
+                array = array->base->array;
+            }
+            Type *type = (Type *)malloc(sizeof(Type));
+            array->base = type;
+            $1->type = type;
+        }
+    }
     ;
 
-Dec: VarDec { printDerivation("Dec -> VarDec\n"); $$ = initParserNode("Dec", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
-    | VarDec ASSIGN Exp { printDerivation("Dec -> VarDec ASSIGN Exp\n"); $$ = initParserNode("Dec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+Dec: VarDec { printDerivation("Dec -> VarDec\n"); $$ = initParserNode("Dec", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); $$->type = $1->type; }
+    | VarDec ASSIGN Exp { printDerivation("Dec -> VarDec ASSIGN Exp\n"); $$ = initParserNode("Dec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); $$->type = $1->type; }
     ;
 
 Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
@@ -302,7 +325,7 @@ LC: LCT { printDerivation("LP -> LPT\n"); $$ = initParserNode("LC", yylineno); a
     ;
 
 RC: RCT { printDerivation("RP -> RPT\n"); $$ = initParserNode("RC", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
-        scope_list_pop(scope_stack);
+        struct_member_table = scope_list_pop(scope_stack);
 }
     ;
 %%

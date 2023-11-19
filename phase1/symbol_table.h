@@ -5,6 +5,7 @@
 #include "parser_node.h"
 typedef struct Type Type;
 int type_equal(Type *type1, Type *type2);
+int type_same_namespace(Type *type1, Type *type2);
 void type_print(Type *type);
 typedef struct symbol_list_node
 {
@@ -70,6 +71,7 @@ typedef struct symbol_table
 void symbol_table_print(symbol_table *table)
 {
     symbol_table_node *node = table->head;
+    printf("Symbol table:\n");
     while (node != NULL)
     {
         printf("%s: ", node->name);
@@ -153,8 +155,8 @@ symbol_table_node *symbol_table_insert(symbol_table *table, char *name, Type *ty
     }
     else
     {
-        table->tail->next = node;
-        table->tail = node;
+        node->next = table->head;
+        table->head = node;
     }
     return node;
 }
@@ -197,21 +199,24 @@ scope_list *scope_list_init()
     return list;
 }
 
-void scope_list_pop(scope_list *list)
+symbol_table* scope_list_pop(scope_list *list)
 {
+    symbol_table* table = symbol_table_init();
     if (list->head == NULL)
     {
-        return;
+        return table;
     }
     scope_list_node *node = list->head;
     list->head = list->head->next;
     symbol_table_node *table_node = node->table->head;
     while (table_node != NULL)
     {
+        symbol_table_insert(table,table_node->name,table_node->list->head->type);
         symbol_list_pop(table_node->list);
         table_node = table_node->next;
     }
     free(node);
+    return table;
 }
 
 Type *symbol_table_lookup(symbol_table *table, char *name)
@@ -228,14 +233,3 @@ Type *symbol_table_lookup(symbol_table *table, char *name)
     return NULL;
 }
 
-int symbol_table_declare(symbol_table *global_table, scope_list *stack, char *name, Type *type)
-{
-    symbol_table *table = stack->head->table;
-    symbol_table_node *node = symbol_table_find(table, name);
-    if (node != NULL)
-    {
-        return 1;
-    }
-    symbol_table_add_node(table, symbol_table_insert(global_table, name, type));
-    return 0;
-}
