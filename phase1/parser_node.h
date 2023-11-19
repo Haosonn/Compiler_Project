@@ -136,14 +136,14 @@ typedef struct ParserNode
 
 void passType(struct ParserNode *node, Type *type)
 {
-    if (strcat(node->name, "ExtDecList") == 0)
+    if (strcmp(node->name, "ExtDecList") == 0)
     {
         for (int i = 0; i < node->child_num; i++)
         {
             passType(node->child[i], type);
         }
     }
-    if (strcat(node->name, "VarDec") == 0)
+    if (strcmp(node->name, "VarDec") == 0)
     {
         *(node->type) = *type;
     }
@@ -157,17 +157,17 @@ void addParserNode(struct ParserNode *node, struct ParserNode *child)
 void setParserNodeType(struct ParserNode *node, char *type_name)
 {
     node->type = (struct Type *)malloc(sizeof(struct Type));
-    if (strcat(type_name, "int") == 0)
+    if (strcmp(type_name, "int") == 0)
     {
         node->type->category = PRIMITIVE;
         node->type->primitive = SEMANTIC_TYPE_INT;
     }
-    else if (strcat(type_name, "float") == 0)
+    else if (strcmp(type_name, "float") == 0)
     {
         node->type->category = PRIMITIVE;
         node->type->primitive = SEMANTIC_TYPE_FLOAT;
     }
-    else if (strcat(type_name, "char") == 0)
+    else if (strcmp(type_name, "char") == 0)
     {
         node->type->category = PRIMITIVE;
         node->type->primitive = SEMANTIC_TYPE_CHAR;
