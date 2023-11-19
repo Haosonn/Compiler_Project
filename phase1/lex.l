@@ -33,12 +33,12 @@
             case TOKEN_GT: yylval.parser_node = initParserNode("GT", yylineno); return GT; \
             case TOKEN_LEQ: yylval.parser_node = initParserNode("LEQ", yylineno); return LEQ; \
             case TOKEN_GEQ: yylval.parser_node = initParserNode("GEQ", yylineno); return GEQ; \
-            case TOKEN_LP: yylval.parser_node = initParserNode("LP", yylineno); return LPT; \
-            case TOKEN_RP: yylval.parser_node = initParserNode("RP", yylineno); return RPT; \
+            case TOKEN_LP: yylval.parser_node = initParserNode("LP", yylineno); return LP; \
+            case TOKEN_RP: yylval.parser_node = initParserNode("RP", yylineno); return RP; \
             case TOKEN_LB: yylval.parser_node = initParserNode("LB", yylineno); return LB; \
             case TOKEN_RB: yylval.parser_node = initParserNode("RB", yylineno); return RB; \
-            case TOKEN_LC: yylval.parser_node = initParserNode("LC", yylineno); return LC; \
-            case TOKEN_RC: yylval.parser_node = initParserNode("RC", yylineno); return RC; \
+            case TOKEN_LC: yylval.parser_node = initParserNode("LC", yylineno); return LCT; \
+            case TOKEN_RC: yylval.parser_node = initParserNode("RC", yylineno); return RCT; \
             case TOKEN_AND: yylval.parser_node = initParserNode("AND", yylineno); return AND; \
             case TOKEN_OR: yylval.parser_node = initParserNode("OR", yylineno); return OR; \
             case TOKEN_DOT: yylval.parser_node = initParserNode("DOT", yylineno); return DOT; \

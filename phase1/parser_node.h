@@ -78,7 +78,6 @@ int type_equal(Type *type1, Type *type2)
     return 1;
 }
 
-
 void type_print(Type *type)
 {
     if (type == NULL)
@@ -155,20 +154,20 @@ void addParserNode(struct ParserNode *node, struct ParserNode *child)
     node->child[node->child_num++] = child;
 }
 
-void setParserNodeType(struct ParserNode *node, char* type_name)
-{
+void setParserNodeType(struct ParserNode *node, char *type_name)
     node->type = (struct Type *)malloc(sizeof(struct Type));
-    if(strcat(type_name, "int") == 0)
+{
+    if (strcat(type_name, "int") == 0)
     {
         node->type->category = PRIMITIVE;
         node->type->primitive = SEMANTIC_TYPE_INT;
     }
-    else if(strcat(type_name, "float") == 0)
+    else if (strcat(type_name, "float") == 0)
     {
         node->type->category = PRIMITIVE;
         node->type->primitive = SEMANTIC_TYPE_FLOAT;
     }
-    else if(strcat(type_name, "char") == 0)
+    else if (strcat(type_name, "char") == 0)
     {
         node->type->category = PRIMITIVE;
         node->type->primitive = SEMANTIC_TYPE_CHAR;
@@ -185,7 +184,8 @@ ParserNode *initParserNode(const char *name, int lineno)
     node->empty_value = 0;
     node->is_left_value = 0;
     memset(node->child, 0, sizeof(node->child));
-    // printf("initParserNode: %s at address %p\n", name, node);
+    node->type=NULL;
+    printf("init %s\n", node->name);
     return node;
 }
 

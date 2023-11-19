@@ -91,7 +91,7 @@
 }
 
 %token <parser_node> INT FLOAT CHAR
-%token <parser_node> TYPE ID ASSIGN SEMI LITERAL COMMA IF ELSE WHILE FOR RETURN PLUS MINUS MUL DIV EQ NEQ LT GT LEQ GEQ LPT RPT LB RB LC RC AND OR NOT STRUCT DOT
+%token <parser_node> TYPE ID ASSIGN SEMI LITERAL COMMA IF ELSE WHILE FOR RETURN PLUS MINUS MUL DIV EQ NEQ LT GT LEQ GEQ LP RP LB RB LCT RCT AND OR NOT STRUCT DOT
 
 %right ASSIGN
 %left OR
@@ -100,11 +100,11 @@
 %left PLUS MINUS
 %left MUL DIV
 %right NOT
-%left LPT RPT LB RB LC RC DOT
+%left LP RP LB RB LCT RCT DOT
 %nonassoc IF error
 %nonassoc ELSE
 
-%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LP RP
+%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LC RC
 /* %type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DefMS DecList Dec Exp Args */
 
 %%
@@ -292,12 +292,12 @@ Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initPar
     | Exp { printDerivation("Args -> Exp\n"); $$ = initParserNode("Args", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
-LP: LPT { printDerivation("LP -> LPT\n"); $$ = initParserNode("LP", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+LC: LCT { printDerivation("LP -> LPT\n"); $$ = initParserNode("LC", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
         scope_list_add(scope_stack);
 }
     ;
 
-RP: RPT { printDerivation("RP -> RPT\n"); $$ = initParserNode("RP", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+RC: RCT { printDerivation("RP -> RPT\n"); $$ = initParserNode("RC", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
         scope_list_pop(scope_stack);
 }
     ;
