@@ -155,8 +155,8 @@ void addParserNode(struct ParserNode *node, struct ParserNode *child)
 }
 
 void setParserNodeType(struct ParserNode *node, char *type_name)
-    node->type = (struct Type *)malloc(sizeof(struct Type));
 {
+    node->type = (struct Type *)malloc(sizeof(struct Type));
     if (strcat(type_name, "int") == 0)
     {
         node->type->category = PRIMITIVE;
