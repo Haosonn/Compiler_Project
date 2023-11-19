@@ -154,11 +154,17 @@ ExtDecList: VarDec { printDerivation("ExtDecList -> VarDec\n"); $$ = initParserN
 
 Specifier: TYPE { printDerivation("Specifier -> TYPE\n"); $$ = initParserNode("Specifier", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
         $$->type = $1->type;
-}
-    | StructSpecifier { printDerivation("Specifier -> StructSpecifier\n"); $$ = initParserNode("Specifier", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+    }
+    | StructSpecifier { printDerivation("Specifier -> StructSpecifier\n"); $$ = initParserNode("Specifier", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        $$->type = $1->type;
+    }
     ;
 
 StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> STRUCT ID LC DefList RC\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); 
+        Type *type = (Type *)malloc(sizeof(Type));
+        type->category = STRUCTURE;
+        type->structure = struct_member_table;
+        $$->type = type;
     }
     | STRUCT ID LC DefList error { printDerivation("StructSpecifier -> STRUCT ID LC DefList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$4->line); }
     | STRUCT ID { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
@@ -245,7 +251,9 @@ DefList: Def DefList { printDerivation("DefList -> Def DefList\n"); $$ = initPar
     | { printDerivation("DefList -> empty\n"); $$ = initParserNode("DefList", yylineno); $$->empty_value = 1; }
     ;
 
-Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n"); $$ = initParserNode("Def", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n"); $$ = initParserNode("Def", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
+        passType($2, $1->type); 
+ }
     | Specifier DecList error { printDerivation("Def -> Specifier DecList error\n"); printSyntaxError("Missing semicolon ';'", $2->line);}
     ;
 
@@ -325,7 +333,9 @@ LC: LCT { printDerivation("LP -> LPT\n"); $$ = initParserNode("LC", yylineno); a
     ;
 
 RC: RCT { printDerivation("RP -> RPT\n"); $$ = initParserNode("RC", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        symbol_table_print(global_table);
         struct_member_table = scope_list_pop(scope_stack);
+        symbol_table_remove_empty(global_table);
 }
     ;
 %%

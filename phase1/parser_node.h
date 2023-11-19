@@ -118,7 +118,9 @@ void type_print(Type *type)
         type_print(type->array->base);
         break;
     case STRUCTURE:
-        printf("struct");
+        printf("struct: {\n");
+        symbol_table_print(type->structure);
+        printf("}");
         break;
     default:
         break;
@@ -145,17 +147,20 @@ typedef struct ParserNode
 
 void passType(struct ParserNode *node, Type *type)
 {
-    if (strcmp(node->name, "ExtDecList") == 0)
+    if (strcmp(node->name, "ExtDecList") == 0||
+    strcmp(node->name, "DecList") == 0)
     {
         for (int i = 0; i < node->child_num; i++)
         {
             passType(node->child[i], type);
         }
     }
-    if (strcmp(node->name, "VarDec") == 0)
+    if (strcmp(node->name, "VarDec") == 0||
+    strcmp(node->name, "Dec") == 0)
     {
         memcpy(node->type, type, sizeof(Type));
     }
+
 }
 
 void addParserNode(struct ParserNode *node, struct ParserNode *child)

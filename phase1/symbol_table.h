@@ -135,6 +135,53 @@ symbol_table_node *symbol_table_find(symbol_table *table, char *name)
     }
     return NULL;
 }
+
+void symbol_table_remove(symbol_table *table, char *name)
+{
+    symbol_table_node *node = table->head;
+    symbol_table_node *prev = NULL;
+    while (node != NULL)
+    {
+        if (strcmp(node->name, name) == 0)
+        {
+            if (prev == NULL)
+            {
+                table->head = node->next;
+            }
+            else
+            {
+                prev->next = node->next;
+            }
+            free(node);
+            return;
+        }
+        prev = node;
+        node = node->next;
+    }
+}
+
+void symbol_table_remove_empty(symbol_table *table)
+{
+    symbol_table_node *node = table->head;
+    symbol_table_node *prev = NULL;
+    while (node != NULL)
+    {
+        if (node->list->head == NULL)
+        {
+            if (prev == NULL)
+            {
+                table->head = node->next;
+            }
+            else
+            {
+                prev->next = node->next;
+            }
+        }
+        prev = node;
+        node = node->next;
+    }
+}
+
 symbol_table_node *symbol_table_insert(symbol_table *table, char *name, Type *type)
 {
     symbol_table_node *node = symbol_table_find(table, name);
@@ -199,9 +246,9 @@ scope_list *scope_list_init()
     return list;
 }
 
-symbol_table* scope_list_pop(scope_list *list)
+symbol_table *scope_list_pop(scope_list *list)
 {
-    symbol_table* table = symbol_table_init();
+    symbol_table *table = symbol_table_init();
     if (list->head == NULL)
     {
         return table;
@@ -211,7 +258,7 @@ symbol_table* scope_list_pop(scope_list *list)
     symbol_table_node *table_node = node->table->head;
     while (table_node != NULL)
     {
-        symbol_table_insert(table,table_node->name,table_node->list->head->type);
+        symbol_table_insert(table, table_node->name, table_node->list->head->type);
         symbol_list_pop(table_node->list);
         table_node = table_node->next;
     }
@@ -232,4 +279,3 @@ Type *symbol_table_lookup(symbol_table *table, char *name)
     }
     return NULL;
 }
-
