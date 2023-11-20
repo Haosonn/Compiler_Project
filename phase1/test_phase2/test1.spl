@@ -1,2 +1,2 @@
 struct a{int b;} a;
-struct a{int b;} a;
+struct a{int b;} b;

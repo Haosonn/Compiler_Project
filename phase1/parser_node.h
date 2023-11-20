@@ -9,8 +9,7 @@ typedef struct Type
     {
         PRIMITIVE,
         ARRAY,
-        STRUCTURE,      // struct variable
-        STRUCTURE_TYPE, // struct type
+        STRUCTURE,     
         FUNCTION
     } category;
     union
@@ -70,7 +69,6 @@ int type_equal(Type *type1, Type *type2)
         }
         break;
     case STRUCTURE:
-    case STRUCTURE_TYPE:
         if (!symbol_table_equal(type1->structure, type2->structure))
         {
             return 0;
@@ -271,3 +269,4 @@ int var_declare(symbol_table *global_table, scope_list *stack, char *name, Type 
     symbol_table_add_node(table, symbol_table_insert(global_table, name, type));
     return 0;
 }
+

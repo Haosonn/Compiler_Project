@@ -41,6 +41,7 @@
     symbol_table *structure_table = NULL;
     symbol_table *struct_member_table = NULL;
     scope_list *scope_stack = NULL;
+    scope_list *structure_stack = NULL;
 
     void yyerror(const char*);
 
@@ -167,6 +168,9 @@ StructSpecifier: STRUCT IDT LC DefList RC { printDerivation("StructSpecifier -> 
         type->category = STRUCTURE;
         type->structure = struct_member_table;
         $$->type = type;
+        if(var_declare(structure_table, structure_stack, $2->value.string_value, type)){
+            printSemanticError(15, $2->line);
+        }
     }
     | STRUCT IDT LC DefList error { printDerivation("StructSpecifier -> STRUCT ID LC DefList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$4->line); }
     | STRUCT IDT { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
@@ -340,7 +344,7 @@ RC: RCT { printDerivation("RC -> RCT\n"); $$ = initParserNode("RC", yylineno); a
         symbol_table_remove_empty(global_table);
 }
     ;
-ID: IDT{}
+ID: IDT{printDerivation("ID -> IDT\n");}
     ;
 %%
 
@@ -355,6 +359,7 @@ int main(int argc, char **argv){
     function_table = symbol_table_init();
     structure_table = symbol_table_init();
     scope_stack = scope_list_init();
+    structure_stack = scope_list_init();
     if(argc < 2) {
         fprintf(stderr, "Usage: %s <file_path>\n", argv[0]);
         return EXIT_FAILURE;
