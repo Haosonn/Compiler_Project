@@ -197,7 +197,8 @@ StructSpecifier: STRUCT IDT LC DefList RC { printDerivation("StructSpecifier -> 
     }
     | STRUCT IDT LC DefList error { printDerivation("StructSpecifier -> STRUCT ID LC DefList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$4->line); }
     | STRUCT IDT { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
-    Type* type = symbol_table_lookup(global_table, $2->value.string_value);
+    Type* type = symbol_table_lookup(structure_table, $2->value.string_value);
+    $$->type = type;
     }
     ;
 
@@ -245,7 +246,17 @@ FunDec: IDT LPF VarList RPF { printDerivation("FunDec -> ID LP VarList RP\n"); $
             printSemanticError(4, $1->line);
         }
     }
-    | IDT LP RP { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | IDT LP RP { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
+        Type *type = (Type *)malloc(sizeof(Type));
+        type->category = FUNCTION;
+        type->function = symbol_table_init();
+        Type *return_type = (Type *)malloc(sizeof(Type));
+        symbol_table_insert(type->function, $1->value.string_value, return_type); 
+        $$->type = (Type *)malloc(sizeof(Type));
+        if(function_declare(function_table, $1->value.string_value, type)){
+            printSemanticError(4, $1->line);
+        }
+    }
     | IDT LP error { printDerivation("FunDec -> ID LP error\n"); printSyntaxError("Missing closing parenthesis ')'",$2->line); }
     ;
 

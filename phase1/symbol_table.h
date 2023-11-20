@@ -16,14 +16,12 @@ typedef struct symbol_list_node
 typedef struct symbol_list
 {
     symbol_list_node *head;
-    symbol_list_node *tail;
 } symbol_list;
 
 symbol_list *symbol_list_init()
 {
     symbol_list *list = (symbol_list *)malloc(sizeof(symbol_list));
     list->head = NULL;
-    list->tail = NULL;
     return list;
 }
 
@@ -35,7 +33,6 @@ void symbol_list_insert(symbol_list *list, Type *type)
     if (list->head == NULL)
     {
         list->head = node;
-        list->tail = node;
     }
     else
     {
@@ -65,7 +62,6 @@ typedef struct symbol_table_node
 typedef struct symbol_table
 {
     symbol_table_node *head;
-    symbol_table_node *tail;
 } symbol_table;
 
 void symbol_table_print(symbol_table *table)
@@ -73,6 +69,13 @@ void symbol_table_print(symbol_table *table)
     symbol_table_node *node = table->head;
     while (node != NULL)
     {
+        symbol_list_node *list_node = node->list->head;
+        if (node->list->head == NULL)
+        {
+            printf("%s \n", node->name);
+            node = node->next;
+            continue;
+        }
         printf("%s: ", node->name);
         type_print(node->list->head->type);
         printf("\n");
@@ -104,7 +107,6 @@ symbol_table *symbol_table_init()
 {
     symbol_table *table = (symbol_table *)malloc(sizeof(symbol_table));
     table->head = NULL;
-    table->tail = NULL;
     return table;
 }
 
@@ -116,7 +118,6 @@ void symbol_table_add_node(symbol_table *table, symbol_table_node *node)
     if (table->head == NULL)
     {
         table->head = node_cpy;
-        table->tail = node_cpy;
     }
     else
     {
@@ -170,7 +171,7 @@ void symbol_table_remove_empty(symbol_table *table)
     {
         if (node->list->head == NULL)
         {
-            if (prev == NULL)
+            if (node==table->head)
             {
                 table->head = node->next;
             }
@@ -200,7 +201,6 @@ symbol_table_node *symbol_table_insert(symbol_table *table, char *name, Type *ty
     if (table->head == NULL)
     {
         table->head = node;
-        table->tail = node;
     }
     else
     {
@@ -219,7 +219,6 @@ typedef struct scope_list_node
 typedef struct scope_list
 {
     scope_list_node *head;
-    scope_list_node *tail;
 } scope_list;
 
 void scope_list_add(scope_list *list)
@@ -230,7 +229,6 @@ void scope_list_add(scope_list *list)
     if (list->head == NULL)
     {
         list->head = node;
-        list->tail = node;
     }
     else
     {
@@ -243,7 +241,6 @@ scope_list *scope_list_init()
 {
     scope_list *list = (scope_list *)malloc(sizeof(scope_list));
     list->head = NULL;
-    list->tail = NULL;
     scope_list_add(list);
     return list;
 }
@@ -257,6 +254,7 @@ symbol_table *scope_list_pop(scope_list *list)
     }
     scope_list_node *node = list->head;
     list->head = list->head->next;
+
     symbol_table_node *table_node = node->table->head;
     while (table_node != NULL)
     {
