@@ -169,6 +169,8 @@ void passType(struct ParserNode *node, Type *type)
 void addParserNode(struct ParserNode *node, struct ParserNode *child)
 {
     node->child[node->child_num++] = child;
+    if (node->type == NULL)
+        node->type = child->type;
 }
 
 void setParserNodeType(struct ParserNode *node, char *type_name)
@@ -285,3 +287,4 @@ int function_declare(symbol_table *global_table, char *name, Type *type)
     symbol_table_insert(global_table, name, type);
     return 0;
 }
+
