@@ -39,7 +39,7 @@
     symbol_table *global_table = NULL;
     symbol_table *function_table = NULL;
     symbol_table *structure_table = NULL;
-    symbol_table *struct_member_table = NULL;
+    symbol_table *temp_member_table = NULL;
     scope_list *scope_stack = NULL;
     scope_list *structure_stack = NULL;
 
@@ -108,12 +108,20 @@
 %nonassoc IF error
 %nonassoc ELSE
 
-%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LC RC ID
+%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LC RC ID LPF RPF
 /* %type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DefMS DecList Dec Exp Args */
 
 %%
 Program: ExtDefList { printDerivation("Program -> ExtDefList\n"); $$ = initParserNode("Program", yylineno); rootNode = $$; addParserDerivation($$, $1, NULL); cal_line($$); 
+    printf("var table:\n");
     symbol_table_print(global_table);
+    printf("\n");
+    printf("function table:\n");
+    symbol_table_print(function_table);
+    printf("\n");
+    printf("structure table:\n");
+    symbol_table_print(structure_table);
+    printf("\n");
 }
     ;
 
@@ -127,7 +135,9 @@ ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecL
     | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     | Specifier error { printDerivation("ExtDef -> Specifier error\n"); printSyntaxError("Missing semicolon ';'", $1->line);}
     | Specifier ExtDecList error { printDerivation("ExtDef -> Specifier ExtDecList error\n"); printSyntaxError("Missing semicolon ';'", $2->line);}
-    | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
+    memcpy($2->type, $1->type, sizeof(Type));
+    }
     | ExtDecList SEMI { printDerivation("ExtDef -> ExtDecList SEMI\n"); printSyntaxError("Missing specifier", $1->line);}
     ;
 
@@ -166,7 +176,7 @@ Specifier: TYPE { printDerivation("Specifier -> TYPE\n"); $$ = initParserNode("S
 StructSpecifier: STRUCT IDT LC DefList RC { printDerivation("StructSpecifier -> STRUCT ID LC DefList RC\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); 
         Type *type = (Type *)malloc(sizeof(Type));
         type->category = STRUCTURE;
-        type->structure = struct_member_table;
+        type->structure = temp_member_table;
         $$->type = type;
         if(var_declare(structure_table, structure_stack, $2->value.string_value, type)){
             printSemanticError(15, $2->line);
@@ -211,7 +221,17 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
     | VarDec LB INT error { printDerivation("VarDec -> VarDec LB INT error\n"); printSyntaxError("Missing closing brace ']'", (int)$3->line); }
     ;
 
-FunDec: IDT LP VarList RP { printDerivation("FunDec -> ID LP VarList RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
+FunDec: IDT LPF VarList RPF { printDerivation("FunDec -> ID LP VarList RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
+        Type *type = (Type *)malloc(sizeof(Type));
+        type->category = FUNCTION;
+        type->function = temp_member_table;
+        Type *return_type = (Type *)malloc(sizeof(Type));
+        symbol_table_insert(type->function, $1->value.string_value, return_type); 
+        $$->type = return_type;
+        if(function_declare(function_table, $1->value.string_value, type)){
+            printSemanticError(4, $1->line);
+        }
+    }
     | IDT LP RP { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     | IDT LP error { printDerivation("FunDec -> ID LP error\n"); printSyntaxError("Missing closing parenthesis ')'",$2->line); }
     ;
@@ -334,17 +354,29 @@ Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initPar
     | Exp { printDerivation("Args -> Exp\n"); $$ = initParserNode("Args", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
+// phase 2
 LC: LCT { printDerivation("LC -> LCT\n"); $$ = initParserNode("LC", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
         scope_list_add(scope_stack);
 }
     ;
 
 RC: RCT { printDerivation("RC -> RCT\n"); $$ = initParserNode("RC", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
-        struct_member_table = scope_list_pop(scope_stack);
+        temp_member_table = scope_list_pop(scope_stack);
         symbol_table_remove_empty(global_table);
 }
     ;
-ID: IDT{printDerivation("ID -> IDT\n");}
+ID: IDT{printDerivation("ID -> IDT\n"); $$ = $1; }
+    ;
+
+LPF: LP { printDerivation("LPF -> LP\n"); $$ = initParserNode("LPF", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        scope_list_add(scope_stack);
+}
+    ;
+
+RPF: RP { printDerivation("RPF -> RP\n"); $$ = initParserNode("RPF", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        temp_member_table = scope_list_pop(scope_stack);
+        symbol_table_remove_empty(global_table);
+}
     ;
 %%
 

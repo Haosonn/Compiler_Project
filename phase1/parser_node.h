@@ -9,7 +9,7 @@ typedef struct Type
     {
         PRIMITIVE,
         ARRAY,
-        STRUCTURE,     
+        STRUCTURE,
         FUNCTION
     } category;
     union
@@ -117,9 +117,14 @@ void type_print(Type *type)
         type_print(type->array->base);
         break;
     case STRUCTURE:
-        printf("struct: {\n");
+        printf("struct {\n");
         symbol_table_print(type->structure);
         printf("}");
+        break;
+    case FUNCTION:
+        printf("function (\n");
+        symbol_table_print(type->function);
+        printf(")");
         break;
     default:
         break;
@@ -270,3 +275,13 @@ int var_declare(symbol_table *global_table, scope_list *stack, char *name, Type 
     return 0;
 }
 
+int function_declare(symbol_table *global_table, char *name, Type *type)
+{
+    symbol_table_node *node = symbol_table_find(global_table, name);
+    if (node != NULL)
+    {
+        return 1;
+    }
+    symbol_table_insert(global_table, name, type);
+    return 0;
+}

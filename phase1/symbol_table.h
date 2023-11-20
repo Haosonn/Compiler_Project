@@ -71,7 +71,6 @@ typedef struct symbol_table
 void symbol_table_print(symbol_table *table)
 {
     symbol_table_node *node = table->head;
-    printf("Symbol table:\n");
     while (node != NULL)
     {
         printf("%s: ", node->name);
@@ -121,8 +120,8 @@ void symbol_table_add_node(symbol_table *table, symbol_table_node *node)
     }
     else
     {
-        table->tail->next = node_cpy;
-        table->tail = node_cpy;
+        node_cpy->next = table->head;
+        table->head = node_cpy;
     }
 }
 symbol_table_node *symbol_table_find(symbol_table *table, char *name)
