@@ -33,13 +33,13 @@ typedef struct Array
     int size;
 } Array;
 
-int type_same_namespace(Type *type1, Type *type2)
-{
-    printf("type1->catagory: %d, type2->catagory: %d\n", type1->category, type2->category);
-    return (type1->category == type2->category ||
-            type1->category == PRIMITIVE && type2->category == ARRAY ||
-            type1->category == ARRAY && type2->category == PRIMITIVE);
-}
+// int type_same_namespace(Type *type1, Type *type2)
+// {
+//     printf("type1->catagory: %d, type2->catagory: %d\n", type1->category, type2->category);
+//     return (type1->category == type2->category ||
+//             type1->category == PRIMITIVE && type2->category == ARRAY ||
+//             type1->category == ARRAY && type2->category == PRIMITIVE);
+// }
 
 int type_equal(Type *type1, Type *type2)
 {
@@ -260,26 +260,14 @@ void printParserNode(struct ParserNode *node, int depth)
     }
 }
 
-int symbol_table_declare(symbol_table *global_table, scope_list *stack, char *name, Type *type)
+int var_declare(symbol_table *global_table, scope_list *stack, char *name, Type *type)
 {
-        symbol_table *table = stack->head->table;
-        symbol_table_node *node = symbol_table_find(table, name);
-    if (node != NULL && type_same_namespace(node->list->head->type, type))
+    symbol_table *table = stack->head->table;
+    symbol_table_node *node = symbol_table_find(table, name);
+    if (node != NULL)
     {
-        if (type->category == STRUCTURE_TYPE)
-        {
-            if (node->list->head->type->structure == NULL)
-            {
-                node->list->head->type->structure == type->structure;
-                return 0;
-            }
-            if (type->structure == NULL)
-            {
-                return 0;
-            }
-        }
         return 1;
     }
-symbol_table_add_node(table, symbol_table_insert(global_table, name, type));
+    symbol_table_add_node(table, symbol_table_insert(global_table, name, type));
     return 0;
 }

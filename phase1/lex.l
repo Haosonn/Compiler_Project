@@ -9,7 +9,7 @@
         switch(_token) { \
             case TOKEN_TYPE: yylval.parser_node = initParserNode("TYPE", yylineno); setParserNodeType(yylval.parser_node,yytext); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return TYPE; \
             case TOKEN_STRUCT: yylval.parser_node = initParserNode("STRUCT", yylineno); return STRUCT; \
-            case TOKEN_ID: yylval.parser_node = initParserNode("ID", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return ID; \
+            case TOKEN_ID: yylval.parser_node = initParserNode("ID", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return IDT; \
             case TOKEN_ASSIGN: yylval.parser_node = initParserNode("ASSIGN", yylineno); return ASSIGN; \
             case TOKEN_SEMI: yylval.parser_node = initParserNode("SEMI", yylineno); return SEMI; \
             case TOKEN_LITERAL: yylval.parser_node = initParserNode("LITERAL", yylineno); yylval.parser_node->value.string_value = malloc(sizeof(char) * (strlen(yytext) + 1)); strcpy(yylval.parser_node->value.string_value, yytext); return LITERAL; \

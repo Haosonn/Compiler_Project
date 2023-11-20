@@ -37,6 +37,8 @@
         "redefine the same structure type"};
 
     symbol_table *global_table = NULL;
+    symbol_table *function_table = NULL;
+    symbol_table *structure_table = NULL;
     symbol_table *struct_member_table = NULL;
     scope_list *scope_stack = NULL;
 
@@ -92,7 +94,7 @@
 }
 
 %token <parser_node> INT FLOAT CHAR
-%token <parser_node> TYPE ID ASSIGN SEMI LITERAL COMMA IF ELSE WHILE FOR RETURN PLUS MINUS MUL DIV EQ NEQ LT GT LEQ GEQ LP RP LB RB LCT RCT AND OR NOT STRUCT DOT
+%token <parser_node> TYPE IDT ASSIGN SEMI LITERAL COMMA IF ELSE WHILE FOR RETURN PLUS MINUS MUL DIV EQ NEQ LT GT LEQ GEQ LP RP LB RB LCT RCT AND OR NOT STRUCT DOT
 
 %right ASSIGN
 %left OR
@@ -105,7 +107,7 @@
 %nonassoc IF error
 %nonassoc ELSE
 
-%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LC RC
+%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LC RC ID
 /* %type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DefMS DecList Dec Exp Args */
 
 %%
@@ -160,14 +162,14 @@ Specifier: TYPE { printDerivation("Specifier -> TYPE\n"); $$ = initParserNode("S
     }
     ;
 
-StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> STRUCT ID LC DefList RC\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); 
+StructSpecifier: STRUCT IDT LC DefList RC { printDerivation("StructSpecifier -> STRUCT ID LC DefList RC\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); 
         Type *type = (Type *)malloc(sizeof(Type));
         type->category = STRUCTURE;
         type->structure = struct_member_table;
         $$->type = type;
     }
-    | STRUCT ID LC DefList error { printDerivation("StructSpecifier -> STRUCT ID LC DefList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$4->line); }
-    | STRUCT ID { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
+    | STRUCT IDT LC DefList error { printDerivation("StructSpecifier -> STRUCT ID LC DefList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$4->line); }
+    | STRUCT IDT { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
     Type* type = symbol_table_lookup(global_table, $2->value.string_value);
     }
     ;
@@ -175,7 +177,7 @@ StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> S
 VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
         $1->type = (Type *)malloc(sizeof(Type));
         $1->type->category = PRIMITIVE;
-        if(symbol_table_declare(global_table, scope_stack, $1->value.string_value,$1->type)){
+        if(var_declare(global_table, scope_stack, $1->value.string_value,$1->type)){
             printSemanticError(3, $1->line);
 }
         $$->type = $1->type;
@@ -205,9 +207,9 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
     | VarDec LB INT error { printDerivation("VarDec -> VarDec LB INT error\n"); printSyntaxError("Missing closing brace ']'", (int)$3->line); }
     ;
 
-FunDec: ID LP VarList RP { printDerivation("FunDec -> ID LP VarList RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
-    | ID LP RP { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
-    | ID LP error { printDerivation("FunDec -> ID LP error\n"); printSyntaxError("Missing closing parenthesis ')'",$2->line); }
+FunDec: IDT LP VarList RP { printDerivation("FunDec -> ID LP VarList RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
+    | IDT LP RP { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | IDT LP error { printDerivation("FunDec -> ID LP error\n"); printSyntaxError("Missing closing parenthesis ')'",$2->line); }
     ;
 
 VarList: ParamDec COMMA VarList { printDerivation("VarList -> ParamDec COMMA VarList\n"); $$ = initParserNode("VarList", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
@@ -338,6 +340,8 @@ RC: RCT { printDerivation("RC -> RCT\n"); $$ = initParserNode("RC", yylineno); a
         symbol_table_remove_empty(global_table);
 }
     ;
+ID: IDT{}
+    ;
 %%
 
 void yyerror(const char *s) {
@@ -348,6 +352,8 @@ void yyerror(const char *s) {
 int main(int argc, char **argv){
     char *file_path;
     global_table = symbol_table_init();
+    function_table = symbol_table_init();
+    structure_table = symbol_table_init();
     scope_stack = scope_list_init();
     if(argc < 2) {
         fprintf(stderr, "Usage: %s <file_path>\n", argv[0]);
