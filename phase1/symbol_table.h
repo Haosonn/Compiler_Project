@@ -111,15 +111,18 @@ symbol_table *symbol_table_init()
 
 void symbol_table_add_node(symbol_table *table, symbol_table_node *node)
 {
+    symbol_table_node *node_cpy = (symbol_table_node *)malloc(sizeof(symbol_table_node));
+    memcpy(node_cpy, node, sizeof(symbol_table_node));
+    node_cpy->next = NULL;
     if (table->head == NULL)
     {
-        table->head = node;
-        table->tail = node;
+        table->head = node_cpy;
+        table->tail = node_cpy;
     }
     else
     {
-        table->tail->next = node;
-        table->tail = node;
+        table->tail->next = node_cpy;
+        table->tail = node_cpy;
     }
 }
 symbol_table_node *symbol_table_find(symbol_table *table, char *name)

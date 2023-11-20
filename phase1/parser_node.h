@@ -35,6 +35,7 @@ typedef struct Array
 
 int type_same_namespace(Type *type1, Type *type2)
 {
+    printf("type1->catagory: %d, type2->catagory: %d\n", type1->category, type2->category);
     return (type1->category == type2->category ||
             type1->category == PRIMITIVE && type2->category == ARRAY ||
             type1->category == ARRAY && type2->category == PRIMITIVE);
@@ -147,20 +148,19 @@ typedef struct ParserNode
 
 void passType(struct ParserNode *node, Type *type)
 {
-    if (strcmp(node->name, "ExtDecList") == 0||
-    strcmp(node->name, "DecList") == 0)
+    if (strcmp(node->name, "ExtDecList") == 0 ||
+        strcmp(node->name, "DecList") == 0)
     {
         for (int i = 0; i < node->child_num; i++)
         {
             passType(node->child[i], type);
         }
     }
-    if (strcmp(node->name, "VarDec") == 0||
-    strcmp(node->name, "Dec") == 0)
+    if (strcmp(node->name, "VarDec") == 0 ||
+        strcmp(node->name, "Dec") == 0)
     {
         memcpy(node->type, type, sizeof(Type));
     }
-
 }
 
 void addParserNode(struct ParserNode *node, struct ParserNode *child)
@@ -262,8 +262,8 @@ void printParserNode(struct ParserNode *node, int depth)
 
 int symbol_table_declare(symbol_table *global_table, scope_list *stack, char *name, Type *type)
 {
-    symbol_table *table = stack->head->table;
-    symbol_table_node *node = symbol_table_find(table, name);
+        symbol_table *table = stack->head->table;
+        symbol_table_node *node = symbol_table_find(table, name);
     if (node != NULL && type_same_namespace(node->list->head->type, type))
     {
         if (type->category == STRUCTURE_TYPE)
@@ -280,6 +280,6 @@ int symbol_table_declare(symbol_table *global_table, scope_list *stack, char *na
         }
         return 1;
     }
-    symbol_table_add_node(table, symbol_table_insert(global_table, name, type));
+symbol_table_add_node(table, symbol_table_insert(global_table, name, type));
     return 0;
 }

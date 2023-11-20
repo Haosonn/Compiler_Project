@@ -168,6 +168,7 @@ StructSpecifier: STRUCT ID LC DefList RC { printDerivation("StructSpecifier -> S
     }
     | STRUCT ID LC DefList error { printDerivation("StructSpecifier -> STRUCT ID LC DefList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$4->line); }
     | STRUCT ID { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
+    Type* type = symbol_table_lookup(global_table, $2->value.string_value);
     }
     ;
 
@@ -176,7 +177,7 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
         $1->type->category = PRIMITIVE;
         if(symbol_table_declare(global_table, scope_stack, $1->value.string_value,$1->type)){
             printSemanticError(3, $1->line);
-        }
+}
         $$->type = $1->type;
     }
     | VarDec LB INT RB { printDerivation("VarDec -> VarDec LB INT RB\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
@@ -327,13 +328,12 @@ Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initPar
     | Exp { printDerivation("Args -> Exp\n"); $$ = initParserNode("Args", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
-LC: LCT { printDerivation("LP -> LPT\n"); $$ = initParserNode("LC", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+LC: LCT { printDerivation("LC -> LCT\n"); $$ = initParserNode("LC", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
         scope_list_add(scope_stack);
 }
     ;
 
-RC: RCT { printDerivation("RP -> RPT\n"); $$ = initParserNode("RC", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
-        symbol_table_print(global_table);
+RC: RCT { printDerivation("RC -> RCT\n"); $$ = initParserNode("RC", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
         struct_member_table = scope_list_pop(scope_stack);
         symbol_table_remove_empty(global_table);
 }
