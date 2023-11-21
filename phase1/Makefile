@@ -6,7 +6,8 @@ PRINT_PARSER_TREE=false
 PRINT_DERIVATION=false
 PRINT_TOKEN=false
 TEST_CASE=test_phase2/test_1.spl
-TEST_CASE_BASE=test/test_1_r
+# TEST_CASE_BASE=test/test_1_r
+TEST_CASE_BASE=test_phase2/test_2_r
 N=10
 CFLAGS= 
 ifeq ($(PRINT_PARSER_TREE), true)
@@ -41,7 +42,7 @@ test_case: main
 
 
 test_all: main
-	@for file in test/*.spl; do \
+	@for file in test_phase2/*.spl; do \
 		echo "Testing $$file"; \
 		bin/splc $$file > $$file.myout; \
 		diff $$(echo $${file:0:-3}out) $$file.myout > test/difference/$$(basename $$file).diff -u || true;\

@@ -67,7 +67,7 @@
 
     int typeNotMatch(struct ParserNode *node1,struct ParserNode *node2)
     {
-        return !type_equal(node1->type, node2->type);
+        return !type_equal(node1->type, node2->type)&&node1->type!=NULL&&node2->type!=NULL;
     }    
 
     void printParserTree() {
