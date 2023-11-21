@@ -404,8 +404,9 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
         }else{
             if($3->type->category != PRIMITIVE || $3->type->primitive != SEMANTIC_TYPE_INT){
                 printSemanticError(12, $3->line);
-            }
+            }else{
             $$->type = $1->type->array->base;
+            }
         }
     }
     | Exp LB Exp error { printDerivation("Exp -> Exp LB Exp error\n"); printSyntaxError("Missing closing brace ']'", (int)$3->line); }
