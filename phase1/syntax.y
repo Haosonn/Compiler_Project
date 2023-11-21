@@ -375,6 +375,7 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
             $$->type=NULL;
         }
         else if(type->category != FUNCTION){
+            // not used
             printSemanticError(11, $1->line);
             $$->type=NULL;
         }
@@ -389,6 +390,7 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
             $$->type=NULL;
         }
         else if(type->category != FUNCTION){
+            // not used
             printSemanticError(11, $1->line);
             $$->type=NULL;
         }else{
