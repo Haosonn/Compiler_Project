@@ -118,6 +118,7 @@
 
 %%
 Program: ExtDefList { printDerivation("Program -> ExtDefList\n"); $$ = initParserNode("Program", yylineno); rootNode = $$; addParserDerivation($$, $1, NULL); cal_line($$); 
+#ifdef PRINT_SYMBOL_TABLE
     printf("var table:\n");
     symbol_table_print(global_table);
     printf("\n");
@@ -127,6 +128,7 @@ Program: ExtDefList { printDerivation("Program -> ExtDefList\n"); $$ = initParse
     printf("structure table:\n");
     symbol_table_print(structure_table);
     printf("\n");
+#endif
 }
     ;
 

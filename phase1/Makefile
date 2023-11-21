@@ -5,6 +5,7 @@ BISON=bison
 PRINT_PARSER_TREE=false
 PRINT_DERIVATION=false
 PRINT_TOKEN=false
+PRINT_SYMBOL_TABLE=false
 TEST_CASE=test_phase2/test_1.spl
 # TEST_CASE_BASE=test/test_1_r
 TEST_CASE_BASE=test_phase2/test_2_r
@@ -19,6 +20,10 @@ endif
 ifeq ($(PRINT_TOKEN), true)
 	CFLAGS += -DPRINT_TOKEN
 endif
+ifeq ($(PRINT_SYMBOL_TABLE), true)
+	CFLAGS += -DPRINT_SYMBOL_TABLE
+endif
+
 .PHONY: 
 	clean test
 main:
