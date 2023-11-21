@@ -153,6 +153,9 @@ ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecL
     symbol_table_remove_empty(global_table);
     memcpy($2->type->function,temp_member_table,sizeof(symbol_table));
     symbol_table_insert($2->type->function,"return_type",$1->type);
+    if(check_return_type($3, $1->type)){
+        printSemanticError(8, $2->line);
+    }
     }
     | ExtDecList SEMI { printDerivation("ExtDef -> ExtDecList SEMI\n"); printSyntaxError("Missing specifier", $1->line);}
     ;

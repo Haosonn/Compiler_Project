@@ -288,3 +288,37 @@ int function_declare(symbol_table *global_table, char *name, Type *type)
     return 0;
 }
 
+int check_return_type(ParserNode *ParserNode, Type *type)
+{
+    if (ParserNode == NULL)
+        return 1;
+    if (strcmp(ParserNode->name, "CompSt") == 0)
+    {
+        return check_return_type(ParserNode->child[2], type);
+    }
+    if (strcmp(ParserNode->name, "StmtList") == 0)
+    {
+        int check = check_return_type(ParserNode->child[0], type);
+        if (ParserNode->child_num == 2)
+        {
+            int check_next = check_return_type(ParserNode->child[1], type);
+            return check && check_next;
+        }
+        if (ParserNode->child_num == 3)
+        {
+            int check_next = check_return_type(ParserNode->child[2], type);
+            return check && check_next;
+        }
+    }
+    if (strcmp(ParserNode->name, "Stmt") == 0)
+    {
+        if (strcmp(ParserNode->child[0]->name, "RETURN") == 0)
+        {
+            if (!type_equal(ParserNode->child[1]->type, type))
+            {
+                printf("Error type 8 at Line %d: Type mismatched for return.\n", ParserNode->child[0]->line);
+            }
+        }
+        return 0;
+    }
+}
