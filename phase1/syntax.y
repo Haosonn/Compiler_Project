@@ -301,6 +301,9 @@ DefList: Def DefList { printDerivation("DefList -> Def DefList\n"); $$ = initPar
     ;
 
 Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n"); $$ = initParserNode("Def", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
+        // if ($1->type==NULL){
+            // undefined structure
+        // } 
         passType($2, $1->type); 
  }
     | Specifier DecList error { printDerivation("Def -> Specifier DecList error\n"); printSyntaxError("Missing semicolon ';'", $2->line);}
@@ -370,6 +373,9 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
     | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp", yylineno); $$->is_left_value = 1; addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
         if($1->type->category != ARRAY){
             printSemanticError(10, $1->line);
+        }
+        if($3->type->category != PRIMITIVE || $3->type->primitive != INT){
+            printSemanticError(12, $3->line);
         }
         $$->type = $1->type->array->base;
     }
