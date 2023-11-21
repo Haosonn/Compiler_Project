@@ -342,7 +342,12 @@ Dec: VarDec { printDerivation("Dec -> VarDec\n"); $$ = initParserNode("Dec", yyl
     | VarDec ASSIGN Exp { printDerivation("Dec -> VarDec ASSIGN Exp\n"); $$ = initParserNode("Dec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); $$->type = $1->type; }
     ;
 
-Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); if(typeNotMatch($1, $3)) printSemanticError(5, $1->line); }
+Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
+        if(typeNotMatch($1, $3)) 
+            printSemanticError(5, $1->line); 
+        if(!$1->is_left_value)
+            printSemanticError(6, $1->line);
+    }
     | ASSIGN Exp {  printDerivation("Exp -> Exp ASSIGN error\n"); printSyntaxError("Missing operand before =", (int)$2->line);  }
     | Exp ASSIGN error { printDerivation("Exp -> Exp ASSIGN error\n"); printSyntaxError("Missing operand after =", (int)$2->line); }
     | Exp OR Exp { printDerivation("Exp -> Exp OR Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }

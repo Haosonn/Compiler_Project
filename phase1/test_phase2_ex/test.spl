@@ -1,5 +1,4 @@
 int a(int a){
     float b;
-    return a;
-    return b;
+    1 = b;
 }
