@@ -380,6 +380,10 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
             $$->type=NULL;
         }
         else{
+            if(check_function_args(type->function, temp_member_table)){
+                printSemanticError(9, $1->line);
+            }
+            temp_member_table = symbol_table_init();
             $$->type = type->function->head->list->head->type;
         }
     }
@@ -394,6 +398,9 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
             printSemanticError(11, $1->line);
             $$->type=NULL;
         }else{
+            if(check_function_args(type->function, NULL)){
+                printSemanticError(9, $1->line);
+            }
             $$->type = type->function->head->list->head->type;
         }
     }
@@ -435,8 +442,12 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
     | LITERAL { printDerivation("Exp -> LITERAL\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
-Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initParserNode("Args", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
-    | Exp { printDerivation("Args -> Exp\n"); $$ = initParserNode("Args", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
+Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initParserNode("Args", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
+        symbol_table_insert(temp_member_table, "arg", $1->type);
+    }
+    | Exp { printDerivation("Args -> Exp\n"); $$ = initParserNode("Args", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        symbol_table_insert(temp_member_table, "arg", $1->type);
+    }
     ;
 
 // phase 2

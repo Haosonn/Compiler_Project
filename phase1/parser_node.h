@@ -308,3 +308,23 @@ int check_return_type(ParserNode *ParserNode, Type *type)
     }
     return ret;
 }
+
+int check_function_args(symbol_table *function, symbol_table *args)
+{
+    symbol_table_node *node1 = function->head->next;
+    if (args == NULL)
+    {
+        return node1 != NULL;
+    }
+    symbol_list_node *node2 = args->head->list->head;
+    while (node1 != NULL && node2 != NULL)
+    {
+        if (!type_equal(node1->list->head->type, node2->type))
+        {
+            return 1;
+        }
+        node1 = node1->next;
+        node2 = node2->next;
+    }
+    return node1 != NULL || node2 != NULL;
+}
