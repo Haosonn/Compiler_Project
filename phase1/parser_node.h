@@ -298,6 +298,10 @@ int check_return_type(ParserNode *ParserNode, Type *type)
     }
     if (strcmp(ParserNode->name, "StmtList") == 0)
     {
+        if (ParserNode->child_num == 0)
+        {
+            return 1;
+        }
         int check = check_return_type(ParserNode->child[0], type);
         if (ParserNode->child_num == 2)
         {

@@ -237,7 +237,7 @@ FunDec: IDT LPF VarList RPF { printDerivation("FunDec -> ID LP VarList RP\n"); $
 
         Type *type = (Type *)malloc(sizeof(Type));
         type->category = FUNCTION;
-        type->function =(symbol_table *)malloc(sizeof(symbol_table)); 
+        type->function =symbol_table_init(); 
         $$->type = type;
 
         if(function_declare(function_table, $1->value.string_value, type)){
@@ -250,10 +250,11 @@ FunDec: IDT LPF VarList RPF { printDerivation("FunDec -> ID LP VarList RP\n"); $
         type->function = symbol_table_init();
         Type *return_type = (Type *)malloc(sizeof(Type));
         symbol_table_insert(type->function, $1->value.string_value, return_type); 
-        $$->type = (Type *)malloc(sizeof(Type));
+        $$->type = type;
         if(function_declare(function_table, $1->value.string_value, type)){
             printSemanticError(4, $1->line);
         }
+        temp_member_table = symbol_table_init();
     }
     | IDT LP error { printDerivation("FunDec -> ID LP error\n"); printSyntaxError("Missing closing parenthesis ')'",$2->line); }
     ;
@@ -367,8 +368,33 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
     | PLUS Exp { printDerivation("Exp -> PLUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     | MINUS Exp { printDerivation("Exp -> MINUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     | NOT Exp { printDerivation("Exp -> NOT Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
-    | ID LP Args RP { printDerivation("Exp -> ID LP Args RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
-    | ID LP RP { printDerivation("Exp -> ID LP RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | ID LP Args RP { printDerivation("Exp -> ID LP Args RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
+        Type *type = symbol_table_lookup(function_table, $1->value.string_value);
+        if(type == NULL){
+            printSemanticError(2, $1->line);
+            $$->type=NULL;
+        }
+        else if(type->category != FUNCTION){
+            printSemanticError(11, $1->line);
+            $$->type=NULL;
+        }
+        else{
+            $$->type = type->function->head->list->head->type;
+        }
+    }
+    | ID LP RP { printDerivation("Exp -> ID LP RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
+        Type *type = symbol_table_lookup(function_table, $1->value.string_value);
+        if(type == NULL){
+            printSemanticError(2, $1->line);
+            $$->type=NULL;
+        }
+        else if(type->category != FUNCTION){
+            printSemanticError(11, $1->line);
+            $$->type=NULL;
+        }else{
+            $$->type = type->function->head->list->head->type;
+        }
+    }
     | ID LP error { printDerivation("Exp -> ID LP error\n"); printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
     | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp", yylineno); $$->is_left_value = 1; addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
         if($1->type->category != ARRAY){

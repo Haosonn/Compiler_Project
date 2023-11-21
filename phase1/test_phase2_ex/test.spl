@@ -4,3 +4,6 @@ int a(int a){
     b[1];
     return 1;
 }
+int b(){
+    aa();
+}
