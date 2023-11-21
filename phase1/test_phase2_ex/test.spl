@@ -1,5 +1,6 @@
 struct aa;
 int a(int a){
-    struct aa b;
+    int b;
+    b[1];
     return 1;
 }
