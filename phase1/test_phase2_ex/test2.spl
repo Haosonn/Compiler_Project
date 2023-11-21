@@ -1,3 +1,4 @@
 int a;
-struct a{int a; int a;};
-int a(int a,int a){}
+struct b{int a; int a;};
+int c(int a, int a)
+{a;}

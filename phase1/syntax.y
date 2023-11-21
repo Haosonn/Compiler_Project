@@ -149,7 +149,10 @@ ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecL
     | Specifier error { printDerivation("ExtDef -> Specifier error\n"); printSyntaxError("Missing semicolon ';'", $1->line);}
     | Specifier ExtDecList error { printDerivation("ExtDef -> Specifier ExtDecList error\n"); printSyntaxError("Missing semicolon ';'", $2->line);}
     | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
-    memcpy($2->type, $1->type, sizeof(Type));
+    temp_member_table = scope_list_pop(scope_stack);
+    symbol_table_remove_empty(global_table);
+    memcpy($2->type->function,temp_member_table,sizeof(symbol_table));
+    symbol_table_insert($2->type->function,"return_type",$1->type);
     }
     | ExtDecList SEMI { printDerivation("ExtDef -> ExtDecList SEMI\n"); printSyntaxError("Missing specifier", $1->line);}
     ;
@@ -236,15 +239,12 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
     ;
 
 FunDec: IDT LPF VarList RPF { printDerivation("FunDec -> ID LP VarList RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
-        temp_member_table = scope_list_pop(scope_stack);
-        symbol_table_remove_empty(global_table);
 
         Type *type = (Type *)malloc(sizeof(Type));
         type->category = FUNCTION;
-        type->function = temp_member_table;
-        Type *return_type = (Type *)malloc(sizeof(Type));
-        symbol_table_insert(type->function, $1->value.string_value, return_type); 
-        $$->type = return_type;
+        type->function =(symbol_table *)malloc(sizeof(symbol_table)); 
+        $$->type = type;
+
         if(function_declare(function_table, $1->value.string_value, type)){
             printSemanticError(4, $1->line);
         }
