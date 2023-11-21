@@ -65,17 +65,9 @@
         va_end(args);
     }
 
-    int typeNotMatch(struct ParserNode *node, ...)
+    int typeNotMatch(struct ParserNode *node1,struct ParserNode *node2)
     {
-        va_list args;
-        va_start(args, node);
-        while(1) {
-            struct ParserNode *child = va_arg(args, struct ParserNode*);
-            if(child == NULL) break;
-            if(!type_equal(node->type, child->type)) return 1;
-        }
-        va_end(args);
-        return 0;
+        return !type_equal(node1->type, node2->type);
     }    
 
     void printParserTree() {
