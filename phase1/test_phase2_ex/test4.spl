@@ -1,0 +1,8 @@
+struct a {int x; float y;}a;
+struct b {int m; float n;}b;
+struct c {float p; int q;}c;
+int test(){
+    a=b;
+    a=c;
+    return 0;
+}

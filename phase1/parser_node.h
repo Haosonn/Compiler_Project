@@ -40,6 +40,22 @@ typedef struct Array
 //             type1->category == ARRAY && type2->category == PRIMITIVE);
 // }
 
+int struct_equal(symbol_table *struct1, symbol_table *struct2)
+{
+    symbol_table_node *node1 = struct1->head;
+    symbol_table_node *node2 = struct2->head;
+    while (node1 != NULL && node2 != NULL)
+    {
+        if (!type_equal(node1->list->head->type, node2->list->head->type))
+        {
+            return 0;
+        }
+        node1 = node1->next;
+        node2 = node2->next;
+    }
+    return node1 == NULL && node2 == NULL;
+}
+
 int type_equal(Type *type1, Type *type2)
 {
     if (type1 == NULL || type2 == NULL)
@@ -69,7 +85,7 @@ int type_equal(Type *type1, Type *type2)
         }
         break;
     case STRUCTURE:
-        if (!symbol_table_equal(type1->structure, type2->structure))
+        if (!struct_equal(type1->structure, type2->structure))
         {
             return 0;
         }
@@ -328,3 +344,4 @@ int check_function_args(symbol_table *function, symbol_table *args)
     }
     return node1 != NULL || node2 != NULL;
 }
+
