@@ -1,4 +1,6 @@
 int a(int a){
-    float b;
-    1 = b;
+    int c;
+    int b;
+    c=b;
+    return 1;
 }

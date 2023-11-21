@@ -59,10 +59,10 @@ int type_equal(Type *type1, Type *type2)
         }
         break;
     case ARRAY:
-        if (type1->array->size != type2->array->size)
-        {
-            return 0;
-        }
+        // if (type1->array->size != type2->array->size)
+        // {
+        //     return 0;
+        // }
         if (!type_equal(type1->array->base, type2->array->base))
         {
             return 0;

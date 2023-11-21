@@ -375,7 +375,12 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
     | ID LP Args RP { printDerivation("Exp -> ID LP Args RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
     | ID LP RP { printDerivation("Exp -> ID LP RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     | ID LP error { printDerivation("Exp -> ID LP error\n"); printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
-    | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp", yylineno); $$->is_left_value = 1; addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
+    | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp", yylineno); $$->is_left_value = 1; addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
+        if($1->type->category != ARRAY){
+            printSemanticError(10, $1->line);
+        }
+        $$->type = $1->type->array->base;
+    }
     | Exp LB Exp error { printDerivation("Exp -> Exp LB Exp error\n"); printSyntaxError("Missing closing brace ']'", (int)$3->line); }
     | Exp DOT ID { printDerivation("Exp -> Exp DOT ID\n"); $$ = initParserNode("Exp", yylineno); $$->is_left_value = 1; addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     | ID { printDerivation("Exp -> ID\n"); $$ = initParserNode("Exp", yylineno); $$->is_left_value = 1; addParserDerivation($$, $1, NULL); cal_line($$); 
