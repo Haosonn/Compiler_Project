@@ -409,7 +409,18 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
         }
     }
     | Exp LB Exp error { printDerivation("Exp -> Exp LB Exp error\n"); printSyntaxError("Missing closing brace ']'", (int)$3->line); }
-    | Exp DOT ID { printDerivation("Exp -> Exp DOT ID\n"); $$ = initParserNode("Exp", yylineno); $$->is_left_value = 1; addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
+    | Exp DOT ID { printDerivation("Exp -> Exp DOT ID\n"); $$ = initParserNode("Exp", yylineno); $$->is_left_value = 1; addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
+        if($1->type->category != STRUCTURE){
+            printSemanticError(13, $1->line);
+            $$->type = NULL;
+        }else{
+            Type *type = symbol_table_lookup($1->type->structure, $3->value.string_value);
+            if(type == NULL){
+                printSemanticError(14, $3->line);
+            }
+            $$->type = type;
+        }
+    }
     | ID { printDerivation("Exp -> ID\n"); $$ = initParserNode("Exp", yylineno); $$->is_left_value = 1; addParserDerivation($$, $1, NULL); cal_line($$); 
         Type* type = symbol_table_lookup(global_table, $1->value.string_value);
         if(type == NULL){

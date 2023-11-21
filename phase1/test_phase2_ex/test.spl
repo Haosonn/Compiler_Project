@@ -1,9 +1,9 @@
 struct aa;
-int a(int a){
-    int b;
-    b[1];
-    return 1;
-}
+
 int b(){
-    aa();
+    struct aa b;
 }
+struct aa {
+    int x;
+    int y;
+};
