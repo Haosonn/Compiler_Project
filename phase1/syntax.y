@@ -236,6 +236,9 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
     ;
 
 FunDec: IDT LPF VarList RPF { printDerivation("FunDec -> ID LP VarList RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
+        temp_member_table = scope_list_pop(scope_stack);
+        symbol_table_remove_empty(global_table);
+
         Type *type = (Type *)malloc(sizeof(Type));
         type->category = FUNCTION;
         type->function = temp_member_table;
@@ -398,8 +401,8 @@ LPF: LP { printDerivation("LPF -> LP\n"); $$ = initParserNode("LPF", yylineno); 
     ;
 
 RPF: RP { printDerivation("RPF -> RP\n"); $$ = initParserNode("RPF", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
-        temp_member_table = scope_list_pop(scope_stack);
-        symbol_table_remove_empty(global_table);
+        // temp_member_table = scope_list_pop(scope_stack);
+        // symbol_table_remove_empty(global_table);
 }
     ;
 %%
