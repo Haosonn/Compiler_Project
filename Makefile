@@ -7,10 +7,9 @@ PRINT_DERIVATION=false
 PRINT_TOKEN=false
 PRINT_SYMBOL_TABLE=false
 TEST_CASE=test_phase2/test_1.spl
-# TEST_CASE_BASE=test/test_1_r
 TEST_CASE_BASE=test_phase2/test_2_r
 N=10
-CFLAGS= 
+CFLAGS=-Iinclude 
 ifeq ($(PRINT_PARSER_TREE), true)
 	CFLAGS += -DPRINT_PARSER_TREE
 endif
@@ -50,7 +49,6 @@ test_all: main
 	@for file in test_phase2/*.spl; do \
 		echo "Testing $$file"; \
 		bin/splc $$file > $$file.myout; \
-		diff $$(echo $${file:0:-3}out) $$file.myout > test/difference/$$(basename $$file).diff -u || true;\
 	done
 
 self_test: main
@@ -60,7 +58,7 @@ self_test: main
 	done
 
 test_extra: main
-	@for file in test-ex/*.spl; do \
+	@for file in test_phase2_ex/*.spl; do \
 		echo "Testing $$file"; \
 		bin/splc $$file > $$file.myout; \
 	done

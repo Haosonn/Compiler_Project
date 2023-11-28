@@ -3,7 +3,6 @@
 to run the tests:
 
 ```cmd
-cd phase1
 make test_all
 ```
 The output result will be in /phase1/test/\*.myout
