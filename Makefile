@@ -2,14 +2,19 @@ SHELL := /bin/bash
 CC=gcc
 FLEX=flex
 BISON=bison
+
 PRINT_PARSER_TREE=false
 PRINT_DERIVATION=false
 PRINT_TOKEN=false
-PRINT_SYMBOL_TABLE=false
+PRINT_SYMBOL_TABLE=true
+
 TEST_CASE=test_phase2/test_1.spl
 TEST_CASE_BASE=test_phase2/test_2_r
 N=10
+
 CFLAGS=-Iinclude 
+SRC=src/*.c
+
 ifeq ($(PRINT_PARSER_TREE), true)
 	CFLAGS += -DPRINT_PARSER_TREE
 endif
@@ -29,7 +34,7 @@ main:
 	mkdir -p bin
 	$(BISON) -d -t syntax.y 
 	$(FLEX) lex.l 
-	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS)
+	$(CC) syntax.tab.c $(SRC) -lfl -o bin/splc $(CFLAGS)
 difference:
 	
 lex: main

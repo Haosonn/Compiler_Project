@@ -1,281 +1,58 @@
 #pragma once
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "parser_node.h"
+
 typedef struct Type Type;
 int type_equal(Type *type1, Type *type2);
 int type_same_namespace(Type *type1, Type *type2);
 void type_print(Type *type);
-typedef struct symbol_list_node
+
+typedef struct SymbolListNode
 {
     Type *type;
-    struct symbol_list_node *next;
-} symbol_list_node;
+    struct SymbolListNode *next;
+} SymbolListNode;
 
-typedef struct symbol_list
+typedef struct SymbolList
 {
-    symbol_list_node *head;
-} symbol_list;
+    SymbolListNode *head;
+} SymbolList;
 
-symbol_list *symbol_list_init()
-{
-    symbol_list *list = (symbol_list *)malloc(sizeof(symbol_list));
-    list->head = NULL;
-    return list;
-}
-
-void symbol_list_insert(symbol_list *list, Type *type)
-{
-    symbol_list_node *node = (symbol_list_node *)malloc(sizeof(symbol_list_node));
-    node->type = type;
-    node->next = NULL;
-    if (list->head == NULL)
-    {
-        list->head = node;
-    }
-    else
-    {
-        node->next = list->head;
-        list->head = node;
-    }
-}
-
-void symbol_list_pop(symbol_list *list)
-{
-    if (list->head == NULL)
-    {
-        return;
-    }
-    symbol_list_node *node = list->head;
-    list->head = list->head->next;
-    free(node);
-}
-
-typedef struct symbol_table_node
+typedef struct SymbolTableNode
 {
     char *name;
-    symbol_list *list;
-    struct symbol_table_node *next;
-} symbol_table_node;
+    SymbolList *list;
+    struct SymbolTableNode *next;
+} SymbolTableNode;
 
-typedef struct symbol_table
+typedef struct SymbolTable
 {
-    symbol_table_node *head;
-} symbol_table;
+    SymbolTableNode *head;
+} SymbolTable;
 
-void symbol_table_print(symbol_table *table)
+typedef struct ScopeListNode
 {
-    symbol_table_node *node = table->head;
-    while (node != NULL)
-    {
-        symbol_list_node *list_node = node->list->head;
-        if (node->list->head == NULL)
-        {
-            printf("%s \n", node->name);
-            node = node->next;
-            continue;
-        }
-        printf("%s: ", node->name);
-        type_print(node->list->head->type);
-        printf("\n");
-        node = node->next;
-    }
-}
+    SymbolTable *table;
+    struct ScopeListNode *next;
+} ScopeListNode;
 
-int symbol_table_equal(symbol_table *table1, symbol_table *table2)
+typedef struct ScopeList
 {
-    symbol_table_node *node1 = table1->head;
-    symbol_table_node *node2 = table2->head;
-    while (node1 != NULL && node2 != NULL)
-    {
-        if (strcmp(node1->name, node2->name) != 0 || !type_equal(node1->list->head->type, node2->list->head->type))
-        {
-            return 0;
-        }
-        node1 = node1->next;
-        node2 = node2->next;
-    }
-    if (node1 != NULL || node2 != NULL)
-    {
-        return 0;
-    }
-    return 1;
-}
+    ScopeListNode *head;
+} ScopeList;
 
-symbol_table *symbol_table_init()
-{
-    symbol_table *table = (symbol_table *)malloc(sizeof(symbol_table));
-    table->head = NULL;
-    return table;
-}
+SymbolList *symbol_list_init();
+void symbol_list_insert(SymbolList *list, Type *type);
+void symbol_list_pop(SymbolList *list);
 
-void symbol_table_add_node(symbol_table *table, symbol_table_node *node)
-{
-    symbol_table_node *node_cpy = (symbol_table_node *)malloc(sizeof(symbol_table_node));
-    memcpy(node_cpy, node, sizeof(symbol_table_node));
-    node_cpy->next = NULL;
-    if (table->head == NULL)
-    {
-        table->head = node_cpy;
-    }
-    else
-    {
-        node_cpy->next = table->head;
-        table->head = node_cpy;
-    }
-}
-symbol_table_node *symbol_table_find(symbol_table *table, char *name)
-{
-    symbol_table_node *node = table->head;
-    while (node != NULL)
-    {
-        if (strcmp(node->name, name) == 0)
-        {
-            return node;
-        }
-        node = node->next;
-    }
-    return NULL;
-}
+SymbolTable *symbol_table_init();
+int symbol_table_equal(SymbolTable *table1, SymbolTable *table2);
+void symbol_table_add_node(SymbolTable *table, SymbolTableNode *node);
+SymbolTableNode *symbol_table_find(SymbolTable *table, char *name);
+void symbol_table_remove(SymbolTable *table, char *name);
+void symbol_table_remove_empty(SymbolTable *table);
+SymbolTableNode *symbol_table_insert(SymbolTable *table, char *name, Type *type);
+void symbol_table_print(SymbolTable *table);
 
-void symbol_table_remove(symbol_table *table, char *name)
-{
-    symbol_table_node *node = table->head;
-    symbol_table_node *prev = NULL;
-    while (node != NULL)
-    {
-        if (strcmp(node->name, name) == 0)
-        {
-            if (prev == NULL)
-            {
-                table->head = node->next;
-            }
-            else
-            {
-                prev->next = node->next;
-            }
-            free(node);
-            return;
-        }
-        prev = node;
-        node = node->next;
-    }
-}
-
-void symbol_table_remove_empty(symbol_table *table)
-{
-    symbol_table_node *node = table->head;
-    symbol_table_node *prev = NULL;
-    while (node != NULL)
-    {
-        if (node->list->head == NULL)
-        {
-            if (node==table->head)
-            {
-                table->head = node->next;
-            }
-            else
-            {
-                prev->next = node->next;
-            }
-        }
-        prev = node;
-        node = node->next;
-    }
-}
-
-symbol_table_node *symbol_table_insert(symbol_table *table, char *name, Type *type)
-{
-    symbol_table_node *node = symbol_table_find(table, name);
-    if (node != NULL)
-    {
-        symbol_list_insert(node->list, type);
-        return node;
-    }
-    node = (symbol_table_node *)malloc(sizeof(symbol_table_node));
-    node->name = name;
-    node->list = symbol_list_init();
-    symbol_list_insert(node->list, type);
-    node->next = NULL;
-    if (table->head == NULL)
-    {
-        table->head = node;
-    }
-    else
-    {
-        node->next = table->head;
-        table->head = node;
-    }
-    return node;
-}
-
-typedef struct scope_list_node
-{
-    symbol_table *table;
-    struct scope_list_node *next;
-} scope_list_node;
-
-typedef struct scope_list
-{
-    scope_list_node *head;
-} scope_list;
-
-void scope_list_add(scope_list *list)
-{
-    scope_list_node *node = (scope_list_node *)malloc(sizeof(scope_list_node));
-    node->table = symbol_table_init();
-    node->next = NULL;
-    if (list->head == NULL)
-    {
-        list->head = node;
-    }
-    else
-    {
-        node->next = list->head;
-        list->head = node;
-    }
-}
-
-scope_list *scope_list_init()
-{
-    scope_list *list = (scope_list *)malloc(sizeof(scope_list));
-    list->head = NULL;
-    scope_list_add(list);
-    return list;
-}
-
-symbol_table *scope_list_pop(scope_list *list)
-{
-    symbol_table *table = symbol_table_init();
-    if (list->head == NULL)
-    {
-        return table;
-    }
-    scope_list_node *node = list->head;
-    list->head = list->head->next;
-
-    symbol_table_node *table_node = node->table->head;
-    while (table_node != NULL)
-    {
-        symbol_table_insert(table, table_node->name, table_node->list->head->type);
-        symbol_list_pop(table_node->list);
-        table_node = table_node->next;
-    }
-    free(node);
-    return table;
-}
-
-Type *symbol_table_lookup(symbol_table *table, char *name)
-{
-    symbol_table_node *node = table->head;
-    while (node != NULL)
-    {
-        if (strcmp(node->name, name) == 0)
-        {
-            return node->list->head->type;
-        }
-        node = node->next;
-    }
-    return NULL;
-}
+ScopeList *scope_list_init();
+void scope_list_add(ScopeList *list);
+SymbolTable *scope_list_pop(ScopeList *list);
+Type *symbol_table_lookup(SymbolTable *table, char *name);

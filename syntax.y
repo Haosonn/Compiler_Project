@@ -36,12 +36,12 @@
         "accessing an undefined structure member",
         "redefine the same structure type"};
 
-    symbol_table *global_table = NULL;
-    symbol_table *function_table = NULL;
-    symbol_table *structure_table = NULL;
-    symbol_table *temp_member_table = NULL;
-    scope_list *scope_stack = NULL;
-    scope_list *structure_stack = NULL;
+    SymbolTable *global_table = NULL;
+    SymbolTable *function_table = NULL;
+    SymbolTable *structure_table = NULL;
+    SymbolTable *temp_member_table = NULL;
+    ScopeList *scope_stack = NULL;
+    ScopeList *structure_stack = NULL;
 
     void yyerror(const char*);
 
@@ -145,7 +145,7 @@ ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecL
     | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
     temp_member_table = scope_list_pop(scope_stack);
     symbol_table_remove_empty(global_table);
-    memcpy($2->type->function,temp_member_table,sizeof(symbol_table));
+    memcpy($2->type->function,temp_member_table,sizeof(SymbolTable));
     symbol_table_insert($2->type->function,"return_type",$1->type);
     if(check_return_type($3, $1->type)){
         printSemanticError(8, $2->line);
