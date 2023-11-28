@@ -150,7 +150,7 @@ ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecL
     if(check_return_type($3, $1->type)){
         printSemanticError(8, $2->line);
     }
-    }
+}
     | ExtDecList SEMI { printDerivation("ExtDef -> ExtDecList SEMI\n"); printSyntaxError("Missing specifier", $1->line);}
     ;
 
@@ -246,17 +246,18 @@ FunDec: IDT LPF VarList RPF { printDerivation("FunDec -> ID LP VarList RP\n"); $
             printSemanticError(4, $1->line);
         }
     }
-    | IDT LP RP { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
+    | IDT LPF RPF { printDerivation("FunDec -> ID LP RP\n"); $$ = initParserNode("FunDec", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         Type *type = (Type *)malloc(sizeof(Type));
         type->category = FUNCTION;
         type->function = symbol_table_init();
-        Type *return_type = (Type *)malloc(sizeof(Type));
-        symbol_table_insert(type->function, $1->value.string_value, return_type); 
+        // Type *return_type = (Type *)malloc(sizeof(Type));
+        // symbol_table_insert(type->function, $1->value.string_value, return_type); 
         $$->type = type;
+
         if(function_declare(function_table, $1->value.string_value, type)){
             printSemanticError(4, $1->line);
         }
-        temp_member_table = symbol_table_init();
+        // temp_member_table = symbol_table_init();
     }
     | IDT LP error { printDerivation("FunDec -> ID LP error\n"); printSyntaxError("Missing closing parenthesis ')'",$2->line); }
     ;
