@@ -138,7 +138,6 @@ ExtDefList: ExtDef ExtDefList { printDerivation("ExtDefList -> ExtDef ExtDefList
 
 ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         passType($2, $1->type);  
-        symbol_table_print(global_table);
 }
     | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     | Specifier error { printDerivation("ExtDef -> Specifier error\n"); printSyntaxError("Missing semicolon ';'", $1->line);}
