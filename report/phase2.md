@@ -154,14 +154,76 @@ StructSpecifier: STRUCT IDT LC DefList RC
   ```
 
 
-## Ex test
+## Bonus test
 
-### test1
+### test_type
 
-### test2
+#### .spl
 
-### test3
+```
+struct a {int x; float y;}a;
+struct b {int m; float n;}b;
+struct c {float p; int q;}c;
+int test(){
+    a=b;
+    a=c;
+    return 0;
+}
+```
 
-### test4
+#### .spl.myout:
 
-### test5
+```
+Error type 5 at Line 6: unmatching types appear at both sides of the assignment operator
+```
+
+#### Explanation:
+
+At Line 1, **struct a** is in struct table while **struct a {int x; float y;}a;** is in variable table, no error
+
+Line 2 and Line3 are same as Line 1
+
+At Line 5, **a** and **b** are equal type because they are both **struct{int, float}**
+
+At Line 6, **a** and **b** are not equal type because **a** is **struct{int, float}** while b is **struct{float, int}**
+
+### test_scope
+
+#### .spl
+
+```
+float a;
+struct s1 {int a;};
+struct s2 {float a;}b;
+int test1(){
+    return a;
+}
+int test2(){
+    int a;
+    return a;
+}
+struct s1 test3(){
+    return b;
+}
+struct s1 test4(){
+    struct s1 b;
+    return b;
+}
+```
+
+#### .spl.myout:
+
+```
+Error type 8 at Line 5: Type mismatched for return.
+Error type 8 at Line 12: Type mismatched for return.
+```
+
+#### Explanation:
+
+At Line 5 in test1, a is float but not int.
+
+At Line 9 in test2, a is int in this scope.
+
+At Line 12 in test3, b is struct s2 but not struct s1.
+
+At Line 16 in test4, b is struct s1 in this scope.

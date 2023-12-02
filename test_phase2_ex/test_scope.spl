@@ -1,0 +1,17 @@
+float a;
+struct s1 {int a;};
+struct s2 {float a;}b;
+int test1(){
+    return a;
+}
+int test2(){
+    int a;
+    return a;
+}
+struct s1 test3(){
+    return b;
+}
+struct s1 test4(){
+    struct s1 b;
+    return b;
+}

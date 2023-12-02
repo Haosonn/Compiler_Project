@@ -9,8 +9,8 @@ PRINT_TOKEN=false
 PRINT_SYMBOL_TABLE=false
 
 TEST_CASE=test_phase2/test_1.spl
-TEST_CASE_BASE=test_phase2_ex/test
-N=4
+TEST_CASE_BASE=test_phase2_ex/test_
+N=scope
 
 CFLAGS=-Iinclude 
 SRC=src/*.c
