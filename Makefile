@@ -6,11 +6,11 @@ BISON=bison
 PRINT_PARSER_TREE=false
 PRINT_DERIVATION=false
 PRINT_TOKEN=false
-PRINT_SYMBOL_TABLE=true
+PRINT_SYMBOL_TABLE=false
 
 TEST_CASE=test_phase2/test_1.spl
-TEST_CASE_BASE=test_phase2/test_2_r
-N=10
+TEST_CASE_BASE=test_phase2_ex/test
+N=4
 
 CFLAGS=-Iinclude 
 SRC=src/*.c
