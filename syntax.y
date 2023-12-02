@@ -138,6 +138,7 @@ ExtDefList: ExtDef ExtDefList { printDerivation("ExtDefList -> ExtDef ExtDefList
 
 ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         passType($2, $1->type);  
+        symbol_table_print(global_table);
 }
     | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     | Specifier error { printDerivation("ExtDef -> Specifier error\n"); printSyntaxError("Missing semicolon ';'", $1->line);}
@@ -409,7 +410,7 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
     }
     | ID LP error { printDerivation("Exp -> ID LP error\n"); printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
     | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp", yylineno); $$->is_left_value = 1; addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
-        if($1->type->category != ARRAY){
+        if($1->type==NULL||$1->type->category != ARRAY){
             printSemanticError(10, $1->line);
         }else{
             if($3->type->category != PRIMITIVE || $3->type->primitive != SEMANTIC_TYPE_INT){
