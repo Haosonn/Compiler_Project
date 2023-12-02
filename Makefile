@@ -57,7 +57,7 @@ test_all: main
 	done
 
 self_test: main
-	@for file in test/self_test/*.spl; do \
+	@for file in test_phase2/self_test/*.spl; do \
 		echo "Testing $$file"; \
 		bin/splc $$file > $$file.myout; \
 	done

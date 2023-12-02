@@ -1,0 +1,18 @@
+struct Array {
+    int int_array[10];
+    char char_array[10];
+    float float_array[10];
+} array[10];
+
+int main() {
+    array[1].int_array[0] = 1;
+    array[2].char_array[0] = 'a';
+    array[3].float_array[0] = 1.0;
+    array.int_array[0] = 1;
+    array.char_array[0] = 'a';
+    array.float_array[0] = 1.0;
+    array.int_array[1] = 'a';
+    array.char_array[1] = 1;
+    array.float_array[1] = 'a';
+    return 0;
+}
