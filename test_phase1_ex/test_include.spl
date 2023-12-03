@@ -1,6 +1,0 @@
-#include "test_include.splh"
-
-int test_spl()
-{
-    a = var + 100;
-} // hey?

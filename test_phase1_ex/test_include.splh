@@ -1,4 +1,0 @@
-#include "inner/inner.splh"
-int include_func() {
-    printf("include: %d", 0);
-}

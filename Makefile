@@ -41,34 +41,17 @@ lex: main
 	$(CC) lex.yy.c -lfl -o bin/lex -DLEX_ONLY
 clean:
 	@rm -f lex.yy.c syntax.tab.c syntax.tab.h *.out
+	@rm -f test/*.out test-ex/*.out
 
-test: main 
-	@bin/splc ${TEST_CASE} > ${TEST_CASE}.myout
-	@diff ${TEST_CASE}.out ${TEST_CASE}.myout -u || true
-test_case: main
-	@bin/splc ${TEST_CASE_BASE}${N}.spl > ${TEST_CASE_BASE}${N}.spl.myout
-	@diff ${TEST_CASE_BASE}${N}.out ${TEST_CASE_BASE}${N}.spl.myout -u || true
-
-
-test_all: main
-	@for file in test_phase2/*.spl; do \
+test: main
+	@for file in test/*.spl; do \
 		echo "Testing $$file"; \
-		bin/splc $$file > $$file.myout; \
-	done
-
-self_test: main
-	@for file in test_phase2/self_test/*.spl; do \
-		echo "Testing $$file"; \
-		bin/splc $$file > $$file.myout; \
+		bin/splc $$file > $$(dirname $$file)/$$(basename $$file .spl).out; \
 	done
 
 test_extra: main
-	@for file in test_phase2_ex/*.spl; do \
+	@for file in test-ex/*.spl; do \
 		echo "Testing $$file"; \
-		bin/splc $$file > $$file.myout; \
+		bin/splc $$file > $$(dirname $$file)/$$(basename $$file .spl).out; \
 	done
-
-debug: main
-	$(CC) syntax.tab.c -lfl -o bin/splc $(CFLAGS) -g
-	@gdb bin/splc -x gdb.init
 

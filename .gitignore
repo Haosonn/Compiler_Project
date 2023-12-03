@@ -2,7 +2,6 @@
 *.tab.c
 *.tab.h
 *.out
-!**/test_phase[12]/*.out
 */bin/
 **.spl.myout
 */test/difference/
