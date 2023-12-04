@@ -411,6 +411,7 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
     | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp", yylineno); $$->is_left_value = 1; addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
         if($1->type==NULL||$1->type->category != ARRAY){
             printSemanticError(10, $1->line);
+            $$->type = NULL;
         }else{
             if($3->type->category != PRIMITIVE || $3->type->primitive != SEMANTIC_TYPE_INT){
                 printSemanticError(12, $3->line);
