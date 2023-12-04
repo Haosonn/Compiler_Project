@@ -385,8 +385,6 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
             $$->type=NULL;
         }
         else{
-            // symbol_table_print(type->function);
-            symbol_table_print(function_table);
             if(check_function_args(type->function, temp_member_table)){
                 printSemanticError(9, $1->line);
             }
