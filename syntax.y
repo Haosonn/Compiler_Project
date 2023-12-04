@@ -271,7 +271,8 @@ ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); 
 }
     ;
 
-CompSt: LC DefList StmtList RC { printDerivation("CompSt -> LC DefList StmtList RC\n"); $$ = initParserNode("CompSt", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
+CompSt: LC DefList StmtList RC { printDerivation("CompSt -> LC DefList StmtList RC\n"); $$ = initParserNode("CompSt", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
+}
     | LC DefList StmtList error { printDerivation("CompSt -> LC DefList StmtList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$3->line); }
     ;
 
@@ -311,6 +312,9 @@ Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n")
             // undefined structure
         // } 
         passType($2, $1->type); 
+        if(check_dec_assign_type($2, $1->type)){
+            printSemanticError(5, $2->line);
+        }
  }
     | Specifier DecList error { printDerivation("Def -> Specifier DecList error\n"); printSyntaxError("Missing semicolon ';'", $2->line);}
     ;
