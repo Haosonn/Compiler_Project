@@ -266,7 +266,9 @@ VarList: ParamDec COMMA VarList { printDerivation("VarList -> ParamDec COMMA Var
     | ParamDec { printDerivation("VarList -> ParamDec\n"); $$ = initParserNode("VarList", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); }
     ;
 
-ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); $$ = initParserNode("ParamDec", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
+ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); $$ = initParserNode("ParamDec", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
+    memcpy($2->type, $1->type, sizeof(Type));
+}
     ;
 
 CompSt: LC DefList StmtList RC { printDerivation("CompSt -> LC DefList StmtList RC\n"); $$ = initParserNode("CompSt", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); }
@@ -383,6 +385,8 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
             $$->type=NULL;
         }
         else{
+            // symbol_table_print(type->function);
+            symbol_table_print(function_table);
             if(check_function_args(type->function, temp_member_table)){
                 printSemanticError(9, $1->line);
             }
