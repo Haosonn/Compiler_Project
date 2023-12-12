@@ -50,6 +50,7 @@ typedef struct Array
 
 // int type_same_namespace(Type *type1, Type *type2);
 
+int check_dec_assign_type(struct ParserNode *node, Type *type);
 int struct_equal(SymbolTable *struct1, SymbolTable *struct2);
 int type_equal(Type *type1, Type *type2);
 void type_print(Type *type);

@@ -136,6 +136,24 @@ void passType(struct ParserNode *node, Type *type)
     }
 }
 
+int check_dec_assign_type(struct ParserNode *node, Type *type)
+{
+    if (strcmp(node->name, "Exp") == 0)
+    {
+        return !type_equal(node->type, type);
+    }
+    else
+    {
+        for (int i = 0; i < node->child_num; i++)
+        {
+            if(check_dec_assign_type(node->child[i], type)){
+                return 1;
+            }
+        }
+        return 0;
+    }
+}
+
 void addParserNode(struct ParserNode *node, struct ParserNode *child)
 {
     node->child[node->child_num++] = child;
@@ -298,4 +316,3 @@ int check_function_args(SymbolTable *function, SymbolTable *args)
     }
     return node1 != NULL || node2 != NULL;
 }
-
