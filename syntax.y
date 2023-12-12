@@ -392,7 +392,7 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
             if(check_function_args(type->function, temp_member_table)){
                 printSemanticError(9, $1->line);
             }
-            temp_member_table = symbol_table_init();
+            temp_member_table = NULL;
             $$->type = type->function->head->list->head->type;
         }
     }
@@ -456,6 +456,9 @@ Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); $$ = initPar
         symbol_table_insert(temp_member_table, "arg", $1->type);
     }
     | Exp { printDerivation("Args -> Exp\n"); $$ = initParserNode("Args", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
+        if(temp_member_table==NULL){
+            temp_member_table = symbol_table_init();
+        }
         symbol_table_insert(temp_member_table, "arg", $1->type);
     }
     ;
