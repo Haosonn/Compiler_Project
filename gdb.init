@@ -1,2 +1,1 @@
-b yyerror
-run test/test_1_r07.spl
+run test_phase3/test.spl
