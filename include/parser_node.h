@@ -1,5 +1,7 @@
 #pragma once
+#ifndef PARSER_NODE_H
 #include "symbol_table.h"
+#include "ir_translate.h"
 typedef struct ParserNode
 {
     char name[20];
@@ -15,6 +17,9 @@ typedef struct ParserNode
         int int_value;
         float float_value;
         char *string_value;
+        EXP_TYPE exp_type;
+        COND_EXP_TYPE cond_exp_type;
+        STMT_TYPE stmt_type;
     } value;
 
 } ParserNode;
@@ -66,3 +71,5 @@ int var_declare(SymbolTable *global_table, ScopeList *stack, char *name, Type *t
 int function_declare(SymbolTable *global_table, char *name, Type *type);
 int check_return_type(ParserNode *ParserNode, Type *type);
 int check_function_args(SymbolTable *function, SymbolTable *args);
+
+#endif 

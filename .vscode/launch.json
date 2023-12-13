@@ -17,12 +17,19 @@
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
+                    "text": "-enable-pretty-printing ",
+                    "ignoreFailures": false
                 }
             ],
-            // "preLaunchTask": "make debug",
-            "miDebuggerPath": "/usr/bin/gdb"
+            "postRemoteConnectCommands": [
+                {
+                    "description": "Set gdb init",
+                    "text": "source ${workspaceFolder}/gdb.init",
+                    "ignoreFailures": false
+                }
+            ],
+            "preLaunchTask": "make debug",
+            "miDebuggerPath": "/usr/bin/gdb",
         }
     ]
 }

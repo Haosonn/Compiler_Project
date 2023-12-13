@@ -67,7 +67,6 @@ test_extra: main
 		bin/splc $$file > $$file.myout; \
 	done
 
-debug: main
+debug: 
 	$(CC) syntax.tab.c $(SRC) -lfl -o bin/splc $(CFLAGS) -g
-	@gdb bin/splc -x gdb.init
 

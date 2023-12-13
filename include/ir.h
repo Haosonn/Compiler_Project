@@ -20,7 +20,6 @@ typedef enum {
     WRITE
 } Opcode;
 
-// Struct representing an IR instruction
 struct IRInstruction {
     Opcode opcode;
     char operand1[100];
