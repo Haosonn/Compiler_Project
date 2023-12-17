@@ -1,4 +1,7 @@
 #pragma once
+#define SYMBOL_LIST_NODE_NAME_LENGTH 5
+
+static int sym_cnt = 0;
 
 typedef struct Type Type;
 int type_equal(Type *type1, Type *type2);
@@ -8,6 +11,8 @@ void type_print(Type *type);
 typedef struct SymbolListNode
 {
     Type *type;
+    int sym_id;
+    char name[SYMBOL_LIST_NODE_NAME_LENGTH];
     struct SymbolListNode *next;
 } SymbolListNode;
 
@@ -55,4 +60,13 @@ void symbol_table_print(SymbolTable *table);
 ScopeList *scope_list_init();
 void scope_list_add(ScopeList *list);
 SymbolTable *scope_list_pop(ScopeList *list);
-Type *symbol_table_lookup(SymbolTable *table, char *name);
+SymbolListNode *symbol_table_lookup(SymbolTable *table, char *name);
+
+void symbol_table_init_all();
+
+extern SymbolTable *global_table;
+extern SymbolTable *function_table;
+extern SymbolTable *structure_table;
+extern SymbolTable *temp_member_table;
+extern ScopeList *scope_stack;
+extern ScopeList *structure_stack;

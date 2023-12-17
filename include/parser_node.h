@@ -1,7 +1,7 @@
 #pragma once
 #ifndef PARSER_NODE_H
 #include "symbol_table.h"
-#include "ir_translate.h"
+#include "ir.h"
 typedef struct ParserNode
 {
     char name[20];
@@ -17,9 +17,10 @@ typedef struct ParserNode
         int int_value;
         float float_value;
         char *string_value;
-        EXP_TYPE exp_type;
-        COND_EXP_TYPE cond_exp_type;
-        STMT_TYPE stmt_type;
+        ExpType exp_type;
+        StmtType stmt_type;
+        ArgsType args_type;
+        ExpDefType exp_def_type;
     } value;
 
 } ParserNode;
@@ -45,6 +46,7 @@ typedef struct Type
         SymbolTable *structure;
         SymbolTable *function;
     };
+    
 } Type;
 
 typedef struct Array

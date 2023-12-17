@@ -2,10 +2,11 @@ SHELL := /bin/bash
 CC=gcc
 FLEX=flex
 BISON=bison
+PYTHON=python3
 
 PRINT_PARSER_TREE=false
 PRINT_DERIVATION=true
-PRINT_TOKEN=false
+PRINT_TOKEN=true
 PRINT_SYMBOL_TABLE=false
 PRINT_IR=true
 
@@ -36,9 +37,10 @@ endif
 	clean test
 main:
 	mkdir -p bin
-	$(BISON) -d -t syntax.y 
+	$(PYTHON) syntax_generator.py
+	$(BISON) -d -t syntax_generated.y 
 	$(FLEX) lex.l 
-	$(CC) syntax.tab.c $(SRC) -lfl -o bin/splc $(CFLAGS)
+	$(CC) syntax_generated.tab.c $(SRC) -lfl -o bin/splc $(CFLAGS)
 	
 lex: main
 	$(CC) lex.yy.c -lfl -o bin/lex -DLEX_ONLY
@@ -68,5 +70,8 @@ test_extra: main
 	done
 
 debug: 
-	$(CC) syntax.tab.c $(SRC) -lfl -o bin/splc $(CFLAGS) -g
+	$(PYTHON) syntax_generator.py
+	$(BISON) -d -t syntax_generated.y 
+	$(FLEX) lex.l 
+	$(CC) syntax_generated.tab.c $(SRC) -lfl -o bin/splc $(CFLAGS) -g
 

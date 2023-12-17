@@ -1,7 +1,6 @@
 %{
-    #include "syntax.tab.h"
+    #include "syntax_generated.tab.h"
     #include "parser_node.h"
-    #include "string_map.h"
 
     #define EXIT_OK 0
     #define EXIT_FAIL 1
@@ -43,6 +42,8 @@
             case TOKEN_OR: yylval.parser_node = initParserNode("OR", yylineno); return OR; \
             case TOKEN_DOT: yylval.parser_node = initParserNode("DOT", yylineno); return DOT; \
             case TOKEN_NOT: yylval.parser_node = initParserNode("NOT", yylineno); return NOT; \
+            case TOKEN_READ: yylval.parser_node = initParserNode("READ", yylineno); return READ; \
+            case TOKEN_WRITE: yylval.parser_node = initParserNode("WRITE", yylineno); return WRITE; \
         }
     #define PROCESS_TOKEN_AND_PRINT(_token) \
         int token = print_token_info(_token, yytext); \
@@ -85,7 +86,9 @@
         TOKEN_AND, 
         TOKEN_OR,
         TOKEN_DOT,
-        TOKEN_NOT
+        TOKEN_NOT,
+        TOKEN_READ,
+        TOKEN_WRITE,
     };
     enum TYPES {
         TYPE_INT, TYPE_FLOAT, TYPE_CHAR
@@ -109,7 +112,7 @@ digit [0-9]
 non_zero_digit [1-9]
 non_zero_hex_digit [1-9a-fA-F]
 hex_digit [0-9a-fA-F]
-reserved (int|char|float|struct|return|if|else|while|for)
+reserved (int|char|float|struct|return|if|else|while|for|read|write)
 illegal_int 0{digit}+
 illegal_float 0{float}
 int ({non_zero_digit}{digit}*)|0
@@ -220,6 +223,12 @@ int process_reserved(char *text) {
     } else if (strcmp(text, "for") == 0) {
         print_token_info(TOKEN_FOR, NULL);
         return TOKEN_FOR;
+    } else if (strcmp(text, "read") == 0) {
+        print_token_info(TOKEN_READ, NULL);
+        return TOKEN_READ;
+    } else if (strcmp(text, "write") == 0) {
+        print_token_info(TOKEN_WRITE, NULL);
+        return TOKEN_WRITE;
     }
 }
 

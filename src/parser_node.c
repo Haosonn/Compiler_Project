@@ -261,6 +261,7 @@ int var_declare(SymbolTable *global_table, ScopeList *stack, char *name, Type *t
     {
         return 1;
     }
+    
     symbol_table_add_node(table, symbol_table_insert(global_table, name, type));
     return 0;
 }

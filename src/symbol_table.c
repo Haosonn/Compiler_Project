@@ -4,11 +4,12 @@
 #include "parser_node.h"
 #include "symbol_table.h"
 
-typedef struct Type Type;
-int type_equal(Type *type1, Type *type2);
-int type_same_namespace(Type *type1, Type *type2);
-void type_print(Type *type);
-
+SymbolTable *global_table = NULL;
+SymbolTable *function_table = NULL;
+SymbolTable *structure_table = NULL;
+SymbolTable *temp_member_table = NULL;
+ScopeList *scope_stack = NULL;
+ScopeList *structure_stack = NULL;
 
 SymbolList *symbol_list_init()
 {
@@ -21,6 +22,8 @@ void symbol_list_insert(SymbolList *list, Type *type)
 {
     SymbolListNode *node = (SymbolListNode *)malloc(sizeof(SymbolListNode));
     node->type = type;
+    sym_cnt++;
+    node->sym_id = sym_cnt;
     node->next = NULL;
     if (list->head == NULL)
     {
@@ -238,16 +241,25 @@ SymbolTable *scope_list_pop(ScopeList *list)
     return table;
 }
 
-Type *symbol_table_lookup(SymbolTable *table, char *name)
+SymbolListNode *symbol_table_lookup(SymbolTable *table, char *name)
 {
+    printf("lookup %p\n", table);
     SymbolTableNode *node = table->head;
     while (node != NULL)
     {
         if (strcmp(node->name, name) == 0)
         {
-            return node->list->head->type;
+            return node->list->head;
         }
         node = node->next;
     }
     return NULL;
+}
+
+void symbol_table_init_all() {
+    global_table = symbol_table_init();
+    function_table = symbol_table_init();
+    structure_table = symbol_table_init();
+    scope_stack = scope_list_init();
+    structure_stack = scope_list_init();
 }
