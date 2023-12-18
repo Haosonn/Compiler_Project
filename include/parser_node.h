@@ -12,6 +12,9 @@ typedef struct ParserNode
     int is_left_value;
     struct ParserNode *child[10];
     struct Type *type;
+    struct SymbolListNode *symbolListNode;
+
+
     union parser_node_value
     {
         int int_value;
@@ -47,7 +50,7 @@ typedef struct Type
         SymbolTable *structure;
         SymbolTable *function;
     };
-    
+
 } Type;
 
 typedef struct Array
@@ -75,4 +78,4 @@ int function_declare(SymbolTable *global_table, char *name, Type *type);
 int check_return_type(ParserNode *ParserNode, Type *type);
 int check_function_args(SymbolTable *function, SymbolTable *args);
 
-#endif 
+#endif

@@ -61,13 +61,15 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
             return createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
             break;
         case EXP_TYPE_ID: // ID
-            sln = symbol_table_lookup(global_table, parserNode->value.string_value);
+            // sln = symbol_table_lookup(global_table, parserNode->value.string_value);
+            sln = parserNode->child[0]->symbolListNode;
             sprintf(op1, "s%d", sln->sym_id);
             sprintf(res, "p%d", place);
             return createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
             break;
         case EXP_TYPE_ASSIGN: // ID ASSIGN exp
-            sln = symbol_table_lookup(global_table, parserNode->child[0]->value.string_value);
+            // sln = symbol_table_lookup(global_table, parserNode->child[0]->value.string_value);
+            // sln = parserNode->child[0]->symbolListNode;
             if (sln == NULL) {
                 printf("in translate_exp, symbol_table_lookup error\n");
                 printf("symbol name: %s\n", parserNode->child[0]->value.string_value);

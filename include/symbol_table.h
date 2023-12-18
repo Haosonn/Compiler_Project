@@ -12,7 +12,7 @@ typedef struct SymbolListNode
 {
     Type *type;
     int sym_id;
-    char name[SYMBOL_LIST_NODE_NAME_LENGTH];
+    // char name[SYMBOL_LIST_NODE_NAME_LENGTH];
     struct SymbolListNode *next;
 } SymbolListNode;
 

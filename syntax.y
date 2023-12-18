@@ -496,6 +496,7 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
             printSemanticError(1, $1->line);
         }
         $$->type = sln->type;
+        $$->symbolListNode=sln;
         $$->value.exp_type = EXP_TYPE_ID;
         // $$->ir_list = translate_exp($$);
     }
