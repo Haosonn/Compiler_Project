@@ -22,6 +22,7 @@ typedef struct ParserNode
         ArgsType args_type;
         ExpDefType exp_def_type;
     } value;
+    IRInstructionList ir_list;
 
 } ParserNode;
 

@@ -134,11 +134,11 @@ ExtDefList: ExtDef ExtDefList { printDerivation("ExtDefList -> ExtDef ExtDefList
 
 ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); ADD_DERIVATION_3("ExtDef");
         $$->value.exp_def_type = EXP_DEF_TYPE_VARDEC;
+        // $$->ir_list = translate_ext_def($$);
         passType($2, $1->type);  
     }
     | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); ADD_DERIVATION_2("ExtDef"); }
     | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); ADD_DERIVATION_3("ExtDef");
-        $$->value.exp_def_type = EXP_DEF_TYPE_FUNDEC;
         temp_member_table = scope_list_pop(scope_stack);
         symbol_table_remove_empty(global_table);
         memcpy($2->type->function,temp_member_table,sizeof(SymbolTable));
@@ -146,6 +146,8 @@ ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecL
         if(check_return_type($3, $1->type)){
             printSemanticError(8, $2->line);
         }
+        $$->value.exp_def_type = EXP_DEF_TYPE_FUNDEC;
+        // $$->ir_list = translate_ext_def($$);
     }
     | ExtDecList SEMI { printDerivation("ExtDef -> ExtDecList SEMI\n"); printSyntaxError("Missing specifier", $1->line);}
     | Specifier error { printDerivation("ExtDef -> Specifier error\n"); printSyntaxError("Missing semicolon ';'", $1->line);}
@@ -269,11 +271,15 @@ ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); 
     }
     ;
 
-CompSt: LC DefList StmtList RC { printDerivation("CompSt -> LC DefList StmtList RC\n"); ADD_DERIVATION_4("CompSt"); }
+CompSt: LC DefList StmtList RC { printDerivation("CompSt -> LC DefList StmtList RC\n"); ADD_DERIVATION_4("CompSt"); 
+        // $$->ir_list = translate_compst($$);
+    }
     | LC DefList StmtList error { printDerivation("CompSt -> LC DefList StmtList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$3->line); }
     ;
 
-StmtList: Stmt StmtList { printDerivation("StmtList -> Stmt StmtList\n"); ADD_DERIVATION_2("StmtList"); }
+StmtList: Stmt StmtList { printDerivation("StmtList -> Stmt StmtList\n"); ADD_DERIVATION_2("StmtList"); 
+        // $$->ir_list = translate_stmt_list($$);
+    }
     | Stmt Def StmtList { printDerivation("StmtList -> Stmt Def StmtList\n"); printSyntaxError("Missing specifier", $$->line);}
     | Stmt Def Def StmtList { printDerivation("StmtList -> Stmt Def StmtList\n"); printSyntaxError("Missing specifier", $$->line);}
     | Stmt Def Def Def StmtList { printDerivation("StmtList -> Stmt Def StmtList\n"); printSyntaxError("Missing specifier", $$->line);}
@@ -281,12 +287,30 @@ StmtList: Stmt StmtList { printDerivation("StmtList -> Stmt StmtList\n"); ADD_DE
     | { printDerivation("StmtList -> empty\n"); ADD_DERIVATION_0("StmtList"); }
 ;
 
-Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); ADD_DERIVATION_2("Stmt"); }
-    | CompSt { printDerivation("Stmt -> CompSt\n"); ADD_DERIVATION_1("Stmt"); }
-    | RETURN Exp SEMI { printDerivation("Stmt -> RETURN Exp SEMI\n"); ADD_DERIVATION_3("Stmt"); }
-    | IF LP Exp RP Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt\n"); ADD_DERIVATION_5("Stmt"); }
-    | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); ADD_DERIVATION_7("Stmt"); }
-    | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); ADD_DERIVATION_5("Stmt"); }
+Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); ADD_DERIVATION_2("Stmt"); 
+        $$->value.stmt_type = STMT_TYPE_EXP;
+        // $$->ir_list = translate_stmt($$);
+    }
+    | CompSt { printDerivation("Stmt -> CompSt\n"); ADD_DERIVATION_1("Stmt"); 
+        $$->value.stmt_type = STMT_TYPE_COMPST;
+        // $$->ir_list = translate_stmt($$);
+    }
+    | RETURN Exp SEMI { printDerivation("Stmt -> RETURN Exp SEMI\n"); ADD_DERIVATION_3("Stmt"); 
+        $$->value.stmt_type = STMT_TYPE_RETURN;
+        // $$->ir_list = translate_stmt($$);
+    }
+    | IF LP Exp RP Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt\n"); ADD_DERIVATION_5("Stmt"); 
+        $$->value.stmt_type = STMT_TYPE_IF;
+        // $$->ir_list = translate_stmt($$);
+    }
+    | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); ADD_DERIVATION_7("Stmt"); 
+        $$->value.stmt_type = STMT_TYPE_IF_ELSE;
+        // $$->ir_list = translate_stmt($$);
+    }
+    | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); ADD_DERIVATION_5("Stmt"); 
+        $$->value.stmt_type = STMT_TYPE_WHILE;
+        // $$->ir_list = translate_stmt($$);
+    }
     | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Semt\n"); ADD_DERIVATION_9("Stmt"); }
     | FOR LP Def Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Def Exp SEMI Exp RP Stmt\n"); ADD_DERIVATION_8("Stmt"); }
     | ELSE Stmt { printDerivation("Stmt -> ELSE Stmt\n"); $$ = initParserNode("Stmt", yylineno); printSyntaxError("Lack IF for ELSE", (int)$1->line); }
@@ -350,20 +374,22 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
         if(!$1->is_left_value)
             printSemanticError(6, $1->line);
         $$->value.exp_type = EXP_TYPE_ASSIGN;
+        // $$->ir_list = translate_exp($$);
     }
-    | ASSIGN Exp {  printDerivation("Exp -> Exp ASSIGN error\n"); printSyntaxError("Missing operand before =", (int)$2->line);  }
-    | Exp ASSIGN error { printDerivation("Exp -> Exp ASSIGN error\n"); printSyntaxError("Missing operand after =", (int)$2->line); }
     | Exp OR Exp { printDerivation("Exp -> Exp OR Exp\n"); ADD_DERIVATION_3("Exp"); 
         if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
         $$->value.exp_type = EXP_TYPE_COND_OR;
+        // $$->ir_list = translate_exp($$);
     }
     | Exp AND Exp { printDerivation("Exp -> Exp AND Exp\n"); ADD_DERIVATION_3("Exp"); 
         if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
         $$->value.exp_type = EXP_TYPE_COND_AND;
+        // $$->ir_list = translate_exp($$);
     }
     | Exp EQ Exp { printDerivation("Exp -> Exp EQ Exp\n"); ADD_DERIVATION_3("Exp"); 
         if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
         $$->value.exp_type = EXP_TYPE_COND_EQ;
+        // $$->ir_list = translate_exp($$);
     }
     | Exp NEQ Exp { printDerivation("Exp -> Exp NEQ Exp\n"); ADD_DERIVATION_3("Exp"); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }
     | Exp LT Exp { printDerivation("Exp -> Exp LT Exp\n"); ADD_DERIVATION_3("Exp"); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }
@@ -379,13 +405,16 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
     | PLUS Exp { printDerivation("Exp -> PLUS Exp\n"); ADD_DERIVATION_2("Exp"); }
     | MINUS Exp { printDerivation("Exp -> MINUS Exp\n"); ADD_DERIVATION_2("Exp"); 
         $$->value.exp_type = EXP_TYPE_UMINUS;
+        // $$->ir_list = translate_exp($$);
     }
     | NOT Exp { printDerivation("Exp -> NOT Exp\n"); ADD_DERIVATION_2("Exp"); 
         $$->value.exp_type = EXP_TYPE_COND_NOT;
+        // $$->ir_list = translate_exp($$);
     }
     | WRITE LP Exp RP {
         printDerivation("Exp -> WRITE LP Exp RP\n"); ADD_DERIVATION_4("Exp");
         $$->value.exp_type = EXP_TYPE_WRITE;
+        // $$->ir_list = translate_exp($$);
     }
     | ID LP Args RP { printDerivation("Exp -> ID LP Args RP\n"); ADD_DERIVATION_4("Exp"); 
         SymbolListNode *sln = symbol_table_lookup(function_table, $1->value.string_value);
@@ -403,11 +432,15 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
                 printSemanticError(9, $1->line);
             }
             temp_member_table = NULL;
-            $$->value.exp_type = EXP_TYPE_CALL_ARGS;
             $$->type = sln->type->function->head->list->head->type;
+            $$->value.exp_type = EXP_TYPE_CALL_ARGS;
+            // $$->ir_list = translate_exp($$);
         }
     }
-    | READ LP RP { printDerivation("Exp -> READ LP RP\n"); ADD_DERIVATION_3("Exp"); $$->value.exp_type = EXP_TYPE_READ; }
+    | READ LP RP { printDerivation("Exp -> READ LP RP\n"); ADD_DERIVATION_3("Exp"); 
+        $$->value.exp_type = EXP_TYPE_READ; 
+        // $$->ir_list = translate_exp($$);
+    }
     | ID LP RP { printDerivation("Exp -> ID LP RP\n"); ADD_DERIVATION_3("Exp"); 
         SymbolListNode *sln = symbol_table_lookup(function_table, $1->value.string_value);
         if(sln->type == NULL){
@@ -422,8 +455,9 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
             if(check_function_args(sln->type->function, NULL)){
                 printSemanticError(9, $1->line);
             }
-            $$->value.exp_type = EXP_TYPE_CALL;
             $$->type = sln->type->function->head->list->head->type;
+            $$->value.exp_type = EXP_TYPE_CALL;
+            // $$->ir_list = translate_exp($$);
         }
     }
     | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); ADD_DERIVATION_4("Exp"); $$->is_left_value = 1; 
@@ -434,8 +468,9 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
             if($3->type->category != PRIMITIVE || $3->type->primitive != SEMANTIC_TYPE_INT){
                 printSemanticError(12, $3->line);
             }else{
-                $$->value.exp_type = EXP_TYPE_ARRAY;
                 $$->type = $1->type->array->base;
+                $$->value.exp_type = EXP_TYPE_ARRAY;
+                // $$->ir_list = translate_exp($$);
             }
         }
     }
@@ -448,8 +483,9 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
             if(sln->type == NULL){
                 printSemanticError(14, $3->line);
             }
-            $$->value.exp_type = EXP_TYPE_STRUCT;
             $$->type = sln->type;
+            $$->value.exp_type = EXP_TYPE_STRUCT;
+            // $$->ir_list = translate_exp($$);
         }
     }
     | ID { printDerivation("Exp -> ID\n"); ADD_DERIVATION_1("Exp"); $$->is_left_value = 1; 
@@ -461,13 +497,17 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
         }
         $$->type = sln->type;
         $$->value.exp_type = EXP_TYPE_ID;
+        // $$->ir_list = translate_exp($$);
     }
     | INT { printDerivation("Exp -> INT\n"); ADD_DERIVATION_1("Exp"); 
         $$->value.exp_type = EXP_TYPE_INT; 
+        // $$->ir_list = translate_exp($$);
     }
     | FLOAT { printDerivation("Exp -> FLOAT\n"); ADD_DERIVATION_1("Exp"); }
     | CHAR { printDerivation("Exp -> CHAR\n"); ADD_DERIVATION_1("Exp"); }
     | LITERAL { printDerivation("Exp -> LITERAL\n"); ADD_DERIVATION_1("Exp"); }
+    | ASSIGN Exp {  printDerivation("Exp -> Exp ASSIGN error\n"); printSyntaxError("Missing operand before =", (int)$2->line);  }
+    | Exp ASSIGN error { printDerivation("Exp -> Exp ASSIGN error\n"); printSyntaxError("Missing operand after =", (int)$2->line); }
     | ID LP error { printDerivation("Exp -> ID LP error\n"); printSyntaxError("Missing closing parenthesis ')'", (int)$2->line); }
     | Exp LB Exp error { printDerivation("Exp -> Exp LB Exp error\n"); printSyntaxError("Missing closing brace ']'", (int)$3->line); }
     | Exp PLUS error { printDerivation("Exp -> Exp PLUS error\n"); printSyntaxError("Missing operand after +", (int)$2->line); }
@@ -478,15 +518,17 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
     ;
 
 Args: Exp COMMA Args { printDerivation("Args -> Exp COMMA Args\n"); ADD_DERIVATION_3("Args");
-        $$->value.args_type = ARGS_TYPE_ARGS;
         symbol_table_insert(temp_member_table, "arg", $1->type);
+        $$->value.args_type = ARGS_TYPE_ARGS;
+        // $$->ir_list = translate_args($$);
     }
     | Exp { printDerivation("Args -> Exp\n"); ADD_DERIVATION_1("Args");
-        $$->value.args_type = ARGS_TYPE_ARG;
         if(temp_member_table==NULL){
             temp_member_table = symbol_table_init();
         }
         symbol_table_insert(temp_member_table, "arg", $1->type);
+        $$->value.args_type = ARGS_TYPE_ARG;
+        // $$->ir_list = translate_args($$);
     }
     ;
 
