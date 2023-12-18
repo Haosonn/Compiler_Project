@@ -70,3 +70,5 @@ extern SymbolTable *structure_table;
 extern SymbolTable *temp_member_table;
 extern ScopeList *scope_stack;
 extern ScopeList *structure_stack;
+
+void test();

@@ -68,6 +68,7 @@ typedef enum {
 } ExpType;
 
 typedef enum {
+    STMT_TYPE_EXP, // exp semi
     STMT_TYPE_RETURN, // return exp semi
     STMT_TYPE_IF, // if (exp) stmt
     STMT_TYPE_IF_ELSE, // if (exp) stmt else stmt

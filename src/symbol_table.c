@@ -243,7 +243,6 @@ SymbolTable *scope_list_pop(ScopeList *list)
 
 SymbolListNode *symbol_table_lookup(SymbolTable *table, char *name)
 {
-    printf("lookup %p\n", table);
     SymbolTableNode *node = table->head;
     while (node != NULL)
     {
@@ -262,4 +261,10 @@ void symbol_table_init_all() {
     structure_table = symbol_table_init();
     scope_stack = scope_list_init();
     structure_stack = scope_list_init();
+}
+
+void test() {
+    printf("test %p\n", structure_table);
+    printf("test %p\n", function_table);
+    printf("test %p\n", global_table);
 }

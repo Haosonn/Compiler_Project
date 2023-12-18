@@ -1,3 +1,14 @@
+#define IR_VAR_DEC IRInstructionList ir1;\
+                IRInstructionList ir2;\
+                IRInstructionList ir3;\
+                IRInstructionList ir4;\
+                IRInstructionList ir5;\
+                IRInstructionList ir6;\
+                IRInstructionList ir7;\
+                SymbolListNode *sln;\
+                int tp = -1, t1 = -1, t2 = -1, lb1 = -1, lb2 = -1, lb3 = -1;
+
+
 #include <stdio.h>
 #include "ir.h"
 #include "ir_translate.h"
@@ -8,10 +19,7 @@ int label_cnt = 0;
 int place_cnt = 0;
 
 char op1[OP_LEN_MAX]; char op2[OP_LEN_MAX]; char res[OP_LEN_MAX];
-IRInstructionList ir1; IRInstructionList ir2; IRInstructionList ir3; IRInstructionList ir4; IRInstructionList ir5; IRInstructionList ir6; IRInstructionList ir7;
 IRInstructionList ir_null = {NULL, NULL};
-SymbolListNode *sln;
-int tp = -1, t1 = -1, t2 = -1, lb1 = -1, lb2 = -1, lb3 = -1;
 
 int new_place() {
     return ++place_cnt;
@@ -22,6 +30,7 @@ int new_label() {
 }
 
 IRInstructionList translate_exp(ParserNode* parserNode, int place) {
+    IR_VAR_DEC;
     if (parserNode == NULL) {
         printf("in translate_exp, parserNode is NULL\n");
         return ir_null;
@@ -59,6 +68,11 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
             break;
         case EXP_TYPE_ASSIGN: // ID ASSIGN exp
             sln = symbol_table_lookup(global_table, parserNode->child[0]->value.string_value);
+            if (sln == NULL) {
+                printf("in translate_exp, symbol_table_lookup error\n");
+                printf("symbol name: %s\n", parserNode->child[0]->value.string_value);
+                return ir_null;
+            }
             tp = new_place();
             ir1 = translate_exp(parserNode->child[2], tp);
             sprintf(op1, "p%d", tp);
@@ -129,6 +143,7 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
 }
 
 IRInstructionList translate_cond_exp(ParserNode* parserNode, int lb_true, int lb_false) {
+    IR_VAR_DEC;
     switch (parserNode->value.exp_type)
     {
         case EXP_TYPE_COND_EQ: // exp1 EQ exp2
@@ -174,7 +189,13 @@ IRInstructionList translate_cond_exp(ParserNode* parserNode, int lb_true, int lb
 }
 
 IRInstructionList translate_stmt(ParserNode* parserNode) {
+    IR_VAR_DEC;
     switch (parserNode->value.stmt_type) {
+        case STMT_TYPE_EXP: // exp SEMI
+            tp = new_place();
+            ir1 = translate_exp(parserNode->child[0], tp);
+            return ir1;
+            break;
         case STMT_TYPE_RETURN: // RETURN exp SEMI
             tp = new_place();
             ir1 = translate_exp(parserNode->child[1], tp);
@@ -238,6 +259,7 @@ IRInstructionList translate_stmt(ParserNode* parserNode) {
 }
 
 IRInstructionList translate_args(ParserNode *parserNode, int* args_list, int *args_cnt) {
+    IR_VAR_DEC;
     switch (parserNode->value.args_type)
     {
         case ARGS_TYPE_ARG: // exp
@@ -262,6 +284,7 @@ IRInstructionList translate_args(ParserNode *parserNode, int* args_list, int *ar
 }
 
 IRInstructionList translate_stmt_list(ParserNode *parserNode) {
+    IR_VAR_DEC;
     if (parserNode == NULL) {
         printf("in translate_stmt_list, parserNode is NULL\n");
         return ir_null;
@@ -278,6 +301,7 @@ IRInstructionList translate_stmt_list(ParserNode *parserNode) {
 }
 
 IRInstructionList translate_comp_st(ParserNode *parserNode) {
+    IR_VAR_DEC;
     if (parserNode == NULL) {
         printf("in translate_comp_st, parserNode is NULL\n");
         return ir_null;
@@ -290,6 +314,7 @@ IRInstructionList translate_comp_st(ParserNode *parserNode) {
 }
 
 IRInstructionList translate_ext_def_list(ParserNode *parserNode) {
+    IR_VAR_DEC;
     if (parserNode == NULL) {
         printf("in translate_extdef_list, parserNode is NULL\n");
         return ir_null;
@@ -299,23 +324,23 @@ IRInstructionList translate_ext_def_list(ParserNode *parserNode) {
     }
     ParserNode *ext_def = parserNode->child[0];
     ParserNode *ext_def_list = parserNode->child[1];
-    if (ext_def->value.exp_def_type == EXP_DEF_TYPE_VARDEC) { // Specifier ExtDecList SEMI
+    if (ext_def->value.exp_def_type == EXP_DEF_TYPE_VARDEC) { // ExtDef <- Specifier ExtDecList SEMI
         // do nothing
-    } else if (ext_def->value.exp_def_type == EXP_DEF_TYPE_FUNDEC) { // Specifier FunDec CompSt
-        sprintf(res, "%s", ext_def->child[1]->value.string_value);
-        ir1 = createInstructionList(createInstruction(IR_OP_FUNC, NULL, NULL, res));
+    } else if (ext_def->value.exp_def_type == EXP_DEF_TYPE_FUNDEC) { // ExtDef <- Specifier FunDec CompSt
+        sprintf(res, "%s", ext_def->child[1]->child[0]->value.string_value); //FunDec <- ID LP RP
+        ir1 = createInstructionList(createInstruction(IR_OP_FUNC, NULL, NULL, res)); 
         ir2 = translate_comp_st(ext_def->child[2]);
-        insertInstructionAfter(&ir1, &ir2);
+        ir3 = translate_ext_def_list(ext_def_list);
+        insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3);
+        return ir1;
     } else {
         printf("in translate_extdef_list, extdef->value.expdef_type error\n");
-        return ir_null;
     }
-    ir3 = translate_ext_def_list(ext_def_list);
-    insertInstructionAfter(&ir1, &ir3);
-    return ir1;
+    return ir_null;
 }
 
 IRInstructionList translate_program(ParserNode *parserNode) {
+    IR_VAR_DEC;
     if (parserNode == NULL) {
         printf("in translate_program, parserNode is NULL\n");
         return ir_null;

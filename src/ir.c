@@ -6,9 +6,12 @@ struct IRInstruction* irTableHead;
 IRInstruction* createInstruction(IROpCode opcode, const char* operand1, const char* operand2, const char* result) {
     struct IRInstruction* instruction = (struct IRInstruction*)malloc(sizeof(struct IRInstruction));
     instruction->opcode = opcode;
-    strcpy(instruction->op1, operand1);
-    strcpy(instruction->op2, operand2);
-    strcpy(instruction->res, result);
+    if (operand1 != NULL) strcpy(instruction->op1, operand1);
+    else instruction->op1[0] = '\0'; 
+    if (operand2 != NULL) strcpy(instruction->op2, operand2);
+    else instruction->op2[0] = '\0';
+    if (result != NULL) strcpy(instruction->res, result);
+    else instruction->res[0] = '\0';
     instruction->prev = NULL;
     instruction->next = NULL;
     return instruction;
@@ -104,9 +107,11 @@ void print_ir_list(IRInstructionList irList) {
     return;
 #endif
     IRInstruction* ir = irList.head;
+    int i = 1;
     while (ir != NULL) {
         print_ir(ir);
         ir = ir->next;
+        i++;
     }
 }
 

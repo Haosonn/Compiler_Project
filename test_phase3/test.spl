@@ -1,8 +1,10 @@
+/*
 int notused()
 {
     return 0;
 }
 int;
+*/
 int main()
 {
     int n;

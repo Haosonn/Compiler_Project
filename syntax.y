@@ -453,7 +453,8 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
         }
     }
     | ID { printDerivation("Exp -> ID\n"); ADD_DERIVATION_1("Exp"); $$->is_left_value = 1; 
-        printf("before lookup %p\n", global_table->head);
+        // test();
+        printf("before lookup %p\n", global_table);
         SymbolListNode* sln = symbol_table_lookup(global_table, $1->value.string_value);
         if(sln->type == NULL){
             printSemanticError(1, $1->line);
