@@ -67,7 +67,7 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
             sprintf(res, "p%d", place);
             return createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
             break;
-        case EXP_TYPE_ASSIGN: // ID ASSIGN exp
+        case EXP_TYPE_ASSIGN: // exp ASSIGN exp
             // sln = symbol_table_lookup(global_table, parserNode->child[0]->value.string_value);
             // sln = parserNode->child[0]->symbolListNode;
             if (sln == NULL) {
