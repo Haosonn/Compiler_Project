@@ -1,0 +1,12 @@
+int out_array[100];
+// int need_array(int in_array[100])
+// {
+//     return in_array[0];
+// }
+int main()
+{
+    int in_array[100];
+    in_array[0] = 1;
+    // need_array(in_array);
+    return 0;
+}

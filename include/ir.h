@@ -28,6 +28,7 @@ typedef enum {
     IR_OP_PARAM,
     IR_OP_GET_ADDR,
     IR_OP_GET_VALUE,
+    IR_OP_ASSIGN_ADDR,
     IR_OP_FUNC
 } IROpCode;
 
@@ -53,6 +54,7 @@ typedef enum {
     PARAM       |       param res
     GET_ADDR    |       res := &op1
     GET_VALUE   |       res := *op1
+    ASSIGN_ADDR |       *res := op1
     FUNC        |       function res:
 */
 typedef enum {

@@ -6,6 +6,7 @@
     #include "lex.yy.c"
     #include "parser_node.h"
     #include "symbol_table.h"
+    #include "ir.h"
     #include "ir_translate.h"
     // #define YY_USER_ACTION \
     //     yylloc.first_line = yylineno; \
@@ -17,6 +18,7 @@
 
     char *source_path; 
     struct ParserNode * rootNode = NULL; 
+    IRInstructionList alloc_ir_list = {NULL, NULL};
     int lexeme_error = 0;
     int syntax_error = 0;
     // phase 2
@@ -134,7 +136,6 @@ ExtDefList: ExtDef ExtDefList { printDerivation("ExtDefList -> ExtDef ExtDefList
 
 ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
         $$->value.exp_def_type = EXP_DEF_TYPE_VARDEC;
-        // $$->ir_list = translate_ext_def($$);
         passType($2, $1->type);  
     }
     | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
@@ -147,7 +148,6 @@ ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecL
             printSemanticError(8, $2->line);
         }
         $$->value.exp_def_type = EXP_DEF_TYPE_FUNDEC;
-        // $$->ir_list = translate_ext_def($$);
     }
     | ExtDecList SEMI { printDerivation("ExtDef -> ExtDecList SEMI\n"); printSyntaxError("Missing specifier", $1->line);}
     | Specifier error { printDerivation("ExtDef -> Specifier error\n"); printSyntaxError("Missing semicolon ';'", $1->line);}
@@ -218,6 +218,15 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
             type->array->size = $3->value.int_value;
             type->array->base = NULL;
             memcpy($1->type, type, sizeof(Type));
+            $1->value.int_value = mem_alloc_cnt;
+            //todo: add alloc_addr in SymbolListNode
+            int array_len = $3->value.int_value;
+            char res[OP_LEN_MAX], op1[OP_LEN_MAX];
+            sprintf(res, "%x", mem_alloc_cnt);
+            sprintf(op1, "%d", array_len);
+            IRInstructionList ir_alloc = createInstructionList(createInstruction(IR_OP_DEC, op1, NULL, res));
+            insertInstructionAfter(&alloc_ir_list, &ir_alloc);
+            mem_alloc_cnt += array_len >> 2;
         }
         else {
             Type *type = (Type *)malloc(sizeof(Type));
@@ -272,13 +281,11 @@ ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); 
     ;
 
 CompSt: LC DefList StmtList RC { printDerivation("CompSt -> LC DefList StmtList RC\n"); $$ = initParserNode("CompSt", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
-        // $$->ir_list = translate_compst($$);
     }
     | LC DefList StmtList error { printDerivation("CompSt -> LC DefList StmtList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$3->line); }
     ;
 
 StmtList: Stmt StmtList { printDerivation("StmtList -> Stmt StmtList\n"); $$ = initParserNode("StmtList", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
-        // $$->ir_list = translate_stmt_list($$);
     }
     | Stmt Def StmtList { printDerivation("StmtList -> Stmt Def StmtList\n"); printSyntaxError("Missing specifier", $$->line);}
     | Stmt Def Def StmtList { printDerivation("StmtList -> Stmt Def StmtList\n"); printSyntaxError("Missing specifier", $$->line);}
@@ -289,27 +296,21 @@ StmtList: Stmt StmtList { printDerivation("StmtList -> Stmt StmtList\n"); $$ = i
 
 Stmt: Exp SEMI { printDerivation("Stmt -> Exp SEMI\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
         $$->value.stmt_type = STMT_TYPE_EXP;
-        // $$->ir_list = translate_stmt($$);
     }
     | CompSt { printDerivation("Stmt -> CompSt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
         $$->value.stmt_type = STMT_TYPE_COMPST;
-        // $$->ir_list = translate_stmt($$);
     }
     | RETURN Exp SEMI { printDerivation("Stmt -> RETURN Exp SEMI\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         $$->value.stmt_type = STMT_TYPE_RETURN;
-        // $$->ir_list = translate_stmt($$);
     }
     | IF LP Exp RP Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); 
         $$->value.stmt_type = STMT_TYPE_IF;
-        // $$->ir_list = translate_stmt($$);
     }
     | IF LP Exp RP Stmt ELSE Stmt { printDerivation("Stmt -> IF LP Exp RP Stmt ELSE Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, NULL); cal_line($$); 
         $$->value.stmt_type = STMT_TYPE_IF_ELSE;
-        // $$->ir_list = translate_stmt($$);
     }
     | WHILE LP Exp RP Stmt { printDerivation("Stmt -> WHILE LP Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, NULL); cal_line($$); 
         $$->value.stmt_type = STMT_TYPE_WHILE;
-        // $$->ir_list = translate_stmt($$);
     }
     | FOR LP Exp SEMI Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Exp SEMI Exp SEMI Exp RP Semt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, $9, NULL); cal_line($$); }
     | FOR LP Def Exp SEMI Exp RP Stmt { printDerivation("Stmt -> FOR LP Def Exp SEMI Exp RP Stmt\n"); $$ = initParserNode("Stmt", yylineno); addParserDerivation($$, $1, $2, $3, $4, $5, $6, $7, $8, NULL); cal_line($$); }
@@ -374,22 +375,18 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
         if(!$1->is_left_value)
             printSemanticError(6, $1->line);
         $$->value.exp_type = EXP_TYPE_ASSIGN;
-        // $$->ir_list = translate_exp($$);
     }
     | Exp OR Exp { printDerivation("Exp -> Exp OR Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
         $$->value.exp_type = EXP_TYPE_COND_OR;
-        // $$->ir_list = translate_exp($$);
     }
     | Exp AND Exp { printDerivation("Exp -> Exp AND Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
         $$->value.exp_type = EXP_TYPE_COND_AND;
-        // $$->ir_list = translate_exp($$);
     }
     | Exp EQ Exp { printDerivation("Exp -> Exp EQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
         $$->value.exp_type = EXP_TYPE_COND_EQ;
-        // $$->ir_list = translate_exp($$);
     }
     | Exp NEQ Exp { printDerivation("Exp -> Exp NEQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
@@ -432,27 +429,24 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
     | PLUS Exp { printDerivation("Exp -> PLUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     | MINUS Exp { printDerivation("Exp -> MINUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
         $$->value.exp_type = EXP_TYPE_UMINUS;
-        // $$->ir_list = translate_exp($$);
     }
     | NOT Exp { printDerivation("Exp -> NOT Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); 
         $$->value.exp_type = EXP_TYPE_COND_NOT;
-        // $$->ir_list = translate_exp($$);
     }
     | WRITE LP Exp RP {
         printDerivation("Exp -> WRITE LP Exp RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$);
         $$->value.exp_type = EXP_TYPE_WRITE;
-        // $$->ir_list = translate_exp($$);
     }
     | ID LP Args RP { printDerivation("Exp -> ID LP Args RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); 
         SymbolListNode *sln = symbol_table_lookup(function_table, $1->value.string_value);
-        if(sln->type == NULL){
+        if(sln == NULL || sln->type == NULL){
             printSemanticError(2, $1->line);
-            $$->type=NULL;
+            $$->type = NULL;
         }
         else if(sln->type->category != FUNCTION){
             // not used
             printSemanticError(11, $1->line);
-            $$->type=NULL;
+            $$->type = NULL;
         }
         else{
             if(check_function_args(sln->type->function, temp_member_table)){
@@ -461,34 +455,31 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
             temp_member_table = NULL;
             $$->type = sln->type->function->head->list->head->type;
             $$->value.exp_type = EXP_TYPE_CALL_ARGS;
-            // $$->ir_list = translate_exp($$);
         }
     }
     | READ LP RP { printDerivation("Exp -> READ LP RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         $$->value.exp_type = EXP_TYPE_READ; 
-        // $$->ir_list = translate_exp($$);
     }
     | ID LP RP { printDerivation("Exp -> ID LP RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
         SymbolListNode *sln = symbol_table_lookup(function_table, $1->value.string_value);
         if(sln->type == NULL){
             printSemanticError(2, $1->line);
-            $$->type=NULL;
+            $$->type = NULL;
         }
         else if(sln->type->category != FUNCTION){
             // not used
             printSemanticError(11, $1->line);
-            $$->type=NULL;
+            $$->type = NULL;
         }else{
             if(check_function_args(sln->type->function, NULL)){
                 printSemanticError(9, $1->line);
             }
             $$->type = sln->type->function->head->list->head->type;
             $$->value.exp_type = EXP_TYPE_CALL;
-            // $$->ir_list = translate_exp($$);
         }
     }
     | Exp LB Exp RB { printDerivation("Exp -> Exp LB Exp RB\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$); $$->is_left_value = 1; 
-        if($1->type==NULL||$1->type->category != ARRAY){
+        if($1->type==NULL || $1->type->category != ARRAY){
             printSemanticError(10, $1->line);
             $$->type = NULL;
         }else{
@@ -497,7 +488,6 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
             }else{
                 $$->type = $1->type->array->base;
                 $$->value.exp_type = EXP_TYPE_ARRAY;
-                // $$->ir_list = translate_exp($$);
             }
         }
     }
@@ -605,6 +595,7 @@ int main(int argc, char **argv){
         strcpy(source_path, file_path);
         yyparse();
         printParserTree();
+        print_ir_list(alloc_ir_list);
         translate_program(rootNode);
         return EXIT_SUCCESS;
     } else {

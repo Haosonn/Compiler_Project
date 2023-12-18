@@ -2,6 +2,7 @@
 #define SYMBOL_LIST_NODE_NAME_LENGTH 5
 
 static int sym_cnt = 0;
+static int mem_alloc_cnt = 0x10000;
 
 typedef struct Type Type;
 int type_equal(Type *type1, Type *type2);
@@ -12,7 +13,7 @@ typedef struct SymbolListNode
 {
     Type *type;
     int sym_id;
-    // char name[SYMBOL_LIST_NODE_NAME_LENGTH];
+    int alloc_addr;
     struct SymbolListNode *next;
 } SymbolListNode;
 

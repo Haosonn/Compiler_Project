@@ -101,8 +101,14 @@ void print_ir(IRInstruction *ir) {
         case IR_OP_GET_VALUE:
             printf("%s := *%s\n", ir->res, ir->op1);
             break;
+        case IR_OP_ASSIGN_ADDR:
+            printf("*%s := %s\n", ir->res, ir->op1);
+            break;
         case IR_OP_FUNC:
             printf("function %s:\n", ir->res);
+            break;
+        case IR_OP_DEC:
+            printf("dec 0x%s %s\n", ir->res, ir->op1);
             break;
         default:
             printf("Unknown opcode\n");

@@ -6,6 +6,7 @@
     #include "lex.yy.c"
     #include "parser_node.h"
     #include "symbol_table.h"
+    #include "ir.h"
     #include "ir_translate.h"
     // #define YY_USER_ACTION \
     //     yylloc.first_line = yylineno; \
@@ -17,6 +18,7 @@
 
     char *source_path; 
     struct ParserNode * rootNode = NULL; 
+    IRInstructionList alloc_ir_list = {NULL, NULL};
     int lexeme_error = 0;
     int syntax_error = 0;
     // phase 2
@@ -216,6 +218,14 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); ADD_DERIVATION_1("VarDec");
             type->array->size = $3->value.int_value;
             type->array->base = NULL;
             memcpy($1->type, type, sizeof(Type));
+            $1->value.int_value = mem_alloc_cnt;
+            int array_len = $3->value.int_value;
+            char res[OP_LEN_MAX], op1[OP_LEN_MAX];
+            sprintf(res, "%x", mem_alloc_cnt);
+            sprintf(op1, "%d", array_len);
+            IRInstructionList ir_alloc = createInstructionList(createInstruction(IR_OP_DEC, op1, NULL, res));
+            insertInstructionAfter(&alloc_ir_list, &ir_alloc);
+            mem_alloc_cnt += array_len >> 2;
         }
         else {
             Type *type = (Type *)malloc(sizeof(Type));
@@ -428,14 +438,14 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
     }
     | ID LP Args RP { printDerivation("Exp -> ID LP Args RP\n"); ADD_DERIVATION_4("Exp"); 
         SymbolListNode *sln = symbol_table_lookup(function_table, $1->value.string_value);
-        if(sln->type == NULL){
+        if(sln == NULL || sln->type == NULL){
             printSemanticError(2, $1->line);
-            $$->type=NULL;
+            $$->type = NULL;
         }
         else if(sln->type->category != FUNCTION){
             // not used
             printSemanticError(11, $1->line);
-            $$->type=NULL;
+            $$->type = NULL;
         }
         else{
             if(check_function_args(sln->type->function, temp_member_table)){
@@ -453,12 +463,12 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
         SymbolListNode *sln = symbol_table_lookup(function_table, $1->value.string_value);
         if(sln->type == NULL){
             printSemanticError(2, $1->line);
-            $$->type=NULL;
+            $$->type = NULL;
         }
         else if(sln->type->category != FUNCTION){
             // not used
             printSemanticError(11, $1->line);
-            $$->type=NULL;
+            $$->type = NULL;
         }else{
             if(check_function_args(sln->type->function, NULL)){
                 printSemanticError(9, $1->line);
@@ -584,6 +594,7 @@ int main(int argc, char **argv){
         strcpy(source_path, file_path);
         yyparse();
         printParserTree();
+        print_ir_list(alloc_ir_list);
         translate_program(rootNode);
         return EXIT_SUCCESS;
     } else {
