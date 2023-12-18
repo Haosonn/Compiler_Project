@@ -262,9 +262,3 @@ void symbol_table_init_all() {
     scope_stack = scope_list_init();
     structure_stack = scope_list_init();
 }
-
-void test() {
-    printf("test %p\n", structure_table);
-    printf("test %p\n", function_table);
-    printf("test %p\n", global_table);
-}

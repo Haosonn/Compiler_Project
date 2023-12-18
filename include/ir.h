@@ -1,7 +1,7 @@
 #pragma once
 #ifndef IR_H
 #define IR_H
-#define OP_LEN_MAX 5
+#define OP_LEN_MAX 20
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,11 +16,14 @@ typedef enum {
     IR_OP_ASSIGN,
     IR_OP_GOTO,
     IR_OP_IF_EQ_GOTO,
+    IR_OP_IF_LT_GOTO,
+    IR_OP_IF_LEQ_GOTO,
     IR_OP_LABEL,
     IR_OP_RETURN,
     IR_OP_READ,
     IR_OP_WRITE,
     IR_OP_CALL,
+    IR_OP_DEC,
     IR_OP_ARG,
     IR_OP_PARAM,
     IR_OP_GET_ADDR,
@@ -38,11 +41,14 @@ typedef enum {
     ASSIGN      |       res := op1
     GOTO        |       goto res
     IF_EQ_GOTO  |       if op1 == op2 goto res
+    IF_LT_GOTO  |       if op1 < op2 goto res
+    IF_LEQ_GOTO |       if op1 <= op2 goto res
     LABEL       |       res(label name) :
     RETURN      |       return res
     READ        |       read res
     WRITE       |       write res
     CALL        |       res := call op1(function name)
+    DEC         |       dec res(pointer addr) op1(size)
     ARG         |       arg res
     PARAM       |       param res
     GET_ADDR    |       res := &op1
@@ -54,6 +60,9 @@ typedef enum {
     EXP_TYPE_ID, // id
     EXP_TYPE_ASSIGN, // exp1 assign exp2
     EXP_TYPE_PLUS, // exp1 plus exp2
+    EXP_TYPE_MINUS, // exp1 minus exp2
+    EXP_TYPE_MUL, // exp1 mul exp2
+    EXP_TYPE_DIV, // exp1 div exp2
     EXP_TYPE_UMINUS, // minus exp
     EXP_TYPE_READ, // read id
     EXP_TYPE_WRITE, // write(exp)
@@ -65,6 +74,11 @@ typedef enum {
     EXP_TYPE_COND_AND, // exp1 AND exp2
     EXP_TYPE_COND_OR, // exp1 OR exp2
     EXP_TYPE_COND_NOT, // NOT exp
+    EXP_TYPE_COND_NEQ, // exp1 NEQ exp2
+    EXP_TYPE_COND_GT, // exp1 GT exp2
+    EXP_TYPE_COND_GEQ, // exp1 GE exp2
+    EXP_TYPE_COND_LT, // exp1 LT exp2
+    EXP_TYPE_COND_LEQ, // exp1 LE exp2
 } ExpType;
 
 typedef enum {

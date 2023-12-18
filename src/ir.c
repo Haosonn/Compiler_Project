@@ -68,8 +68,14 @@ void print_ir(IRInstruction *ir) {
         case IR_OP_IF_EQ_GOTO:
             printf("if %s == %s goto %s\n", ir->op1, ir->op2, ir->res);
             break;
+        case IR_OP_IF_LT_GOTO:
+            printf("if %s < %s goto %s\n", ir->op1, ir->op2, ir->res);
+            break;
+        case IR_OP_IF_LEQ_GOTO:
+            printf("if %s <= %s goto %s\n", ir->op1, ir->op2, ir->res);
+            break;
         case IR_OP_LABEL:
-            printf("%s(label name):\n", ir->res);
+            printf("%s:\n", ir->res);
             break;
         case IR_OP_RETURN:
             printf("return %s\n", ir->res);
@@ -81,7 +87,7 @@ void print_ir(IRInstruction *ir) {
             printf("write %s\n", ir->res);
             break;
         case IR_OP_CALL:
-            printf("%s := call %s(function name)\n", ir->res, ir->op1);
+            printf("%s := call %s\n", ir->res, ir->op1);
             break;
         case IR_OP_ARG:
             printf("arg %s\n", ir->res);

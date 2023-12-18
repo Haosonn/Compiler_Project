@@ -391,15 +391,42 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
         $$->value.exp_type = EXP_TYPE_COND_EQ;
         // $$->ir_list = translate_exp($$);
     }
-    | Exp NEQ Exp { printDerivation("Exp -> Exp NEQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }
-    | Exp LT Exp { printDerivation("Exp -> Exp LT Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }
-    | Exp GT Exp { printDerivation("Exp -> Exp GT Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }
-    | Exp LEQ Exp { printDerivation("Exp -> Exp LEQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }
-    | Exp GEQ Exp { printDerivation("Exp -> Exp GEQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }
-    | Exp PLUS Exp { printDerivation("Exp -> Exp PLUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }
-    | Exp MINUS Exp { printDerivation("Exp -> Exp MINUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }
-    | Exp MUL Exp { printDerivation("Exp -> Exp MUL Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }
-    | Exp DIV Exp { printDerivation("Exp -> Exp DIV Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); }
+    | Exp NEQ Exp { printDerivation("Exp -> Exp NEQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); 
+        if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
+        $$->value.exp_type = EXP_TYPE_COND_NEQ;
+    }
+    | Exp LT Exp { printDerivation("Exp -> Exp LT Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
+        if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
+        $$->value.exp_type = EXP_TYPE_COND_LT;
+    }
+    | Exp GT Exp { printDerivation("Exp -> Exp GT Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
+        if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
+        $$->value.exp_type = EXP_TYPE_COND_GT;
+    }
+    | Exp LEQ Exp { printDerivation("Exp -> Exp LEQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
+        if(typeNotMatch($1, $3)) printSemanticError(7, $1->line);
+        $$->value.exp_type = EXP_TYPE_COND_LEQ;
+    }
+    | Exp GEQ Exp { printDerivation("Exp -> Exp GEQ Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
+        if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
+        $$->value.exp_type = EXP_TYPE_COND_GEQ;
+    }
+    | Exp PLUS Exp { printDerivation("Exp -> Exp PLUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
+        if(typeNotMatch($1, $3)) printSemanticError(7, $1->line); 
+        $$->value.exp_type = EXP_TYPE_PLUS;
+    }
+    | Exp MINUS Exp { printDerivation("Exp -> Exp MINUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
+        if(typeNotMatch($1, $3)) printSemanticError(7, $1->line);
+        $$->value.exp_type = EXP_TYPE_MINUS;
+    }
+    | Exp MUL Exp { printDerivation("Exp -> Exp MUL Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
+        if(typeNotMatch($1, $3)) printSemanticError(7, $1->line);
+        $$->value.exp_type = EXP_TYPE_MUL;
+    }
+    | Exp DIV Exp { printDerivation("Exp -> Exp DIV Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
+        if(typeNotMatch($1, $3)) printSemanticError(7, $1->line);
+        $$->value.exp_type = EXP_TYPE_DIV;
+    }
     | LP Exp RP { printDerivation("Exp -> LP Exp RP\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$); }
     // | MINUS Exp %prec UMINUS 
     | PLUS Exp { printDerivation("Exp -> PLUS Exp\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
@@ -489,13 +516,12 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
         }
     }
     | ID { printDerivation("Exp -> ID\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); $$->is_left_value = 1; 
-        // test();
-        printf("before lookup %p\n", global_table);
         SymbolListNode* sln = symbol_table_lookup(global_table, $1->value.string_value);
         if(sln->type == NULL){
             printSemanticError(1, $1->line);
         }
         $$->type = sln->type;
+        $1->symbolListNode=sln;
         $$->value.exp_type = EXP_TYPE_ID;
         // $$->ir_list = translate_exp($$);
     }

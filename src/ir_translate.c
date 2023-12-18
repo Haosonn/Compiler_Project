@@ -61,18 +61,15 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
             return createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
             break;
         case EXP_TYPE_ID: // ID
-            // sln = symbol_table_lookup(global_table, parserNode->value.string_value);
             sln = parserNode->child[0]->symbolListNode;
             sprintf(op1, "s%d", sln->sym_id);
             sprintf(res, "p%d", place);
             return createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
             break;
         case EXP_TYPE_ASSIGN: // exp ASSIGN exp
-            // sln = symbol_table_lookup(global_table, parserNode->child[0]->value.string_value);
-            // sln = parserNode->child[0]->symbolListNode;
+            sln = parserNode->child[0]->child[0]->symbolListNode;
             if (sln == NULL) {
                 printf("in translate_exp, symbol_table_lookup error\n");
-                printf("symbol name: %s\n", parserNode->child[0]->value.string_value);
                 return ir_null;
             }
             tp = new_place();
@@ -118,8 +115,10 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
             sprintf(res, "p%d", tp);
             ir2 = createInstructionList(createInstruction(IR_OP_WRITE, NULL, NULL, res));
             insertInstructionAfter(&ir1, &ir2);
+            return ir1;
+            break;
         case EXP_TYPE_CALL: // ID LP RP
-            sprintf(res, "%s", parserNode->value.string_value);
+            sprintf(op1, "%s", parserNode->child[0]->value.string_value);
             return createInstructionList(createInstruction(IR_OP_CALL, NULL, NULL, res));
             break;
         case EXP_TYPE_CALL_ARGS: // ID LP ARGS RP
@@ -157,6 +156,64 @@ IRInstructionList translate_cond_exp(ParserNode* parserNode, int lb_true, int lb
             sprintf(op2, "p%d", t2);
             sprintf(res, "lb%d", lb_true);
             ir3 = createInstructionList(createInstruction(IR_OP_IF_EQ_GOTO, op1, op2, res));
+            sprintf(res, "lb%d", lb_false);
+            ir4 = createInstructionList(createInstruction(IR_OP_GOTO, NULL, NULL, res));
+            insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3); insertInstructionAfter(&ir1, &ir4);
+            return ir1;
+            break;
+        case EXP_TYPE_COND_NEQ: // exp1 NEQ exp2
+            return translate_cond_exp(parserNode, lb_false, lb_true);
+        case EXP_TYPE_COND_LT: // exp1 LT exp2
+            t1 = new_place();
+            t2 = new_place();
+            ir1 = translate_exp(parserNode->child[0], t1);
+            ir2 = translate_exp(parserNode->child[2], t2);
+            sprintf(op1, "p%d", t1);
+            sprintf(op2, "p%d", t2);
+            sprintf(res, "lb%d", lb_true);
+            ir3 = createInstructionList(createInstruction(IR_OP_IF_LT_GOTO, op1, op2, res));
+            sprintf(res, "lb%d", lb_false);
+            ir4 = createInstructionList(createInstruction(IR_OP_GOTO, NULL, NULL, res));
+            insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3); insertInstructionAfter(&ir1, &ir4);
+            return ir1;
+            break;
+        case EXP_TYPE_COND_LEQ: // exp1 LEQ exp2
+            t1 = new_place();
+            t2 = new_place();
+            ir1 = translate_exp(parserNode->child[0], t1);
+            ir2 = translate_exp(parserNode->child[2], t2);
+            sprintf(op1, "p%d", t1);
+            sprintf(op2, "p%d", t2);
+            sprintf(res, "lb%d", lb_true);
+            ir3 = createInstructionList(createInstruction(IR_OP_IF_LEQ_GOTO, op1, op2, res));
+            sprintf(res, "lb%d", lb_false);
+            ir4 = createInstructionList(createInstruction(IR_OP_GOTO, NULL, NULL, res));
+            insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3); insertInstructionAfter(&ir1, &ir4);
+            return ir1;
+            break;
+        case EXP_TYPE_COND_GT: // exp1 GT exp2
+            t1 = new_place();
+            t2 = new_place();
+            ir1 = translate_exp(parserNode->child[0], t1);
+            ir2 = translate_exp(parserNode->child[2], t2);
+            sprintf(op1, "p%d", t1);
+            sprintf(op2, "p%d", t2);
+            sprintf(res, "lb%d", lb_true);
+            ir3 = createInstructionList(createInstruction(IR_OP_IF_LEQ_GOTO, op2, op1, res));
+            sprintf(res, "lb%d", lb_false);
+            ir4 = createInstructionList(createInstruction(IR_OP_GOTO, NULL, NULL, res));
+            insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3); insertInstructionAfter(&ir1, &ir4);
+            return ir1;
+            break;
+        case EXP_TYPE_COND_GEQ: // exp1 GE exp2
+            t1 = new_place();
+            t2 = new_place();
+            ir1 = translate_exp(parserNode->child[0], t1);
+            ir2 = translate_exp(parserNode->child[2], t2);
+            sprintf(op1, "p%d", t1);
+            sprintf(op2, "p%d", t2);
+            sprintf(res, "lb%d", lb_true);
+            ir3 = createInstructionList(createInstruction(IR_OP_IF_LT_GOTO, op2, op1, res));
             sprintf(res, "lb%d", lb_false);
             ir4 = createInstructionList(createInstruction(IR_OP_GOTO, NULL, NULL, res));
             insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3); insertInstructionAfter(&ir1, &ir4);
@@ -252,6 +309,9 @@ IRInstructionList translate_stmt(ParserNode* parserNode) {
             ir6 = createInstructionList(createInstruction(IR_OP_LABEL, NULL, NULL, res));
             insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3); insertInstructionAfter(&ir1, &ir4); insertInstructionAfter(&ir1, &ir5); insertInstructionAfter(&ir1, &ir6);
             return ir1;
+            break;
+        case STMT_TYPE_COMPST: // compst
+            return translate_comp_st(parserNode->child[0]);
             break;
         default:
             printf("translate_stmt error\n");

@@ -1,2 +1,1 @@
-b symbol_table_lookup
 b main

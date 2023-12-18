@@ -7,7 +7,7 @@ PYTHON=python3
 PRINT_PARSER_TREE=false
 PRINT_DERIVATION=false
 PRINT_TOKEN=false
-PRINT_SYMBOL_TABLE=true
+PRINT_SYMBOL_TABLE=false
 PRINT_IR=true
 
 TEST_CASE=test_phase2/test_1.spl
