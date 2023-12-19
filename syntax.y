@@ -518,13 +518,14 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
     }
     | ID { printDerivation("Exp -> ID\n"); ADD_DERIVATION_1("Exp"); $$->is_left_value = 1; 
         SymbolListNode* sln = symbol_table_lookup(global_table, $1->value.string_value);
-        if(sln->type == NULL){
+        if(sln == NULL){
             printSemanticError(1, $1->line);
-        }
+        }else{
         $$->type = sln->type;
         $1->symbolListNode=sln;
         $$->value.exp_type = EXP_TYPE_ID;
         // $$->ir_list = translate_exp($$);
+        }
     }
     | INT { printDerivation("Exp -> INT\n"); ADD_DERIVATION_1("Exp"); 
         $$->value.exp_type = EXP_TYPE_INT; 

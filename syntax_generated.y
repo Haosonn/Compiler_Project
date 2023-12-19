@@ -278,7 +278,15 @@ VarList: ParamDec COMMA VarList { printDerivation("VarList -> ParamDec COMMA Var
     ;
 
 ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); $$ = initParserNode("ParamDec", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$);
-
+    if($2->type->category == ARRAY){
+        Array *array = $2->type->array;
+        while(array->base!=NULL && array->base->category == ARRAY){
+            array = array->base->array;
+        }
+        Type *type = (Type *)malloc(sizeof(Type));
+        array->base = type;
+        $2->type = type;
+    }
     memcpy($2->type, $1->type, sizeof(Type));
     }
     ;
@@ -510,13 +518,14 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
     }
     | ID { printDerivation("Exp -> ID\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); $$->is_left_value = 1; 
         SymbolListNode* sln = symbol_table_lookup(global_table, $1->value.string_value);
-        if(sln->type == NULL){
+        if(sln == NULL){
             printSemanticError(1, $1->line);
-        }
+        }else{
         $$->type = sln->type;
         $1->symbolListNode=sln;
         $$->value.exp_type = EXP_TYPE_ID;
         // $$->ir_list = translate_exp($$);
+        }
     }
     | INT { printDerivation("Exp -> INT\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); 
         $$->value.exp_type = EXP_TYPE_INT; 
@@ -599,7 +608,7 @@ int main(int argc, char **argv){
         yyparse();
         printParserTree();
         print_ir_list(alloc_ir_list);
-        /* translate_program(rootNode); */
+        translate_program(rootNode);
         return EXIT_SUCCESS;
     } else {
         fputs("Too many arguments! Expected: 2.\n", stderr);
