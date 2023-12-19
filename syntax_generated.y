@@ -522,8 +522,9 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
             printSemanticError(1, $1->line);
         }else{
         $$->type = sln->type;
-        $1->symbolListNode=sln;
         $$->value.exp_type = EXP_TYPE_ID;
+        $1->type = sln->type;
+        $1->symbolListNode=sln;
         // $$->ir_list = translate_exp($$);
         }
     }
