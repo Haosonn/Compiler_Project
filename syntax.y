@@ -219,6 +219,7 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); ADD_DERIVATION_1("VarDec");
             type->array->base = NULL;
             memcpy($1->type, type, sizeof(Type));
             $1->value.int_value = mem_alloc_cnt;
+            //todo: add alloc_addr in SymbolListNode
             int array_len = $3->value.int_value;
             char res[OP_LEN_MAX], op1[OP_LEN_MAX];
             sprintf(res, "%x", mem_alloc_cnt);
