@@ -209,6 +209,8 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); ADD_DERIVATION_1("VarDec");
             printSemanticError(3, $1->line);
         }
         $$->type = $1->type;
+        SymbolListNode* sln = symbol_table_lookup(global_table, $1->value.string_value);
+        sln->alloc_addr = mem_alloc_cnt;
     }
     | VarDec LB INT RB { printDerivation("VarDec -> VarDec LB INT RB\n"); ADD_DERIVATION_4("VarDec");
         if($1->type->category != ARRAY) {
