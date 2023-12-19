@@ -22,8 +22,6 @@ void symbol_list_insert(SymbolList *list, Type *type)
 {
     SymbolListNode *node = (SymbolListNode *)malloc(sizeof(SymbolListNode));
     node->type = type;
-    sym_cnt++;
-    node->sym_id = sym_cnt;
     node->next = NULL;
     if (list->head == NULL)
     {
@@ -44,7 +42,6 @@ void symbol_list_pop(SymbolList *list)
     }
     SymbolListNode *node = list->head;
     list->head = list->head->next;
-    free(node);
 }
 
 
@@ -237,7 +234,6 @@ SymbolTable *scope_list_pop(ScopeList *list)
         symbol_list_pop(table_node->list);
         table_node = table_node->next;
     }
-    free(node);
     return table;
 }
 

@@ -211,6 +211,8 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
         $$->type = $1->type;
         SymbolListNode* sln = symbol_table_lookup(global_table, $1->value.string_value);
         sln->alloc_addr = mem_alloc_cnt;
+        sym_cnt++;
+        sln->sym_id = sym_cnt;
     }
     | VarDec LB INT RB { printDerivation("VarDec -> VarDec LB INT RB\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$);
         if($1->type->category != ARRAY) {
