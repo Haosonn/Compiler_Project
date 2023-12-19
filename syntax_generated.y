@@ -209,6 +209,8 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
             printSemanticError(3, $1->line);
         }
         $$->type = $1->type;
+        SymbolListNode* sln = symbol_table_lookup(global_table, $1->value.string_value);
+        sln->alloc_addr = mem_alloc_cnt;
     }
     | VarDec LB INT RB { printDerivation("VarDec -> VarDec LB INT RB\n"); $$ = initParserNode("VarDec", yylineno); addParserDerivation($$, $1, $2, $3, $4, NULL); cal_line($$);
         if($1->type->category != ARRAY) {
@@ -276,6 +278,7 @@ VarList: ParamDec COMMA VarList { printDerivation("VarList -> ParamDec COMMA Var
     ;
 
 ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); $$ = initParserNode("ParamDec", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$);
+
     memcpy($2->type, $1->type, sizeof(Type));
     }
     ;
@@ -596,7 +599,7 @@ int main(int argc, char **argv){
         yyparse();
         printParserTree();
         print_ir_list(alloc_ir_list);
-        translate_program(rootNode);
+        /* translate_program(rootNode); */
         return EXIT_SUCCESS;
     } else {
         fputs("Too many arguments! Expected: 2.\n", stderr);

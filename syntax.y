@@ -278,6 +278,15 @@ VarList: ParamDec COMMA VarList { printDerivation("VarList -> ParamDec COMMA Var
     ;
 
 ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); ADD_DERIVATION_2("ParamDec");
+    if($2->type->category == ARRAY){
+        Array *array = $2->type->array;
+        while(array->base!=NULL && array->base->category == ARRAY){
+            array = array->base->array;
+        }
+        Type *type = (Type *)malloc(sizeof(Type));
+        array->base = type;
+        $2->type = type;
+    }
     memcpy($2->type, $1->type, sizeof(Type));
     }
     ;
