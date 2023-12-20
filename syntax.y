@@ -111,7 +111,7 @@
 %nonassoc IF error
 %nonassoc ELSE
 
-%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LC RC ID LPF RPF
+%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec FunDef VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LC RC ID LPF RPF
 /* %type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DefMS DecList Dec Exp Args */
 
 %%
@@ -134,17 +134,24 @@ ExtDefList: ExtDef ExtDefList { printDerivation("ExtDefList -> ExtDef ExtDefList
     | { printDerivation("ExtDefList -> empty\n"); ADD_DERIVATION_0("ExtDefList"); }
     ;
 
+FunDef: Specifier FunDec{
+        printDerivation("FunDef -> Specifier FuncDec\n"); ADD_DERIVATION_2("FunDef");
+        temp_member_table = scope_list_copy(scope_stack);
+        memcpy($2->type->function,temp_member_table,sizeof(SymbolTable));
+        symbol_table_insert($2->type->function,"return_type",$1->type);
+        $$->type = $1->type;
+    }
+    ;
+
 ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); ADD_DERIVATION_3("ExtDef");
         $$->value.exp_def_type = EXP_DEF_TYPE_VARDEC;
         passType($2, $1->type);  
     }
     | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); ADD_DERIVATION_2("ExtDef"); }
-    | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); ADD_DERIVATION_3("ExtDef");
-        temp_member_table = scope_list_pop(scope_stack);
+    | FunDef CompSt { printDerivation("ExtDef -> FunDef CompSt\n"); ADD_DERIVATION_2("ExtDef");
+        scope_list_pop(scope_stack);
         symbol_table_remove_empty(global_table);
-        memcpy($2->type->function,temp_member_table,sizeof(SymbolTable));
-        symbol_table_insert($2->type->function,"return_type",$1->type);
-        if(check_return_type($3, $1->type)){
+        if(check_return_type($2, $1->type)){
             printSemanticError(8, $2->line);
         }
         $$->value.exp_def_type = EXP_DEF_TYPE_FUNDEC;

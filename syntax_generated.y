@@ -111,7 +111,7 @@
 %nonassoc IF error
 %nonassoc ELSE
 
-%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LC RC ID LPF RPF
+%type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec FunDef VarList ParamDec CompSt StmtList Stmt DefList Def DecList Dec Exp Args LC RC ID LPF RPF
 /* %type <parser_node> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier VarDec FunDec VarList ParamDec CompSt StmtList Stmt DefList Def DefMS DecList Dec Exp Args */
 
 %%
@@ -134,17 +134,24 @@ ExtDefList: ExtDef ExtDefList { printDerivation("ExtDefList -> ExtDef ExtDefList
     | { printDerivation("ExtDefList -> empty\n"); $$ = initParserNode("ExtDefList", yylineno); $$->empty_value = 1;  }
     ;
 
+FunDef: Specifier FunDec{
+        printDerivation("FunDef -> Specifier FuncDec\n"); $$ = initParserNode("FunDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$);
+        temp_member_table = scope_list_copy(scope_stack);
+        memcpy($2->type->function,temp_member_table,sizeof(SymbolTable));
+        symbol_table_insert($2->type->function,"return_type",$1->type);
+        $$->type = $1->type;
+    }
+    ;
+
 ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
         $$->value.exp_def_type = EXP_DEF_TYPE_VARDEC;
         passType($2, $1->type);  
     }
     | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
-    | Specifier FunDec CompSt { printDerivation("ExtDef -> Specifier FunDec CompSt\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
-        temp_member_table = scope_list_pop(scope_stack);
+    | FunDef CompSt { printDerivation("ExtDef -> FunDef CompSt\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$);
+        scope_list_pop(scope_stack);
         symbol_table_remove_empty(global_table);
-        memcpy($2->type->function,temp_member_table,sizeof(SymbolTable));
-        symbol_table_insert($2->type->function,"return_type",$1->type);
-        if(check_return_type($3, $1->type)){
+        if(check_return_type($2, $1->type)){
             printSemanticError(8, $2->line);
         }
         $$->value.exp_def_type = EXP_DEF_TYPE_FUNDEC;

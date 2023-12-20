@@ -44,7 +44,6 @@ void symbol_list_pop(SymbolList *list)
     list->head = list->head->next;
 }
 
-
 SymbolTable *symbol_table_init()
 {
     SymbolTable *table = (SymbolTable *)malloc(sizeof(SymbolTable));
@@ -133,7 +132,7 @@ void symbol_table_remove_empty(SymbolTable *table)
     {
         if (node->list->head == NULL)
         {
-            if (node==table->head)
+            if (node == table->head)
             {
                 table->head = node->next;
             }
@@ -191,7 +190,6 @@ void symbol_table_print(SymbolTable *table)
     }
 }
 
-
 ScopeList *scope_list_init()
 {
     ScopeList *list = (ScopeList *)malloc(sizeof(ScopeList));
@@ -236,6 +234,22 @@ SymbolTable *scope_list_pop(ScopeList *list)
     return table;
 }
 
+SymbolTable *scope_list_copy(ScopeList *list)
+{
+    SymbolTable *table = symbol_table_init();
+    if (list->head == NULL)
+    {
+        return table;
+    }
+    SymbolTableNode *table_node = list->head->table->head;
+    while (table_node != NULL)
+    {
+        symbol_table_insert(table, table_node->name, table_node->list->head->type);
+        table_node = table_node->next;
+    }
+    return table;
+}
+
 SymbolListNode *symbol_table_lookup(SymbolTable *table, char *name)
 {
     SymbolTableNode *node = table->head;
@@ -250,7 +264,8 @@ SymbolListNode *symbol_table_lookup(SymbolTable *table, char *name)
     return NULL;
 }
 
-void symbol_table_init_all() {
+void symbol_table_init_all()
+{
     global_table = symbol_table_init();
     function_table = symbol_table_init();
     structure_table = symbol_table_init();

@@ -61,6 +61,7 @@ void symbol_table_print(SymbolTable *table);
 ScopeList *scope_list_init();
 void scope_list_add(ScopeList *list);
 SymbolTable *scope_list_pop(ScopeList *list);
+SymbolTable *scope_list_copy(ScopeList *list);
 SymbolListNode *symbol_table_lookup(SymbolTable *table, char *name);
 
 void symbol_table_init_all();
