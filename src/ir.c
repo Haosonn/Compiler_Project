@@ -75,7 +75,7 @@ void print_ir(IRInstruction *ir) {
             printf("IF %s <= %s GOTO %s\n", ir->op1, ir->op2, ir->res);
             break;
         case IR_OP_LABEL:
-            printf("%s :\n", ir->res);
+            printf("LABEL %s :\n", ir->res);
             break;
         case IR_OP_RETURN:
             printf("RETURN %s\n", ir->res);

@@ -349,7 +349,7 @@ IRInstructionList translate_stmt(ParserNode* parserNode) {
             tp = new_place();
             ir1 = translate_exp(parserNode->child[1], tp);
             sprintf(res, "p%d", tp);
-            ir2 = createInstructionList(createInstruction(IR_OP_RETURN, res, NULL, NULL));
+            ir2 = createInstructionList(createInstruction(IR_OP_RETURN, NULL, NULL, res));
             insertInstructionAfter(&ir1, &ir2);
             return ir1;
             break;
