@@ -10,6 +10,8 @@ IRInstructionList translate_stmt(ParserNode* parserNode);
 IRInstructionList translate_stmt_list(ParserNode* parserNode);
 IRInstructionList translate_args(ParserNode* parserNode, int* args_list, int *args_cnt);
 IRInstructionList translate_comp_st(ParserNode* parserNode);
+IRInstructionList translate_args(ParserNode* parserNode, int* args_list, int *args_cnt);
+IRInstructionList translate_var_list(ParserNode* parserNode);
 IRInstructionList translate_ext_def_list(ParserNode* parserNode);
 IRInstructionList translate_program(ParserNode* parserNode);
 

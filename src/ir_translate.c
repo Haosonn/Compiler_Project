@@ -465,6 +465,24 @@ IRInstructionList translate_comp_st(ParserNode *parserNode) {
     return translate_stmt_list(stmt_list);
 }
 
+IRInstructionList translate_var_list(ParserNode *parserNode) {
+    IR_VAR_DEC;
+    if (parserNode == NULL) {
+        printf("in translate_var_list, parserNode is NULL\n");
+        return ir_null;
+    }
+    ParserNode *paramDec = parserNode->child[0];
+    sln = paramDec->child[1]->child[0]->symbolListNode; // ParamDec <- Specifier VarDec, VarDec <- ID
+    sprintf(res, "s%d", sln->sym_id); 
+    ir1 = createInstructionList(createInstruction(IR_OP_PARAM, NULL, NULL, res));
+    if (parserNode->child_num == 3) { // Varlist <- ParamDec COMMA Varlist
+        ParserNode *varList = parserNode->child[2];
+        ir2 = translate_var_list(varList);
+        insertInstructionAfter(&ir1, &ir2);
+    } 
+    return ir1;
+}
+
 IRInstructionList translate_ext_def_list(ParserNode *parserNode) {
     IR_VAR_DEC;
     if (parserNode == NULL) {
@@ -476,20 +494,28 @@ IRInstructionList translate_ext_def_list(ParserNode *parserNode) {
     }
     ParserNode *ext_def = parserNode->child[0];
     ParserNode *ext_def_list = parserNode->child[1];
-        ir3 = translate_ext_def_list(ext_def_list);
     if (ext_def->value.exp_def_type == EXP_DEF_TYPE_VARDEC) { // ExtDef <- Specifier ExtDecList SEMI
-        // do nothing
+        ir3 = translate_ext_def_list(ext_def_list);
+        return ir3;
     } else if (ext_def->value.exp_def_type == EXP_DEF_TYPE_FUNDEC) { // ExtDef <- Specifier FunDec CompSt
-        sprintf(res, "%s", ext_def->child[1]->child[0]->value.string_value); //FunDec <- ID LP RP
+        ParserNode* funDec = ext_def->child[1];
+        sprintf(res, "%s", funDec->child[0]->value.string_value); // FunDec <- ID LP RP
         ir1 = createInstructionList(createInstruction(IR_OP_FUNC, NULL, NULL, res)); 
+        if (funDec->child_num == 4) { // FunDec <- ID LP Varlist RP
+            ParserNode* varList = funDec->child[2];
+            ir4 = translate_var_list(varList);
+            insertInstructionAfter(&ir1, &ir4);
+        } 
         ir2 = translate_comp_st(ext_def->child[2]);
+        ir3 = translate_ext_def_list(ext_def_list);
         insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3);
         return ir1;
     } else {
         printf("in translate_extdef_list, extdef->value.expdef_type error\n");
         return ir_null;
     }
-    return ir3;
+    printf("translate ext def list error\n");
+    return ir_null;
 }
 
 IRInstructionList translate_program(ParserNode *parserNode) {

@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/bin/splc",
             "args": [
-                "${workspaceFolder}/test_phase3/test_3_r06.spl"
+                "${workspaceFolder}/test_phase3/test_3_r01.spl"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

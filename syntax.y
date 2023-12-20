@@ -210,6 +210,7 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); ADD_DERIVATION_1("VarDec");
         }
         $$->type = $1->type;
         SymbolListNode* sln = symbol_table_lookup(global_table, $1->value.string_value);
+        $1->symbolListNode = sln;
         sln->alloc_addr = mem_alloc_cnt;
         sym_cnt++;
         sln->sym_id = sym_cnt;

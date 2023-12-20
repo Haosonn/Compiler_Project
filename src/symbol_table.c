@@ -118,7 +118,6 @@ void symbol_table_remove(SymbolTable *table, char *name)
             {
                 prev->next = node->next;
             }
-            free(node);
             return;
         }
         prev = node;

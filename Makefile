@@ -45,7 +45,7 @@ main:
 lex: main
 	$(CC) lex.yy.c -lfl -o bin/lex -DLEX_ONLY
 clean:
-	@rm -f lex.yy.c syntax.tab.c syntax.tab.h *.out
+	@rm -f lex.yy.c syntax.tab.c syntax.tab.h *.out 
 
 test_case: main
 	@bin/splc ${TEST_CASE_BASE}${N}.spl > ${TEST_CASE_BASE}${N}.spl.myout
@@ -54,7 +54,7 @@ test_case: main
 test_all: main
 	@for file in test_phase3/*.spl; do \
 		echo "Testing $$file"; \
-		bin/splc $$file > $$file.myout; \
+		bin/splc $$file > $$(dirname $$file)/$$(basename $$file .spl).ir; \
 	done
 
 self_test: main
