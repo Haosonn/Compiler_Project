@@ -55,7 +55,7 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
     switch (parserNode->value.exp_type)
     {
         case EXP_TYPE_INT: // int
-            int int_value = parserNode->value.int_value;
+            int int_value = parserNode->child[0]->value.int_value;
             sprintf(op1, "#%d", int_value);
             sprintf(res, "p%d", place);
             return createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
@@ -66,6 +66,8 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
             sprintf(res, "p%d", place);
             return createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
             break;
+        case EXP_TYPE_PAREN_EXP: // LP exp RP
+            return translate_exp(parserNode->child[1], place);
         case EXP_TYPE_ASSIGN: // exp ASSIGN exp
             if (parserNode->child[0]->value.exp_type == EXP_TYPE_ID) {
                 sln = parserNode->child[0]->child[0]->symbolListNode;
@@ -246,9 +248,9 @@ IRInstructionList translate_cond_exp(ParserNode* parserNode, int lb_true, int lb
             ir2 = translate_exp(parserNode->child[2], t2);
             sprintf(op1, "p%d", t1);
             sprintf(op2, "p%d", t2);
-            sprintf(res, "lb%d", lb_true);
-            ir3 = createInstructionList(createInstruction(IR_OP_IF_EQ_GOTO, op2, op1, res));
             sprintf(res, "lb%d", lb_false);
+            ir3 = createInstructionList(createInstruction(IR_OP_IF_EQ_GOTO, op1, op2, res));
+            sprintf(res, "lb%d", lb_true);
             ir4 = createInstructionList(createInstruction(IR_OP_GOTO, NULL, NULL, res));
             insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3); insertInstructionAfter(&ir1, &ir4);
             return ir1;
@@ -435,6 +437,45 @@ IRInstructionList translate_args(ParserNode *parserNode, int* args_list, int *ar
     }
 }
 
+IRInstructionList translate_dec_list(ParserNode *parserNode) {
+    IR_VAR_DEC;
+    ParserNode *dec = parserNode->child[0];
+    ir1 = ir_null;
+    if (dec->child_num == 3) { // Dec <- VarDec assign exp
+        sln = dec->child[0]->child[0]->symbolListNode; // VarDec <- ID
+        tp = new_place();
+        ir1 = translate_exp(dec->child[2], tp);
+        sprintf(op1, "p%d", tp);
+        sprintf(res, "s%d", sln->sym_id);
+        ir2 = createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
+        insertInstructionAfter(&ir1, &ir2);
+    }
+    if (parserNode->child_num == 3) { // DecList <- Dec COMMA DecList
+        ParserNode *dec_list = parserNode->child[2];
+        ir3 = translate_dec_list(dec_list);
+        insertInstructionAfter(&ir1, &ir3);
+    } 
+    return ir1;
+}
+
+IRInstructionList translate_def_list(ParserNode *parserNode) {
+    IR_VAR_DEC;
+    if (parserNode == NULL) {
+        printf("in translate_def_list, parserNode is NULL\n");
+        return ir_null;
+    }
+    if (parserNode->empty_value) {
+        return ir_null;
+    }
+    ParserNode *def = parserNode->child[0]; // DefList <- Def DefList
+    ParserNode *def_list = parserNode->child[1]; // Def <- Specifier DecList SEMI
+    ParserNode *dec_list = def->child[1]; // Def <- Specifier DecList SEMI
+    ir1 = translate_dec_list(dec_list);
+    ir2 = translate_def_list(def_list);
+    insertInstructionAfter(&ir1, &ir2);
+    return ir1;
+}
+
 IRInstructionList translate_stmt_list(ParserNode *parserNode) {
     IR_VAR_DEC;
     if (parserNode == NULL) {
@@ -461,8 +502,12 @@ IRInstructionList translate_comp_st(ParserNode *parserNode) {
     if (parserNode->empty_value) {
         return ir_null;
     }
+    ParserNode *def_list = parserNode->child[1];
     ParserNode *stmt_list = parserNode->child[2];
-    return translate_stmt_list(stmt_list);
+    ir1 = translate_def_list(def_list);
+    ir2 = translate_stmt_list(stmt_list);
+    insertInstructionAfter(&ir1, &ir2);
+    return ir1;
 }
 
 IRInstructionList translate_var_list(ParserNode *parserNode) {

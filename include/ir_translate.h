@@ -6,6 +6,8 @@
 
 IRInstructionList translate_exp(ParserNode* parserNode, int place);
 IRInstructionList translate_cond_exp(ParserNode* parserNode, int lb_true, int lb_false);
+IRInstructionList translate_def_list(ParserNode* parserNode);
+IRInstructionList translate_dec_list(ParserNode* parserNode);
 IRInstructionList translate_stmt(ParserNode* parserNode);
 IRInstructionList translate_stmt_list(ParserNode* parserNode);
 IRInstructionList translate_args(ParserNode* parserNode, int* args_list, int *args_cnt);

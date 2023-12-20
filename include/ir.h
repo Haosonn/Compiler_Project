@@ -60,6 +60,7 @@ typedef enum {
 typedef enum {
     EXP_TYPE_INT, // int
     EXP_TYPE_ID, // id
+    EXP_TYPE_PAREN_EXP, // LP exp RP
     EXP_TYPE_ASSIGN, // exp1 assign exp2
     EXP_TYPE_PLUS, // exp1 plus exp2
     EXP_TYPE_MINUS, // exp1 minus exp2

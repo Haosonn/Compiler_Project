@@ -438,7 +438,9 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); ADD_DERIVATION
         if(typeNotMatch($1, $3)) printSemanticError(7, $1->line);
         $$->value.exp_type = EXP_TYPE_DIV;
     }
-    | LP Exp RP { printDerivation("Exp -> LP Exp RP\n"); ADD_DERIVATION_3("Exp"); }
+    | LP Exp RP { printDerivation("Exp -> LP Exp RP\n"); ADD_DERIVATION_3("Exp"); 
+        $$->value.exp_type = EXP_TYPE_PAREN_EXP;
+    }
     // | MINUS Exp %prec UMINUS 
     | PLUS Exp { printDerivation("Exp -> PLUS Exp\n"); ADD_DERIVATION_2("Exp"); }
     | MINUS Exp { printDerivation("Exp -> MINUS Exp\n"); ADD_DERIVATION_2("Exp"); 
