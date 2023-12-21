@@ -233,9 +233,13 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); ADD_DERIVATION_1("VarDec");
             $1->value.int_value = mem_alloc_cnt;
             int array_len = $3->value.int_value;
             char res[OP_LEN_MAX], op1[OP_LEN_MAX];
+            sprintf(res, "s%d", $1->child[0]->symbolListNode->sym_id);
+            sprintf(op1, "#%d", mem_alloc_cnt);
+            IRInstructionList ir_assign = createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
             sprintf(res, "%x", mem_alloc_cnt);
             sprintf(op1, "%d", array_len);
             IRInstructionList ir_alloc = createInstructionList(createInstruction(IR_OP_DEC, op1, NULL, res));
+            insertInstructionAfter(&alloc_ir_list, &ir_assign);
             insertInstructionAfter(&alloc_ir_list, &ir_alloc);
             mem_alloc_cnt += array_len << 2;
         }

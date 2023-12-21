@@ -49,7 +49,7 @@ IRInstructionList translate_exp_addr(ParserNode* parserNode, int place) {
     IR_VAR_DEC;
     if (parserNode->child_num == 1) { // if parserNode is Exp -> ID
         sln = parserNode->child[0]->symbolListNode;
-        sprintf(op1, "#%d", sln->alloc_addr);
+        sprintf(op1, "s%d", sln->sym_id);
         sprintf(res, "p%d", place);
         ir1 = createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
         return ir1;
@@ -580,7 +580,17 @@ IRInstructionList translate_var_list(ParserNode *parserNode) {
         return ir_null;
     }
     ParserNode *paramDec = parserNode->child[0];
-    sln = paramDec->child[1]->child[0]->symbolListNode; // ParamDec <- Specifier VarDec, VarDec <- ID
+    ParserNode *varDec = paramDec->child[1];
+    if (varDec->child_num == 1) { // VarDec <- ID
+        sln = varDec->child[0]->symbolListNode; 
+        sprintf(res, "s%d", sln->sym_id); 
+    } else {
+        ParserNode *currentVarDec = varDec;
+        while (currentVarDec->child_num == 4) { // VarDec <- VarDec LB INT RB
+            currentVarDec = currentVarDec->child[0];
+        }
+        sln = currentVarDec->child[0]->symbolListNode; 
+    }
     sprintf(res, "s%d", sln->sym_id); 
     ir1 = createInstructionList(createInstruction(IR_OP_PARAM, NULL, NULL, res));
     if (parserNode->child_num == 3) { // Varlist <- ParamDec COMMA Varlist
