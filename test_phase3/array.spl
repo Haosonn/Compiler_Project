@@ -1,12 +1,14 @@
-int out_array[100];
+int out_array[3][4][5][6];
 // int need_array(int in_array[100])
 // {
 //     return in_array[0];
 // }
 int main()
 {
-    int in_array[100];
-    in_array[0] = 1;
+    // int in_array[4][3];
+    out_array[1][2][3][4] = 1;
+    write(out_array[1][2][3][4]);
+    // in_array[0] = 1;
     // need_array(in_array);
     return 0;
 }

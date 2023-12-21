@@ -1,10 +1,10 @@
-#define IR_VAR_DEC IRInstructionList ir1;\
-                IRInstructionList ir2;\
-                IRInstructionList ir3;\
-                IRInstructionList ir4;\
-                IRInstructionList ir5;\
-                IRInstructionList ir6;\
-                IRInstructionList ir7;\
+#define IR_VAR_DEC IRInstructionList ir1 = ir_null;\
+                IRInstructionList ir2 = ir_null;\
+                IRInstructionList ir3 = ir_null;\
+                IRInstructionList ir4 = ir_null;\
+                IRInstructionList ir5 = ir_null;\
+                IRInstructionList ir6 = ir_null;\
+                IRInstructionList ir7 = ir_null;\
                 SymbolListNode *sln;\
                 int tp = -1, t1 = -1, t2 = -1, lb1 = -1, lb2 = -1, lb3 = -1;
 
@@ -20,6 +20,7 @@ int place_cnt = 0;
 
 char op1[OP_LEN_MAX]; char op2[OP_LEN_MAX]; char res[OP_LEN_MAX];
 IRInstructionList ir_null = {NULL, NULL};
+extern IRInstructionList alloc_ir_list;
 
 int new_place() {
     return ++place_cnt;
@@ -27,6 +28,78 @@ int new_place() {
 
 int new_label() {
     return ++label_cnt;
+}
+
+
+// parserNode is a non-terminal exp of an array
+int is_last_dimension(ParserNode *parserNode) {
+    int current_dim = -1;
+    // recursively find terminal ID and its SymbolListNode
+    ParserNode *currentNode = parserNode->child[0]; // exp | **exp** ASSIGN exp
+    while (strcmp(currentNode->name, "ID")) {
+        currentNode = currentNode->child[0]; // exp | **exp** LB exp RB
+        current_dim++;
+    }
+    SymbolListNode *sln = currentNode->symbolListNode;
+    return sln->type->array->dim == current_dim + 1;
+}
+
+// parserNode is a non-terminal exp of an array: 
+IRInstructionList translate_exp_addr(ParserNode* parserNode, int place) { 
+    IR_VAR_DEC;
+    if (parserNode->child_num == 1) { // if parserNode is Exp -> ID
+        sln = parserNode->child[0]->symbolListNode;
+        sprintf(op1, "#%d", sln->alloc_addr);
+        sprintf(res, "p%d", place);
+        ir1 = createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
+        return ir1;
+    }
+    // find the dimension of $1
+    /*
+        e.g. in multi-dimension array a[3][4][5]
+            when a[3] is reduced to exp | exp1 LB exp2 RB (exp1 = a, exp2 = 3)
+            current_dim = 0
+            when a[3][4] is reduced to exp | exp1 LB exp2 RB (exp1 = a[3], exp2 = 4)
+            current_dim = 1
+            when a[3][4][5] is reduced to exp | exp1 LB exp2 RB (exp1 = a[3][4], exp2 = 5)
+            current_dim = 2
+    */
+    int current_dim = -1;
+    // recursively find terminal ID and its SymbolListNode
+    ParserNode *currentNode = parserNode->child[0]; // exp | **exp** ASSIGN exp
+    while (strcmp(currentNode->name, "ID")) {
+        currentNode = currentNode->child[0]; // exp | **exp** LB exp RB
+        current_dim++;
+    }
+    sln = currentNode->symbolListNode;
+    t1 = new_place();
+    ir1 = translate_exp_addr(parserNode->child[0], t1); // get the addr of $1
+    t2 = new_place();
+    ir2 = translate_exp(parserNode->child[2], t2); // get the idx calculated by $2
+    sprintf(op1, "p%d", t2);
+    sprintf(op2, "#4");
+    sprintf(res, "p%d", place);
+    ir3 = createInstructionList(createInstruction(IR_OP_MUL, op1, op2, res)); // multiply idx by 4
+    /*
+        e.g. in multi-dimension array a[3][4][5]
+        when a[3][4] is reduced to exp | exp1 LB exp2 RB (exp1 = a[3], exp2 = 4)
+        current_step = 4 * 5 = 20
+    */
+    Type *current_type = sln->type; // begin with top type in sln
+    for (int i = 0; i < current_dim; i++) {
+        current_type = current_type->array->base;
+    }
+    int current_step = current_type->array->step;
+    sprintf(op1, "p%d", place);
+    sprintf(op2, "#%d", current_step);
+    sprintf(res, "p%d", place);
+    ir4 = createInstructionList(createInstruction(IR_OP_MUL, op1, op2, res)); // idx * step 
+    sprintf(op1, "p%d", t1);
+    sprintf(op2, "p%d", place);
+    sprintf(res, "p%d", place);
+    ir5 = createInstructionList(createInstruction(IR_OP_ADD, op1, op2, res)); // addr + idx * step
+    insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3); insertInstructionAfter(&ir1, &ir4); insertInstructionAfter(&ir1, &ir5); insertInstructionAfter(&ir1, &ir6);
+    return ir1;
 }
 
 IRInstructionList translate_exp(ParserNode* parserNode, int place) {
@@ -62,8 +135,14 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
             break;
         case EXP_TYPE_ID: // ID
             sln = parserNode->child[0]->symbolListNode;
-            sprintf(op1, "s%d", sln->sym_id);
-            sprintf(res, "p%d", place);
+            if (sln->type->category == ARRAY) { // array type: copy addr to place
+                sprintf(op1, "#%d", sln->alloc_addr);
+                sprintf(res, "p%d", place);
+            }
+            else { // primitive type: copy sym_id to place
+                sprintf(op1, "s%d", sln->sym_id);
+                sprintf(res, "p%d", place);
+            }
             return createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
             break;
         case EXP_TYPE_PAREN_EXP: // LP exp RP
@@ -72,8 +151,8 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
             if (parserNode->child[0]->value.exp_type == EXP_TYPE_ID) {
                 sln = parserNode->child[0]->child[0]->symbolListNode;
                 /*
-                    parserNode->child[0] exp | [exp] ASSIGN exp
-                    parserNode->child[0]->child[0] exp | [ID]
+                    parserNode->child[0] exp | **exp** ASSIGN exp
+                    parserNode->child[0]->child[0] exp | **ID**
                 */
                 if (sln == NULL) {
                     printf("in translate_exp, symbol_table_lookup error\n");
@@ -91,22 +170,14 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
                 return ir1;
             }
             else { //EXP_TYPE_ARRAY
-                sln = parserNode->child[0]->child[0]->child[0]->symbolListNode; 
-                /*
-                    parserNode->child[0] exp | **exp** ASSIGN exp
-                    parserNode->child[0]->child[0] exp | **ID**
-                    parserNode->child[0]->child[0]->child[0] exp | **ID** LB exp RB
-                */
-                if (sln == NULL) {
-                    printf("in translate_exp, symbol_table_lookup error\n");
-                    return ir_null;
-                }
                 tp = new_place();
-                ir1 = translate_exp(parserNode->child[2], tp);
-                sprintf(res, "%x", sln->alloc_addr + parserNode->child[0]->child[0]->child[0]->type->array->size >> 2);
-                sprintf(op1, "p%d", tp);
-                ir2 = createInstructionList(createInstruction(IR_OP_ASSIGN_ADDR, op1, NULL, res));
-                insertInstructionAfter(&ir1, &ir2);
+                ir1 = translate_exp_addr(parserNode->child[0], tp);
+                t1 = new_place();
+                ir2 = translate_exp(parserNode->child[2], t1);
+                sprintf(op1, "p%d", t1);
+                sprintf(res, "p%d", tp);
+                ir3 = createInstructionList(createInstruction(IR_OP_ASSIGN_ADDR, op1, NULL, res));
+                insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3);
                 return ir1;
             }
             break;
@@ -201,21 +272,14 @@ IRInstructionList translate_exp(ParserNode* parserNode, int place) {
             return ir1;
             break;
         case EXP_TYPE_ARRAY: // exp LB exp RB
-            sln = parserNode->child[0]->symbolListNode;
-            if (sln == NULL) {
-                printf("in translate_exp, symbol_table_lookup error\n");
-                return ir_null;
+            if (is_last_dimension(parserNode)) { // if current_dim is the last dimension
+                ir1 = translate_exp_addr(parserNode, place);
+                sprintf(op1, "p%d", place);
+                sprintf(res, "p%d", place);
+                ir2 = createInstructionList(createInstruction(IR_OP_GET_VALUE, op1, NULL, res)); // return the value in addr
+                insertInstructionAfter(&ir1, &ir2);
             }
-            t1 = new_place();
-            ir1 = translate_exp(parserNode->child[2], t1);
-            sprintf(op1, "p%d", t1);
-            sprintf(op2, "#%d", parserNode->child[0]->value.int_value >> 2);
-            t2 = new_place();
-            sprintf(res, "p%d", t2);
-            ir2 = createInstructionList(createInstruction(IR_OP_ADD, op1, op2, res));
-            sprintf(op1, "p%d", t2);
-            sprintf(res, "p%d", place);
-            ir3 = createInstructionList(createInstruction(IR_OP_GET_VALUE, op1, NULL, res));
+            return ir1;
             break;
         default:
             printf("translate_exp error\n");
@@ -440,7 +504,6 @@ IRInstructionList translate_args(ParserNode *parserNode, int* args_list, int *ar
 IRInstructionList translate_dec_list(ParserNode *parserNode) {
     IR_VAR_DEC;
     ParserNode *dec = parserNode->child[0];
-    ir1 = ir_null;
     if (dec->child_num == 3) { // Dec <- VarDec assign exp
         sln = dec->child[0]->child[0]->symbolListNode; // VarDec <- ID
         tp = new_place();
@@ -542,16 +605,20 @@ IRInstructionList translate_ext_def_list(ParserNode *parserNode) {
     if (ext_def->value.exp_def_type == EXP_DEF_TYPE_VARDEC) { // ExtDef <- Specifier ExtDecList SEMI
         ir3 = translate_ext_def_list(ext_def_list);
         return ir3;
-    } else if (ext_def->value.exp_def_type == EXP_DEF_TYPE_FUNDEC) { // ExtDef <- Specifier FunDec CompSt
-        ParserNode* funDec = ext_def->child[1];
+    } else if (ext_def->value.exp_def_type == EXP_DEF_TYPE_FUNDEC) { // ExtDef <- FunDef CompSt
+        ParserNode* funDef = ext_def->child[0];
+        ParserNode* funDec = funDef->child[1]; // FunDef <- Specifier FunDec
         sprintf(res, "%s", funDec->child[0]->value.string_value); // FunDec <- ID LP RP
         ir1 = createInstructionList(createInstruction(IR_OP_FUNC, NULL, NULL, res)); 
+        if (!strcmp(res, "main")) {
+            insertInstructionAfter(&ir1, &alloc_ir_list);
+        }
         if (funDec->child_num == 4) { // FunDec <- ID LP Varlist RP
             ParserNode* varList = funDec->child[2];
             ir4 = translate_var_list(varList);
             insertInstructionAfter(&ir1, &ir4);
         } 
-        ir2 = translate_comp_st(ext_def->child[2]);
+        ir2 = translate_comp_st(ext_def->child[1]);
         ir3 = translate_ext_def_list(ext_def_list);
         insertInstructionAfter(&ir1, &ir2); insertInstructionAfter(&ir1, &ir3);
         return ir1;

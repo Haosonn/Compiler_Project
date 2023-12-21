@@ -57,6 +57,8 @@ typedef struct Array
 {
     struct Type *base;
     int size;
+    int step;
+    int dim;
 } Array;
 
 // int type_same_namespace(Type *type1, Type *type2);

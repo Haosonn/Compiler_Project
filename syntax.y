@@ -224,33 +224,43 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); ADD_DERIVATION_1("VarDec");
     }
     | VarDec LB INT RB { printDerivation("VarDec -> VarDec LB INT RB\n"); ADD_DERIVATION_4("VarDec");
         if($1->type->category != ARRAY) {
-            Type *type = (Type *)malloc(sizeof(Type));
-            type->category = ARRAY;
-            type->array=(Array *)malloc(sizeof(Array));
-            type->array->size = $3->value.int_value;
-            type->array->base = NULL;
-            memcpy($1->type, type, sizeof(Type));
+            $1->type->category = ARRAY;
+            $1->type->array=(Array *)malloc(sizeof(Array));
+            $1->type->array->size = $3->value.int_value;
+            $1->type->array->step = 1;
+            $1->type->array->dim = 1;
+            $1->type->array->base = NULL;
             $1->value.int_value = mem_alloc_cnt;
-            //todo: add alloc_addr in SymbolListNode
             int array_len = $3->value.int_value;
             char res[OP_LEN_MAX], op1[OP_LEN_MAX];
             sprintf(res, "%x", mem_alloc_cnt);
             sprintf(op1, "%d", array_len);
             IRInstructionList ir_alloc = createInstructionList(createInstruction(IR_OP_DEC, op1, NULL, res));
             insertInstructionAfter(&alloc_ir_list, &ir_alloc);
-            mem_alloc_cnt += array_len >> 2;
+            mem_alloc_cnt += array_len << 2;
         }
         else {
             Type *type = (Type *)malloc(sizeof(Type));
             type->category = ARRAY;
             type->array=(Array *)malloc(sizeof(Array));
             type->array->size = $3->value.int_value;
+            type->array->step = 1;
+            type->array->dim = 1;
             type->array->base = NULL;
             Array *array = $1->type->array;
-            while(array->base!=NULL && array->base->category == ARRAY){
+            while(array->base != NULL && array->base->category == ARRAY){
+                array->dim++;
+                array->step *= $3->value.int_value;
                 array = array->base->array;
             }
+            array->dim++;
+            array->step *= $3->value.int_value;
             array->base = type;
+            IRInstruction *current_alloc = alloc_ir_list.tail;
+            int previous_array_len = atoi(current_alloc->op1);
+            int new_array_len = previous_array_len * $3->value.int_value;
+            sprintf(current_alloc->op1, "%d", new_array_len);
+            mem_alloc_cnt += (previous_array_len * ($3->value.int_value - 1)) << 2;
         }
         $$->type = $1->type;
     }
@@ -620,7 +630,6 @@ int main(int argc, char **argv){
         strcpy(source_path, file_path);
         yyparse();
         printParserTree();
-        print_ir_list(alloc_ir_list);
         translate_program(rootNode);
         return EXIT_SUCCESS;
     } else {
