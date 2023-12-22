@@ -1,0 +1,13 @@
+struct S1 {
+    int int_value;
+    int int_array[3][4];
+};
+struct S2 {
+    S1 s1;
+    int int_value2;
+    int int_array2[4][3];
+} s;
+int main()
+{
+    return 0;
+}
