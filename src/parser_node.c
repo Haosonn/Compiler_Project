@@ -11,6 +11,25 @@
 //             type1->category == PRIMITIVE && type2->category == ARRAY ||
 //             type1->category == ARRAY && type2->category == PRIMITIVE);
 // }
+extern IRInstructionList alloc_ir_list;
+
+int calculate_type_size(struct Type *type)
+{
+    int type_size = 0;
+    if (type->category == PRIMITIVE) {
+            return 4;
+    } else if (type->category == STRUCTURE) {
+        SymbolTableNode *struct_tbn = type->structure->head;
+        while (struct_tbn != NULL)
+        {
+            type_size += calculate_type_size(struct_tbn->list->head->type);
+            struct_tbn = struct_tbn->next;
+        }
+    } else if (type->category == ARRAY) {
+        type_size = type->array->size * calculate_type_size(type->array->base);
+    }
+    return type_size;
+}
 
 int struct_equal(SymbolTable *struct1, SymbolTable *struct2)
 {
@@ -157,6 +176,7 @@ int check_dec_assign_type(struct ParserNode *node, Type *type)
 void addParserNode(struct ParserNode *node, struct ParserNode *child)
 {
     node->child[node->child_num++] = child;
+    child->father = node;
     if (node->type == NULL)
         node->type = child->type;
 }
@@ -192,6 +212,7 @@ ParserNode *initParserNode(const char *name, int lineno)
     node->is_left_value = 0;
     memset(node->child, 0, sizeof(node->child));
     node->type = NULL;
+    node->father = NULL;
     // printf("init %s\n", node->name);
     return node;
 }
@@ -317,3 +338,4 @@ int check_function_args(SymbolTable *function, SymbolTable *args)
     }
     return node1 != NULL || node2 != NULL;
 }
+

@@ -146,6 +146,7 @@ FunDef: Specifier FunDec{
 ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
         $$->value.exp_def_type = EXP_DEF_TYPE_VARDEC;
         passType($2, $1->type);  
+        allocate_ext_dec_list($2);
     }
     | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
     | FunDef CompSt { printDerivation("ExtDef -> FunDef CompSt\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$);
@@ -231,17 +232,6 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
             $1->type->array->dim = 1;
             $1->type->array->base = NULL;
             $1->value.int_value = mem_alloc_cnt;
-            int array_len = $3->value.int_value;
-            char res[OP_LEN_MAX], op1[OP_LEN_MAX];
-            sprintf(res, "s%d", $1->child[0]->symbolListNode->sym_id);
-            sprintf(op1, "#%d", mem_alloc_cnt);
-            IRInstructionList ir_assign = createInstructionList(createInstruction(IR_OP_ASSIGN, op1, NULL, res));
-            sprintf(res, "%x", mem_alloc_cnt);
-            sprintf(op1, "%d", array_len);
-            IRInstructionList ir_alloc = createInstructionList(createInstruction(IR_OP_DEC, op1, NULL, res));
-            insertInstructionAfter(&alloc_ir_list, &ir_assign);
-            insertInstructionAfter(&alloc_ir_list, &ir_alloc);
-            mem_alloc_cnt += array_len << 2;
         }
         else {
             Type *type = (Type *)malloc(sizeof(Type));
@@ -260,11 +250,6 @@ VarDec: ID { printDerivation("VarDec -> ID\n"); $$ = initParserNode("VarDec", yy
             array->dim++;
             array->step *= $3->value.int_value;
             array->base = type;
-            IRInstruction *current_alloc = alloc_ir_list.tail;
-            int previous_array_len = atoi(current_alloc->op1);
-            int new_array_len = previous_array_len * $3->value.int_value;
-            sprintf(current_alloc->op1, "%d", new_array_len);
-            mem_alloc_cnt += (previous_array_len * ($3->value.int_value - 1)) << 2;
         }
         $$->type = $1->type;
     }
@@ -369,6 +354,7 @@ Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n")
             // undefined structure
         // } 
         passType($2, $1->type); 
+        allocate_ext_dec_list($2);
         if(check_dec_assign_type($2, $1->type)){
             printSemanticError(5, $2->line);
         }

@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/bin/splc",
             "args": [
-                "${workspaceFolder}/test_phase3/array.spl"
+                "${workspaceFolder}/test_phase3/struct.spl"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

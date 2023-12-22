@@ -1,12 +1,12 @@
 struct S1 {
     int int_value;
     int int_array[3][4];
-};
+} S1_1, S2_2;
 struct S2 {
-    S1 s1;
+    struct S1 s1;
     int int_value2;
     int int_array2[4][3];
-} s;
+} S2;
 int main()
 {
     return 0;

@@ -1,8 +1,9 @@
 #pragma once
+#define MEM_ALLOC_START 0x10000
 #define SYMBOL_LIST_NODE_NAME_LENGTH 5
 
 static int sym_cnt = 0;
-static int mem_alloc_cnt = 0x10000;
+static int mem_alloc_cnt = MEM_ALLOC_START;
 
 typedef struct Type Type;
 int type_equal(Type *type1, Type *type2);

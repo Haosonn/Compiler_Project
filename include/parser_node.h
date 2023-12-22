@@ -10,6 +10,7 @@ typedef struct ParserNode
     int child_num;
     int empty_value;
     int is_left_value;
+    struct ParserNode *father;
     struct ParserNode *child[10];
     struct Type *type;
     struct SymbolListNode *symbolListNode;
@@ -63,6 +64,7 @@ typedef struct Array
 
 // int type_same_namespace(Type *type1, Type *type2);
 
+int calculate_type_size(struct Type *type);
 int check_dec_assign_type(struct ParserNode *node, Type *type);
 int struct_equal(SymbolTable *struct1, SymbolTable *struct2);
 int type_equal(Type *type1, Type *type2);

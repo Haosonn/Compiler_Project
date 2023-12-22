@@ -4,6 +4,7 @@
 #include "ir.h"
 #include "parser_node.h"
 
+void allocate_ext_dec_list(ParserNode *parserNode);
 IRInstructionList translate_exp(ParserNode* parserNode, int place);
 IRInstructionList translate_cond_exp(ParserNode* parserNode, int lb_true, int lb_false);
 IRInstructionList translate_def_list(ParserNode* parserNode);
