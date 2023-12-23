@@ -157,7 +157,6 @@ void doConstantOptimization(IRInstructionList *iRInstructionList)
             {
                 int value = op1 != NULL ? op1->value : atoi(ir->op1 + 1);
                 irConstantListAdd(irConstantList, ir->res, value);
-                iRInstructionListRemove(iRInstructionList, ir);
             }
             else
             {
