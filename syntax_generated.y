@@ -8,6 +8,7 @@
     #include "symbol_table.h"
     #include "ir.h"
     #include "ir_translate.h"
+    #include "ir_optimize.h"
     // #define YY_USER_ACTION \
     //     yylloc.first_line = yylineno; \
     //     yylloc.first_column = yycolno; \
@@ -624,7 +625,10 @@ int main(int argc, char **argv){
         strcpy(source_path, file_path);
         yyparse();
         printParserTree();
-        translate_program(rootNode);
+        IRInstructionList full_ir_list = translate_program(rootNode);
+        // TODO optimize IR list
+        doConstantOptimization(&full_ir_list); 
+        print_ir_list(full_ir_list);
         return EXIT_SUCCESS;
     } else {
         fputs("Too many arguments! Expected: 2.\n", stderr);

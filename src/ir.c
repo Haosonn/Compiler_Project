@@ -23,6 +23,25 @@ IRInstructionList createInstructionList(IRInstruction* ir) {
     return irList;
 }
 
+void iRInstructionListRemove(IRInstructionList* irList, IRInstruction* ir) {
+    if (irList == NULL || ir == NULL) {
+        printf("in IRInstructionListRemove, irList or ir is NULL\n");
+        return;
+    }
+    if (irList->head == ir) {
+        irList->head = ir->next;
+    }
+    if (irList->tail == ir) {
+        irList->tail = ir->prev;
+    }
+    if (ir->prev != NULL) {
+        ir->prev->next = ir->next;
+    }
+    if (ir->next != NULL) {
+        ir->next->prev = ir->prev;
+    }
+}
+
 void insertInstructionAfter(IRInstructionList* irList1, IRInstructionList* irList2) {
     if (irList1 == NULL || irList2 == NULL) {
         printf("in insertInstructionAfter, irList1 or irList2 is NULL\n");

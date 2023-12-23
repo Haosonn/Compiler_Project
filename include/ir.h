@@ -120,6 +120,7 @@ typedef struct IRInstructionList {
 
 IRInstruction* createInstruction(IROpCode opcode, const char* operand1, const char* operand2, const char* result);
 IRInstructionList createInstructionList(IRInstruction* irInstruction);
+void iRInstructionListRemove(IRInstructionList* irList, IRInstruction* ir);
 
 void insertInstructionAfter(IRInstructionList* irList1, IRInstructionList* irList2);
 

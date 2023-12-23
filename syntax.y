@@ -8,6 +8,7 @@
     #include "symbol_table.h"
     #include "ir.h"
     #include "ir_translate.h"
+    #include "ir_optimize.h"
     // #define YY_USER_ACTION \
     //     yylloc.first_line = yylineno; \
     //     yylloc.first_column = yycolno; \
@@ -626,6 +627,7 @@ int main(int argc, char **argv){
         printParserTree();
         IRInstructionList full_ir_list = translate_program(rootNode);
         // TODO optimize IR list
+        doConstantOptimization(&full_ir_list); 
         print_ir_list(full_ir_list);
         return EXIT_SUCCESS;
     } else {
