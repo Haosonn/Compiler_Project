@@ -57,17 +57,24 @@ test_all: main
 		bin/splc $$file > $$(dirname $$file)/$$(basename $$file .spl).ir; \
 	done
 
-self_test: main
-	@for file in test_phase3/self_test/*.spl; do \
-		echo "Testing $$file"; \
-		bin/splc $$file > $$file.myout; \
-	done
-
-test_extra: main
-	@for file in test_phase2_ex/*.spl; do \
-		echo "Testing $$file"; \
-		bin/splc $$file > $$file.myout; \
-	done
+test_ir_1: test_all
+	./irsim test_phase3/test_3_r01.ir -i 101; \
+	./irsim test_phase3/test_3_r01.ir -i 10
+test_ir_2: test_all
+	./irsim test_phase3/test_3_r02.ir -i 5,2; \
+	./irsim test_phase3/test_3_r02.ir -i 9,7
+test_ir_3: test_all
+	./irsim test_phase3/test_3_r03.ir
+test_ir_4: test_all
+	./irsim test_phase3/test_3_r04.ir -i 30
+test_ir_5: test_all
+	./irsim test_phase3/test_3_r05.ir -i 10
+test_ir_6: test_all
+	./irsim test_phase3/test_3_r06.ir
+test_ir_array: test_all
+	./irsim test_phase3/array.ir
+test_ir_struct: test_all
+	./irsim test_phase3/struct.ir
 
 debug: 
 	$(PYTHON) syntax_generator.py

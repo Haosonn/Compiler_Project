@@ -291,16 +291,24 @@ VarList: ParamDec COMMA VarList { printDerivation("VarList -> ParamDec COMMA Var
     ;
 
 ParamDec: Specifier VarDec { printDerivation("ParamDec -> Specifier VarDec\n"); ADD_DERIVATION_2("ParamDec");
-    if($2->type->category == ARRAY){
-        Array *array = $2->type->array;
-        while(array->base!=NULL && array->base->category == ARRAY){
-            array = array->base->array;
+        if($2->type->category == ARRAY){
+            Array *array = $2->type->array;
+            while(array->base!=NULL && array->base->category == ARRAY){
+                array = array->base->array;
+            }
+            Type *type = (Type *)malloc(sizeof(Type));
+            array->base = type;
+            $2->type = type;
         }
-        Type *type = (Type *)malloc(sizeof(Type));
-        array->base = type;
-        $2->type = type;
-    }
-    memcpy($2->type, $1->type, sizeof(Type));
+        memcpy($2->type, $1->type, sizeof(Type));
+        ParserNode *id = get_id_ps_node_by_dec($2);
+        SymbolListNode *sln = id->symbolListNode;
+        Type *type = sln->type;
+        int type_size = calculate_type_size($1->type);
+        while (type->category == ARRAY) {
+            type->array->step *= type_size;
+            type = type->array->base;
+        }
     }
     ;
 
@@ -627,7 +635,7 @@ int main(int argc, char **argv){
         printParserTree();
         IRInstructionList full_ir_list = translate_program(rootNode);
         // TODO optimize IR list
-        doConstantOptimization(&full_ir_list); 
+        // doConstantOptimization(&full_ir_list); 
         print_ir_list(full_ir_list);
         return EXIT_SUCCESS;
     } else {

@@ -127,7 +127,7 @@ void print_ir(IRInstruction *ir) {
             printf("FUNCTION %s :\n", ir->res);
             break;
         case IR_OP_DEC:
-            printf("DEC 0x%s %s\n", ir->res, ir->op1);
+            printf("DEC %s %s\n", ir->res, ir->op1);
             break;
         default:
             printf("Unknown opcode\n");

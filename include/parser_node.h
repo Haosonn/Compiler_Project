@@ -66,6 +66,7 @@ typedef struct Array
 
 int calculate_type_size(struct Type *type);
 void set_offset_structure(SymbolTable* member_table);
+ParserNode *get_id_ps_node_by_dec(ParserNode *parserNode);
 void pass_type_size_to_dec_list(struct ParserNode* parserNode, int type_size);
 int check_dec_assign_type(struct ParserNode *node, Type *type);
 int struct_equal(SymbolTable *struct1, SymbolTable *struct2);
