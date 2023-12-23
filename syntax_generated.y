@@ -146,6 +146,8 @@ FunDef: Specifier FunDec{
 ExtDef: Specifier ExtDecList SEMI { printDerivation("ExtDef -> Specifier ExtDecList SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, $3, NULL); cal_line($$);
         $$->value.exp_def_type = EXP_DEF_TYPE_VARDEC;
         passType($2, $1->type);  
+        int type_size = calculate_type_size($1->type);
+        pass_type_size_to_dec_list($2, type_size);
         allocate_ext_dec_list($2);
     }
     | Specifier SEMI { printDerivation("ExtDef -> Specifier SEMI\n"); $$ = initParserNode("ExtDef", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$); }
@@ -202,6 +204,7 @@ StructSpecifier: STRUCT IDT LC DefList RC { printDerivation("StructSpecifier -> 
         if(var_declare(structure_table, structure_stack, $2->value.string_value, type)){
             printSemanticError(15, $2->line);
         }
+        set_offset_structure(temp_member_table);
     }
     | STRUCT IDT LC DefList error { printDerivation("StructSpecifier -> STRUCT ID LC DefList error\n"); printSyntaxError("Missing closing bracket '}'", (int)$4->line); }
     | STRUCT IDT { printDerivation("StructSpecifier -> STRUCT ID\n"); $$ = initParserNode("StructSpecifier", yylineno); addParserDerivation($$, $1, $2, NULL); cal_line($$);
@@ -354,6 +357,8 @@ Def: Specifier DecList SEMI { printDerivation("Def -> Specifier DecList SEMI\n")
             // undefined structure
         // } 
         passType($2, $1->type); 
+        int type_size = calculate_type_size($1->type);
+        pass_type_size_to_dec_list($2, type_size);
         allocate_ext_dec_list($2);
         if(check_dec_assign_type($2, $1->type)){
             printSemanticError(5, $2->line);
@@ -525,7 +530,6 @@ Exp: Exp ASSIGN Exp { printDerivation("Exp -> Exp ASSIGN Exp\n"); $$ = initParse
             }
             $$->type = sln->type;
             $$->value.exp_type = EXP_TYPE_STRUCT;
-            // $$->ir_list = translate_exp($$);
         }
     }
     | ID { printDerivation("Exp -> ID\n"); $$ = initParserNode("Exp", yylineno); addParserDerivation($$, $1, NULL); cal_line($$); $$->is_left_value = 1; 

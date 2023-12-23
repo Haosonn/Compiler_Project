@@ -15,6 +15,7 @@ typedef struct SymbolListNode
     Type *type;
     int sym_id;
     int alloc_addr;
+    int offset;
     struct SymbolListNode *next;
 } SymbolListNode;
 

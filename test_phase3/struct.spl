@@ -1,13 +1,26 @@
 struct S1 {
-    int int_value;
-    int int_array[3][4];
-} S1_1, S2_2;
+    int s1_int_value;
+    int s1_int_array[3][4];
+} s1;
 struct S2 {
     struct S1 s1;
     int int_value2;
     int int_array2[4][3];
-} S2;
+} s2;
+
+int revise_s1(struct S1 _s1) {
+    _s1.s1_int_value = 1;
+    _s1.s1_int_array[1][1] = 1;
+    return 0;
+}
+
 int main()
 {
+    write(s1.s1_int_value);
+    write(s2.s1.s1_int_value);
+    revise_s1(s1);
+    revise_s1(s2.s1);
+    write(s1.s1_int_value);
+    write(s2.s1.s1_int_value);
     return 0;
 }

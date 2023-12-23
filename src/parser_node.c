@@ -13,6 +13,17 @@
 // }
 extern IRInstructionList alloc_ir_list;
 
+ParserNode *get_id_ps_node_by_dec(ParserNode *parserNode) {
+    // parserNode can be Dec or VacDec corresponding to its father is whether Declist or ExtDecList
+    ParserNode *varDec = parserNode; 
+    if (strcmp(varDec->name, "VarDec"))
+        varDec = parserNode->child[0]; // Dec <- VarDec ...
+    while (strcmp(varDec->child[0]->name, "ID")) {
+        varDec = varDec->child[0];
+    }
+    return varDec->child[0];
+}
+
 int calculate_type_size(struct Type *type)
 {
     int type_size = 0;
@@ -29,6 +40,17 @@ int calculate_type_size(struct Type *type)
         type_size = type->array->size * calculate_type_size(type->array->base);
     }
     return type_size;
+}
+
+void set_offset_structure(SymbolTable* member_table) {
+    SymbolTableNode *stn = member_table->head;
+    int offset = 0;
+    while (stn) {
+        SymbolListNode *sln = stn->list->head;
+        sln->offset = offset;
+        offset += calculate_type_size(sln->type);
+        stn = stn->next;
+    }
 }
 
 int struct_equal(SymbolTable *struct1, SymbolTable *struct2)
@@ -152,6 +174,20 @@ void passType(struct ParserNode *node, Type *type)
         strcmp(node->name, "Dec") == 0)
     {
         memcpy(node->type, type, sizeof(Type));
+    }
+}
+
+void pass_type_size_to_dec_list(struct ParserNode* parserNode, int type_size) {
+    ParserNode *dec = parserNode->child[0];
+    ParserNode *id = get_id_ps_node_by_dec(dec);
+    SymbolListNode *sln = id->symbolListNode;
+    Type *type = sln->type;
+    while (type->category == ARRAY) {
+        type->array->step *= type_size;
+        type = type->array->base;
+    }
+    if (parserNode->child_num == 3) { // DecList <- Dec COMMA DecList
+        pass_type_size_to_dec_list(parserNode->child[2], type_size);
     }
 }
 
