@@ -8,6 +8,7 @@ typedef struct IrConstantNode
     struct IrConstantNode *prev;
     char *name;
     int value;
+    char *op;
 } IrConstantNode;
 typedef struct IrConstantList
 {
@@ -15,3 +16,4 @@ typedef struct IrConstantList
     IrConstantNode *tail;
 } IrConstantList;
 void doConstantOptimization(IRInstructionList *iRInstructionList);
+void doCopyPropagation(IRInstructionList *iRInstructionList);

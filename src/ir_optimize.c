@@ -59,6 +59,29 @@ void irConstantListAdd(IrConstantList *list, char *name, int value)
     }
     list->tail = node;
 }
+void irConstantListAddOp(IrConstantList *list, char *name, char *op)
+{
+    IrConstantNode *node = irConstantListFind(list, name);
+    if (node != NULL)
+    {
+        node->op = op;
+        return;
+    }
+    node = (IrConstantNode *)malloc(sizeof(IrConstantNode));
+    node->name = name;
+    node->op = op;
+    node->next = NULL;
+    node->prev = list->tail;
+    if (list->head == NULL)
+    {
+        list->head = node;
+    }
+    if (list->tail != NULL)
+    {
+        list->tail->next = node;
+    }
+    list->tail = node;
+}
 
 void irConstantListRemove(IrConstantList *list, char *name)
 {
@@ -182,6 +205,47 @@ void doConstantOptimization(IRInstructionList *iRInstructionList)
             if (res != NULL)
             {
                 sprintf(ir->res, "#%d", res->value);
+            }
+        }
+        ir = ir->next;
+    }
+}
+
+void doCopyPropagation(IRInstructionList *iRInstructionList)
+{
+    IRInstruction *ir = iRInstructionList->head;
+    IrConstantList *irConstantList = irConstantListInit();
+    while (ir != NULL)
+    {
+        if (isLeadingInstruction(ir))
+        {
+            irConstantList = irConstantListInit();
+        }
+        if (isAssiInstruction(ir))
+        {
+            IrConstantNode *op1 = irConstantListFind(irConstantList, ir->op1);
+            if (op1 != NULL)
+            {
+                sprintf(ir->op1, "#%d", op1->value);
+            }
+            irConstantListAddOp(irConstantList, ir->res, ir->op1);
+        }
+        else
+        {
+            IrConstantNode *op1 = irConstantListFind(irConstantList, ir->op1);
+            IrConstantNode *op2 = irConstantListFind(irConstantList, ir->op2);
+            IrConstantNode *res = irConstantListFind(irConstantList, ir->res);
+            if (op1 != NULL)
+            {
+                memcpy(ir->op1, op1->op, strlen(op1->op) + 1);
+            }
+            if (op2 != NULL)
+            {
+                memcpy(ir->op2, op2->op, strlen(op2->op) + 1);
+            }
+            if (res != NULL)
+            {
+                memcpy(ir->res, res->op, strlen(res->op) + 1);
             }
         }
         ir = ir->next;
