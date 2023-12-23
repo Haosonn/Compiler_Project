@@ -178,7 +178,7 @@ void doConstantOptimization(IRInstructionList *iRInstructionList)
             }
             if (op2 != NULL)
             {
-                sprintf(ir->op1, "#%d", op1->value);
+                sprintf(ir->op2, "#%d", op2->value);
             }
             if (res != NULL)
             {
