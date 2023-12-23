@@ -266,6 +266,9 @@ void doReferenceCnt(IRInstructionList *iRInstructionList)
         {
             irConstantListAdd(irConstantList, ir->op2, 0);
         }
+        if(!isOpInstruction(ir) && !isAssiInstruction(ir)){
+            irConstantListAdd(irConstantList, ir->res, 0);
+        }
         ir = ir->next;
     }
     ir = iRInstructionList->head;
