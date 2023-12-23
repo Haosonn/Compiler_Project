@@ -251,3 +251,33 @@ void doCopyPropagation(IRInstructionList *iRInstructionList)
         ir = ir->next;
     }
 }
+
+void doReferenceCnt(IRInstructionList *iRInstructionList)
+{
+    IRInstruction *ir = iRInstructionList->head;
+    IrConstantList *irConstantList = irConstantListInit();
+    while (ir != NULL)
+    {
+        if (ir->op1 != NULL)
+        {
+            irConstantListAdd(irConstantList, ir->op1, 0);
+        }
+        if (ir->op2 != NULL)
+        {
+            irConstantListAdd(irConstantList, ir->op2, 0);
+        }
+        ir = ir->next;
+    }
+    ir = iRInstructionList->head;
+    while (ir != NULL)
+    {
+        if (isOpInstruction(ir) || isAssiInstruction(ir))
+        {
+            if (irConstantListFind(irConstantList, ir->res) == NULL)
+            {
+                iRInstructionListRemove(iRInstructionList, ir);
+            }
+        }
+        ir = ir->next;
+    }
+}

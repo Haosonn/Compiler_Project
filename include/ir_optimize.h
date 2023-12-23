@@ -17,3 +17,4 @@ typedef struct IrConstantList
 } IrConstantList;
 void doConstantOptimization(IRInstructionList *iRInstructionList);
 void doCopyPropagation(IRInstructionList *iRInstructionList);
+void doReferenceCnt(IRInstructionList *iRInstructionList);
