@@ -113,7 +113,7 @@ int isConstantOp(char *op)
 }
 int isLeadingInstruction(IRInstruction *IRInstruction)
 {
-    return IRInstruction->opcode == IR_OP_LABEL || IRInstruction->opcode == IR_OP_FUNC || IRInstruction->prev != NULL && (IRInstruction->prev->opcode == IR_OP_GOTO || IRInstruction->prev->opcode == IR_OP_IF_EQ_GOTO || IRInstruction->prev->opcode == IR_OP_IF_LT_GOTO || IRInstruction->prev->opcode == IR_OP_IF_LEQ_GOTO || IRInstruction->prev->opcode == IR_OP_RETURN);
+    return IRInstruction->opcode == IR_OP_LABEL || IRInstruction->opcode == IR_OP_FUNC || IRInstruction->prev != NULL && (IRInstruction->prev->opcode == IR_OP_GOTO || IRInstruction->prev->opcode == IR_OP_IF_EQ_GOTO || IRInstruction->prev->opcode == IR_OP_IF_LT_GOTO || IRInstruction->prev->opcode == IR_OP_IF_LEQ_GOTO || IRInstruction->prev->opcode == IR_OP_RETURN || IRInstruction->prev->opcode == IR_OP_CALL);
 }
 int isOpInstruction(IRInstruction *IRInstruction)
 {
@@ -153,7 +153,6 @@ void doConstantOptimization(IRInstructionList *iRInstructionList)
                     value = value1 - value2;
                     break;
                 case IR_OP_MUL:
-
                     value = value1 * value2;
                     break;
                 case IR_OP_DIV:
@@ -167,6 +166,14 @@ void doConstantOptimization(IRInstructionList *iRInstructionList)
             }
             else
             {
+                if (op1 != NULL)
+                {
+                    sprintf(ir->op1, "#%d", op1->value);
+                }
+                if (op2 != NULL)
+                {
+                    sprintf(ir->op2, "#%d", op2->value);
+                }
                 if (irConstantListFind(irConstantList, ir->res) != NULL)
                 {
                     irConstantListRemove(irConstantList, ir->res);
@@ -175,11 +182,27 @@ void doConstantOptimization(IRInstructionList *iRInstructionList)
         }
         else if (isAssiInstruction(ir))
         {
-            IrConstantNode *op1 = irConstantListFind(irConstantList, ir->op1);
-            if (op1 != NULL || isConstantOp(ir->op1))
+            if (ir->opcode == IR_OP_GET_ADDR || ir->opcode == IR_OP_GET_VALUE)
             {
-                int value = op1 != NULL ? op1->value : atoi(ir->op1 + 1);
-                irConstantListAdd(irConstantList, ir->res, value);
+                IrConstantNode *op1 = irConstantListFind(irConstantList, ir->op1);
+                if (op1 != NULL)
+                {
+                    IRInstruction *fix = createInstruction(IR_OP_ASSIGN, NULL, NULL, ir->op1);
+                    sprintf(fix->op1, "#%d", op1->value);
+                    fix->prev = ir->prev;
+                    fix->next = ir;
+                    ir->prev->next = fix;
+                    ir->prev = fix;
+                }
+            }
+            IrConstantNode *op1 = irConstantListFind(irConstantList, ir->op1);
+            if ((op1 != NULL || isConstantOp(ir->op1)) && ir->opcode != IR_OP_GET_ADDR && ir->opcode != IR_OP_GET_VALUE)
+            {
+                if (ir->opcode != IR_OP_ASSIGN_ADDR)
+                {
+                    int value = op1 != NULL ? op1->value : atoi(ir->op1 + 1);
+                    irConstantListAdd(irConstantList, ir->res, value);
+                }
             }
             else
             {
@@ -188,8 +211,25 @@ void doConstantOptimization(IRInstructionList *iRInstructionList)
                     irConstantListRemove(irConstantList, ir->res);
                 }
             }
+            if (op1 != NULL && ir->opcode == IR_OP_ASSIGN)
+            {
+                sprintf(ir->op1, "#%d", op1->value);
+            }
+            if (ir->opcode == IR_OP_ASSIGN_ADDR)
+            {
+                IrConstantNode *res = irConstantListFind(irConstantList, ir->res);
+                if (res != NULL)
+                {
+                    IRInstruction *fix = createInstruction(IR_OP_ASSIGN, NULL, NULL, ir->res);
+                    sprintf(fix->op1, "#%d", res->value);
+                    fix->prev = ir->prev;
+                    fix->next = ir;
+                    ir->prev->next = fix;
+                    ir->prev = fix;
+                }
+            }
         }
-        else
+        else if (ir->opcode != IR_OP_ARG)
         {
             IrConstantNode *op1 = irConstantListFind(irConstantList, ir->op1);
             IrConstantNode *op2 = irConstantListFind(irConstantList, ir->op2);
@@ -221,7 +261,7 @@ void doCopyPropagation(IRInstructionList *iRInstructionList)
         {
             irConstantList = irConstantListInit();
         }
-        if (isAssiInstruction(ir))
+        if (ir->opcode == IR_OP_ASSIGN)
         {
             IrConstantNode *op1 = irConstantListFind(irConstantList, ir->op1);
             if (op1 != NULL)
@@ -230,7 +270,14 @@ void doCopyPropagation(IRInstructionList *iRInstructionList)
             }
             irConstantListAddOp(irConstantList, ir->res, ir->op1);
         }
-        else
+        else if (ir->opcode == IR_OP_GET_ADDR || ir->opcode == IR_OP_GET_VALUE)
+        {
+            if (irConstantListFind(irConstantList, ir->res) != NULL)
+            {
+                irConstantListRemove(irConstantList, ir->res);
+            }
+        }
+        else if (!isAssiInstruction(ir))
         {
             IrConstantNode *op1 = irConstantListFind(irConstantList, ir->op1);
             IrConstantNode *op2 = irConstantListFind(irConstantList, ir->op2);
@@ -266,7 +313,8 @@ void doReferenceCnt(IRInstructionList *iRInstructionList)
         {
             irConstantListAdd(irConstantList, ir->op2, 0);
         }
-        if(!isOpInstruction(ir) && !isAssiInstruction(ir)){
+        if (!isOpInstruction(ir) && !isAssiInstruction(ir)||ir->opcode==IR_OP_ASSIGN_ADDR)
+        {
             irConstantListAdd(irConstantList, ir->res, 0);
         }
         ir = ir->next;
