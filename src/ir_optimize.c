@@ -17,7 +17,7 @@ void irConstantListPrint(IrConstantList *list)
     IrConstantNode *node = list->head;
     while (node != NULL)
     {
-        printf("name: %s, value: %d\n", node->name, node->value);
+        printf("name: %s, value: %d, op: %s\n", node->name, node->value, node->op);
         node = node->next;
     }
 }
@@ -226,7 +226,7 @@ void doCopyPropagation(IRInstructionList *iRInstructionList)
             IrConstantNode *op1 = irConstantListFind(irConstantList, ir->op1);
             if (op1 != NULL)
             {
-                sprintf(ir->op1, "#%d", op1->value);
+                memcpy(ir->op1, op1->op, strlen(op1->op) + 1);
             }
             irConstantListAddOp(irConstantList, ir->res, ir->op1);
         }
