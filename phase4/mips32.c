@@ -17,31 +17,14 @@ unsigned int regs_s0_s3_available = 0x0000000f;
     the least significant bit represents t0
 */
 
+unsigned int args_cnt = 0;
 
 Register get_register(tac_opd *opd){
     assert(opd->kind == OP_VARIABLE);
     char *var = opd->char_val;
     /* COMPLETE the register allocation */
     Register reg;
-    if (regs_t0_t3_available != 0x0000000f) {
-        for (reg = t0; reg <= t3; reg++) {
-            if (regs_t0_t3_available & (1 << reg)) {
-                break;
-            }
-        }
-    } else {
-        for (reg = t0; reg <= t3; reg++) {
-            if (regs[reg].dirty == FALSE) {
-                break;
-            }
-        }
-    }
-    if (reg > t3) {
-        spill_register(reg);
-    }
-    strcpy(regs[reg].var, var);
-    regs[reg].dirty = TRUE;
-    regs_t0_t3_available &= ~(1 << reg);
+
     return reg;
 }
 
@@ -50,27 +33,11 @@ Register get_register_w(tac_opd *opd){
     char *var = opd->char_val;
     Register reg;
     /* COMPLETE the register allocation (for write) */
-    if (regs_s0_s3_available != 0x0000000f) {
-        for (Register reg = s0; reg <= s3; reg++) {
-            if (regs_s0_s3_available & (1 << reg)) {
-                break;
-            }
-        }
-    } else {
-        for (Register reg = s0; reg <= s3; reg++) {
-            if (regs[reg].dirty == FALSE) {
-                break;
-            }
-        }
-    }
-    if (reg > s3) {
-        spill_register(reg);
-    }
+    return reg;
 }
 
 void spill_register(Register reg){
     /* COMPLETE the register spilling */
-
 }
 
 
@@ -267,32 +234,61 @@ tac *emit_iflt(tac *iflt){
 
 tac *emit_ifle(tac *ifle){
     /* COMPLETE emit function */
-    Register
+    Register x, y;
+    x = get_register(_tac_quadruple(ifle).c1);
+    y = get_register(_tac_quadruple(ifle).c2);
+    _mips_iprintf("ble %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifle).labelno->int_val);
     return ifle->next;
 }
 
 tac *emit_ifgt(tac *ifgt){
     /* COMPLETE emit function */
+    Register x, y;
+    x = get_register(_tac_quadruple(ifgt).c1);
+    y = get_register(_tac_quadruple(ifgt).c2);
+    _mips_iprintf("bgt %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifgt).labelno->int_val);
     return ifgt->next;
 }
 
 tac *emit_ifge(tac *ifge){
     /* COMPLETE emit function */
+    Register x, y;
+    x = get_register(_tac_quadruple(ifge).c1);
+    y = get_register(_tac_quadruple(ifge).c2);
+    _mips_iprintf("bge %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifge).labelno->int_val);
     return ifge->next;
 }
 
 tac *emit_ifne(tac *ifne){
     /* COMPLETE emit function */
+    Register x, y;
+    x = get_register(_tac_quadruple(ifne).c1);
+    y = get_register(_tac_quadruple(ifne).c2);
+    _mips_iprintf("bne %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifne).labelno->int_val);
     return ifne->next;
 }
 
 tac *emit_ifeq(tac *ifeq){
     /* COMPLETE emit function */
+    Register x, y;
+    x = get_register(_tac_quadruple(ifeq).c1);
+    y = get_register(_tac_quadruple(ifeq).c2);
+    _mips_iprintf("beq %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifeq).labelno->int_val);
     return ifeq->next;
 }
 
 tac *emit_return(tac *return_){
     /* COMPLETE emit function */
+    Register x = get_register(_tac_quadruple(return_).var);
+    mips_iprintf("move $v0,%s",reg_name(x));
+    if (TRUE) { // main function
+        mips_iprintf("move $a0,$v0");
+        mips_iprintf("li $v0, 17");
+        mips_iprintf("syscall");
+    }
+    else { // not main function
+        mips_iprintf("jr $ra");
+    }
     return return_->next;
 }
 
@@ -303,16 +299,33 @@ tac *emit_dec(tac *dec){
 
 tac *emit_arg(tac *arg){
     /* COMPLETE emit function */
+    Register x = get_register(_tac_quadruple(arg).var);
+    if (args_cnt < 4) {
+        mips_iprintf("move %s, $a%d", reg_name(x), args_cnt);
+    }
+    else {
+        mips_iprintf("addi $sp, $sp, -4");
+        mips_iprintf("sw %s, 0($sp)", reg_name(x));
+    }
+    args_cnt++;
     return arg->next;
 }
 
 tac *emit_call(tac *call){
     /* COMPLETE emit function */
+    mips_iprintf("addi $sp, $sp, %d", -args_cnt * 4 - 4);
+    Register x = get_register_w(_tac_quadruple(call).ret);
+    mips_iprintf("jal %s", _tac_quadruple(call).funcname);
+    mips_iprintf("move %s, $v0", reg_name(x));
+    mips_iprintf("addi $sp, $sp, %d", args_cnt * 4 - 4);
     return call->next;
 }
 
 tac *emit_param(tac *param){
     /* COMPLETE emit function */
+    Register x = get_register_w(_tac_quadruple(param).p);
+    mips_iprintf("move $a%d, %s", args_cnt, reg_name(x));
+    args_cnt--;
     return param->next;
 }
 
