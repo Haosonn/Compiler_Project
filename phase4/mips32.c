@@ -339,13 +339,13 @@ tac *emit_return(tac *return_)
     _mips_iprintf("move $v0,%s", _reg_name(x));
     if (TRUE)
     { // main function
-        mips_iprintf("move $a0,$v0");
-        mips_iprintf("li $v0, 17");
-        mips_iprintf("syscall");
+        _mips_iprintf("move $a0,$v0");
+        _mips_iprintf("li $v0, 17");
+        _mips_iprintf("syscall");
     }
     else
     { // not main function
-        mips_iprintf("jr $ra");
+        _mips_iprintf("jr $ra");
     }
     return return_->next;
 }
@@ -362,12 +362,12 @@ tac *emit_arg(tac *arg)
     Register x = get_register(_tac_quadruple(arg).var);
     if (args_cnt < 4)
     {
-        mips_iprintf("move %s, $a%d", reg_name(x), args_cnt);
+        _mips_iprintf("move %s, $a%d", _reg_name(x), args_cnt);
     }
     else
     {
-        mips_iprintf("addi $sp, $sp, -4");
-        mips_iprintf("sw %s, 0($sp)", reg_name(x));
+        _mips_iprintf("addi $sp, $sp, -4");
+        _mips_iprintf("sw %s, 0($sp)", _reg_name(x));
     }
     args_cnt++;
     return arg->next;
@@ -376,11 +376,11 @@ tac *emit_arg(tac *arg)
 tac *emit_call(tac *call)
 {
     /* COMPLETE emit function */
-    mips_iprintf("addi $sp, $sp, %d", -args_cnt * 4 - 4);
+    _mips_iprintf("addi $sp, $sp, %d", -args_cnt * 4 - 4);
     Register x = get_register_w(_tac_quadruple(call).ret);
-    mips_iprintf("jal %s", _tac_quadruple(call).funcname);
-    mips_iprintf("move %s, $v0", reg_name(x));
-    mips_iprintf("addi $sp, $sp, %d", args_cnt * 4 - 4);
+    _mips_iprintf("jal %s", _tac_quadruple(call).funcname);
+    _mips_iprintf("move %s, $v0", _reg_name(x));
+    _mips_iprintf("addi $sp, $sp, %d", args_cnt * 4 - 4);
     return call->next;
 }
 
@@ -388,7 +388,7 @@ tac *emit_param(tac *param)
 {
     /* COMPLETE emit function */
     Register x = get_register_w(_tac_quadruple(param).p);
-    mips_iprintf("move $a%d, %s", args_cnt, reg_name(x));
+    _mips_iprintf("move $a%d, %s", args_cnt, _reg_name(x));
     args_cnt--;
     return param->next;
 }
