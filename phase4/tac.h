@@ -17,6 +17,7 @@ struct tac_opd {
         char char_val[8];   // stores variable name, pointer name
         int int_val;        // stores label number, int constant
     };
+    int id;
 };
 
 struct _tac_inst {
