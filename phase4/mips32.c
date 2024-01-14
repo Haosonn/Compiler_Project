@@ -18,6 +18,8 @@ unsigned int regs_s0_s3_available = 0x0000000f;
 */
 
 unsigned int args_cnt = 0;
+unsigned int args_num = 0;
+unsigned int params_cnt = 0;
 int var_cnt = 0;
 bool is_main = TRUE;
 variable_id_table *id_table = NULL;
@@ -119,11 +121,15 @@ tac *emit_label(tac *label)
 
 tac *emit_function(tac *function)
 {
+    params_cnt = 0;
     _mips_printf("%s:", _tac_quadruple(function).funcname);
     if (strcmp(_tac_quadruple(function).funcname, "main") == 0)
         is_main = TRUE;
     else
+    {
+
         is_main = FALSE;
+    }
     return function->next;
 }
 
@@ -495,9 +501,23 @@ tac *emit_arg(tac *arg)
     /* COMPLETE emit function */
     spill_register();
     Register x = get_register(_tac_quadruple(arg).var);
+    // if (args_cnt == 0)
+    // {
+    //     args_num = 1;
+    //     while (arg->next->code.kind == ARG)
+    //     {
+    //         if (args_num >= 4)
+    //         {
+    //             break;
+    //         }
+    //         args_num++;
+    //         arg = arg->next;
+    //     }
+    // }
     if (args_cnt < 4)
     {
-        _mips_iprintf("move %s, $a%d", _reg_name(x), args_cnt);
+        // _mips_iprintf("move $a%d, %s", args_num - args_cnt - 1, _reg_name(x));
+        _mips_iprintf("move $a%d, %s", args_cnt, _reg_name(x));
     }
     else
     {
@@ -511,11 +531,25 @@ tac *emit_arg(tac *arg)
 tac *emit_call(tac *call)
 {
     /* COMPLETE emit function */
-    _mips_iprintf("addi $sp, $sp, %d", -args_cnt * 4 - 4);
+    // _mips_iprintf("addi $sp, $sp, %d", -args_cnt * 4 - 4);
+    args_cnt = 0;
     Register x = get_register_w(_tac_quadruple(call).ret);
+    _mips_iprintf("addi $sp, $sp, -4");
+    _mips_iprintf("sw $ra, 0($sp)");
+    _mips_iprintf("addi $sp, $sp, -4");
+    _mips_iprintf("sw $t0, 0($sp)");
+    _mips_iprintf("addi $sp, $sp, -4");
+    _mips_iprintf("sw $gp, 0($sp)");
+    _mips_iprintf("addi $gp, $gp, %d", var_cnt * 4);
     _mips_iprintf("jal %s", _tac_quadruple(call).funcname);
+    _mips_iprintf("lw $gp, 0($sp)");
+    _mips_iprintf("addi $sp, $sp, 4");
+    _mips_iprintf("lw $t0, 0($sp)");
+    _mips_iprintf("addi $sp, $sp, 4");
+    _mips_iprintf("lw $ra, 0($sp)");
+    _mips_iprintf("addi $sp, $sp, 4");
     _mips_iprintf("move %s, $v0", _reg_name(x));
-    _mips_iprintf("addi $sp, $sp, %d", args_cnt * 4 - 4);
+    // _mips_iprintf("addi $sp, $sp, %d", args_cnt * 4 - 4);
     return call->next;
 }
 
@@ -523,8 +557,34 @@ tac *emit_param(tac *param)
 {
     /* COMPLETE emit function */
     Register x = get_register_w(_tac_quadruple(param).p);
-    _mips_iprintf("move $a%d, %s", args_cnt, _reg_name(x));
-    args_cnt--;
+    if (params_cnt >= 4)
+    {
+        if (params_cnt == 4)
+        {
+            _mips_iprintf("lw $t3, 0($sp)");
+            _mips_iprintf("addi $sp, $sp, 4");
+            _mips_iprintf("lw $t4, 0($sp)");
+            _mips_iprintf("addi $sp, $sp, 4");
+            _mips_iprintf("lw $t5, 0($sp)");
+            _mips_iprintf("addi $sp, $sp, 4");
+        }
+        _mips_iprintf("lw %s, 0($sp)", _reg_name(x));
+        _mips_iprintf("addi $sp, $sp, 4");
+        if (param->next->code.kind != PARAM)
+        {
+            _mips_iprintf("addi $sp, $sp, -4");
+            _mips_iprintf("sw $t5, 0($sp)");
+            _mips_iprintf("addi $sp, $sp, -4");
+            _mips_iprintf("sw $t4, 0($sp)");
+            _mips_iprintf("addi $sp, $sp, -4");
+            _mips_iprintf("sw $t3, 0($sp)");
+        }
+    }
+    else
+    {
+        _mips_iprintf("move  %s, $a%d", _reg_name(x), params_cnt);
+    }
+    params_cnt++;
     return param->next;
 }
 
@@ -543,6 +603,7 @@ tac *emit_read(tac *read)
 
 tac *emit_write(tac *write)
 {
+    spill_register();
     Register x = get_register(_tac_quadruple(write).p);
 
     _mips_iprintf("move $a0, %s", _reg_name(x));

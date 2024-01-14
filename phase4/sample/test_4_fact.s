@@ -4,7 +4,6 @@ _prmpt: .asciiz "Enter an integer: "
 _eol: .asciiz "\n"
 .globl main
 .text
-j main
 read:
   li $v0, 4
   la $a0, _prmpt
@@ -21,7 +20,7 @@ write:
   move $v0, $0
   jr $ra
 fact:
-  move $a0, $t0
+  move  $t0, $a0
   sw $t0, 0($gp)
   li $t3, 1
   lw $t2, 0($gp)
@@ -36,12 +35,22 @@ label2:
   addi $t0, $t2, -1
   sw $t0, 4($gp)
   lw $t1, 4($gp)
+  move $a0, $t1
   addi $sp, $sp, -4
-  sw $t1, 0($sp)
+  sw $ra, 0($sp)
   addi $sp, $sp, -4
+  sw $t0, 0($sp)
+  addi $sp, $sp, -4
+  sw $gp, 0($sp)
+  addi $gp, $gp, 12
   jal fact
+  lw $gp, 0($sp)
+  addi $sp, $sp, 4
+  lw $t0, 0($sp)
+  addi $sp, $sp, 4
+  lw $ra, 0($sp)
+  addi $sp, $sp, 4
   move $t0, $v0
-  addi $sp, $sp, -4
   sw $t0, 8($gp)
   lw $t2, 0($gp)
   lw $t1, 8($gp)
@@ -67,11 +76,22 @@ main:
   j label4
 label3:
   lw $t1, 20($gp)
-  move $t1, $a0
-  addi $sp, $sp, -8
+  move $a0, $t1
+  addi $sp, $sp, -4
+  sw $ra, 0($sp)
+  addi $sp, $sp, -4
+  sw $t0, 0($sp)
+  addi $sp, $sp, -4
+  sw $gp, 0($sp)
+  addi $gp, $gp, 28
   jal fact
+  lw $gp, 0($sp)
+  addi $sp, $sp, 4
+  lw $t0, 0($sp)
+  addi $sp, $sp, 4
+  lw $ra, 0($sp)
+  addi $sp, $sp, 4
   move $t0, $v0
-  addi $sp, $sp, 0
   sw $t0, 24($gp)
   lw $t2, 24($gp)
   move $t0, $t2
@@ -80,6 +100,7 @@ label4:
   sw $t0, 28($gp)
   li $t0, 1
 label5:
+  sw $t0, 28($gp)
   lw $t1, 28($gp)
   move $a0, $t1
   addi $sp, $sp, -4
@@ -87,7 +108,6 @@ label5:
   jal write
   lw $ra, 0($sp)
   addi $sp, $sp, 4
-  sw $t0, 28($gp)
   li $v0, 0
   move $a0,$v0
   li $v0, 17
