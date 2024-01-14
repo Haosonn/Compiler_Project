@@ -18,6 +18,7 @@ typedef struct RegDesc {    // the register descriptor
     const char *name;
     char var[8];
     bool dirty; // value updated but not stored
+    int id;
     /* add other fields as you need */
 } RegDesc;
 extern RegDesc regs[NUM_REGS];

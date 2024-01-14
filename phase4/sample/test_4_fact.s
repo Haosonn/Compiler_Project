@@ -1,70 +1,94 @@
+# SPL compiler generated assembly
 .data
-_prompt: .asciiz "Enter an integer:"
-_ret: .asciiz "\n"
+_prmpt: .asciiz "Enter an integer: "
+_eol: .asciiz "\n"
 .globl main
 .text
+j main
 read:
-    li $v0, 4
-    la $a0, _prompt
-    syscall
-    li $v0, 5
-    syscall
-    jr $ra
+  li $v0, 4
+  la $a0, _prmpt
+  syscall
+  li $v0, 5
+  syscall
+  jr $ra
 write:
-    li $v0, 1
-    syscall
-    li $v0, 4
-    la $a0, _ret
-    syscall
-    move $v0, $0
-    jr $ra
-
+  li $v0, 1
+  syscall
+  li $v0, 4
+  la $a0, _eol
+  syscall
+  move $v0, $0
+  jr $ra
 fact:
-    li $t4, 1
-    beq $a0, $t4, label1
-    j label2
+  move $a0, $t0
+  sw $t0, 0($gp)
+  li $t3, 1
+  lw $t2, 0($gp)
+  beq $t2, $t3, label1
+  j label2
 label1:
-    move $v0, $a0
-    jr $ra
+  lw $t1, 0($gp)
+  move $v0, $t1
+  jr $ra
 label2:
-    addi $sp, $sp, -8
-    sw $a0, ($sp)
-    sw $ra, 4($sp)
-    sub $a0, $a0, 1
-    jal fact
-    lw $a0, ($sp)
-    lw $ra, 4($sp)
-    addi $sp, $sp, 8
-    mul $v0, $v0, $a0
-    jr $ra
-
+  lw $t2, 0($gp)
+  addi $t0, $t2, -1
+  sw $t0, 4($gp)
+  lw $t1, 4($gp)
+  addi $sp, $sp, -4
+  sw $t1, 0($sp)
+  addi $sp, $sp, -4
+  jal fact
+  move $t0, $v0
+  addi $sp, $sp, -4
+  sw $t0, 8($gp)
+  lw $t2, 0($gp)
+  lw $t1, 8($gp)
+  mul $t0, $t2, $t1
+  sw $t0, 12($gp)
+  lw $t2, 12($gp)
+  move $v0, $t2
+  jr $ra
 main:
-    addi $sp, $sp, -4
-    sw $ra, 0($sp)
-    jal read
-    lw $ra, 0($sp)
-    addi $sp, $sp, 4
-    move $t1, $v0
-    li $t3, 1
-    bgt $t1, $t3, label6
-    j label7
-label6:
-    move $a0, $t1
-    addi $sp, $sp, -4
-    sw $ra, 0($sp)
-    jal fact
-    lw $ra, 0($sp)
-    addi $sp, $sp, 4
-    move $t2, $v0
-    j label8
-label7:
-    li $t2, 1
-label8:
-    move $a0, $t2
-    addi $sp, $sp, -4
-    sw $ra, 0($sp)
-    jal write
-    lw $ra, 0($sp)
-    addi $sp, $sp, 4
-    move $v0, $0
-    jr $ra
+  addi $sp, $sp, -4
+  sw $ra, 0($sp)
+  jal read
+  lw $ra, 0($sp)
+  addi $sp, $sp, 4
+  move $t0, $v0
+  sw $t0, 16($gp)
+  lw $t1, 16($gp)
+  move $t0, $t1
+  sw $t0, 20($gp)
+  li $t3, 1
+  lw $t2, 20($gp)
+  bgt $t2, $t3, label3
+  j label4
+label3:
+  lw $t1, 20($gp)
+  move $t1, $a0
+  addi $sp, $sp, -8
+  jal fact
+  move $t0, $v0
+  addi $sp, $sp, 0
+  sw $t0, 24($gp)
+  lw $t2, 24($gp)
+  move $t0, $t2
+  j label5
+label4:
+  sw $t0, 28($gp)
+  li $t0, 1
+label5:
+  lw $t1, 28($gp)
+  move $a0, $t1
+  addi $sp, $sp, -4
+  sw $ra, 0($sp)
+  jal write
+  lw $ra, 0($sp)
+  addi $sp, $sp, 4
+  sw $t0, 28($gp)
+  li $v0, 0
+  move $a0,$v0
+  li $v0, 17
+  syscall

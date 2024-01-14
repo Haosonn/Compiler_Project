@@ -10,6 +10,7 @@
 
 typedef struct tac_opd tac_opd;
 typedef struct tac_node tac;
+typedef struct variable_id_table variable_id_table;
 
 struct tac_opd {
     enum { OP_LABEL, OP_VARIABLE, OP_CONSTANT, OP_POINTER } kind;
@@ -17,8 +18,16 @@ struct tac_opd {
         char char_val[8];   // stores variable name, pointer name
         int int_val;        // stores label number, int constant
     };
-    int id;
 };
+struct variable_id_table{
+    char char_val[8];
+    int id;
+    struct variable_id_table *next;
+};
+
+void variable_id_table_insert(variable_id_table *table,char *var, int id);
+int variable_id_table_find(variable_id_table *table,char *var);
+
 
 struct _tac_inst {
     enum { LABEL, FUNCTION, ASSIGN, ADD, SUB, MUL, DIV, ADDR, FETCH, DEREF,

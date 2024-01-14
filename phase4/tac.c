@@ -682,3 +682,24 @@ tac *tac_init_none(){
     self->prev = self->next = NULL;
     return self;
 }
+
+void variable_id_table_insert(variable_id_table *table,char *var, int id){
+    variable_id_table *p = table;
+    while(p->next != NULL){
+        p = p->next;
+    }
+    p->next = (variable_id_table*)malloc(sizeof(variable_id_table));
+    sprintf(p->next->char_val, "%s", var);
+    p->next->id = id;
+    p->next->next = NULL;
+}
+int variable_id_table_find(variable_id_table *table,char *var){
+    variable_id_table *p = table;
+    while(p != NULL){
+        if(strcmp(p->char_val, var) == 0){
+            return p->id;
+        }
+        p = p->next;
+    }
+    return -1;
+}
