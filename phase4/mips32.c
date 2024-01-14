@@ -19,6 +19,7 @@ unsigned int regs_s0_s3_available = 0x0000000f;
 
 unsigned int args_cnt = 0;
 int var_cnt = 0;
+bool is_main = TRUE;
 
 void _mips_iprintf(const char *fmt, ...)
 {
@@ -95,6 +96,10 @@ tac *emit_label(tac *label)
 tac *emit_function(tac *function)
 {
     _mips_printf("%s:", _tac_quadruple(function).funcname);
+    if (strcmp(_tac_quadruple(function).funcname, "main") == 0)
+        is_main = TRUE;
+    else
+        is_main = FALSE;
     return function->next;
 }
 
@@ -276,9 +281,24 @@ tac *emit_iflt(tac *iflt)
 {
     /* COMPLETE emit function */
     Register x, y;
-    x = get_register(_tac_quadruple(iflt).c1);
-    y = get_register(_tac_quadruple(iflt).c2);
-    _mips_iprintf("blt %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(iflt).labelno->int_val);
+    if (_tac_quadruple(iflt).c1->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(iflt).c1->int_val);
+        y = get_register(_tac_quadruple(iflt).c2);
+        _mips_iprintf("blt $t3, %s, label%d", _reg_name(y), _tac_quadruple(iflt).labelno->int_val);
+    }
+    else if (_tac_quadruple(iflt).c2->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(iflt).c2->int_val);
+        x = get_register(_tac_quadruple(iflt).c1);
+        _mips_iprintf("blt %s, $t3, label%d", _reg_name(x), _tac_quadruple(iflt).labelno->int_val);
+    }
+    else
+    {
+        x = get_register(_tac_quadruple(iflt).c1);
+        y = get_register(_tac_quadruple(iflt).c2);
+        _mips_iprintf("blt %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(iflt).labelno->int_val);
+    }
     return iflt->next;
 }
 
@@ -286,9 +306,24 @@ tac *emit_ifle(tac *ifle)
 {
     /* COMPLETE emit function */
     Register x, y;
-    x = get_register(_tac_quadruple(ifle).c1);
-    y = get_register(_tac_quadruple(ifle).c2);
-    _mips_iprintf("ble %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifle).labelno->int_val);
+    if (_tac_quadruple(ifle).c1->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(ifle).c1->int_val);
+        y = get_register(_tac_quadruple(ifle).c2);
+        _mips_iprintf("ble $t3, %s, label%d", _reg_name(y), _tac_quadruple(ifle).labelno->int_val);
+    }
+    else if (_tac_quadruple(ifle).c2->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(ifle).c2->int_val);
+        x = get_register(_tac_quadruple(ifle).c1);
+        _mips_iprintf("ble %s, $t3, label%d", _reg_name(x), _tac_quadruple(ifle).labelno->int_val);
+    }
+    else
+    {
+        x = get_register(_tac_quadruple(ifle).c1);
+        y = get_register(_tac_quadruple(ifle).c2);
+        _mips_iprintf("ble %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifle).labelno->int_val);
+    }
     return ifle->next;
 }
 
@@ -296,9 +331,24 @@ tac *emit_ifgt(tac *ifgt)
 {
     /* COMPLETE emit function */
     Register x, y;
-    x = get_register(_tac_quadruple(ifgt).c1);
-    y = get_register(_tac_quadruple(ifgt).c2);
-    _mips_iprintf("bgt %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifgt).labelno->int_val);
+    if (_tac_quadruple(ifgt).c1->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(ifgt).c1->int_val);
+        y = get_register(_tac_quadruple(ifgt).c2);
+        _mips_iprintf("bgt $t3, %s, label%d", _reg_name(y), _tac_quadruple(ifgt).labelno->int_val);
+    }
+    else if (_tac_quadruple(ifgt).c2->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(ifgt).c2->int_val);
+        x = get_register(_tac_quadruple(ifgt).c1);
+        _mips_iprintf("bgt %s, $t3, label%d", _reg_name(x), _tac_quadruple(ifgt).labelno->int_val);
+    }
+    else
+    {
+        x = get_register(_tac_quadruple(ifgt).c1);
+        y = get_register(_tac_quadruple(ifgt).c2);
+        _mips_iprintf("bgt %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifgt).labelno->int_val);
+    }
     return ifgt->next;
 }
 
@@ -306,9 +356,24 @@ tac *emit_ifge(tac *ifge)
 {
     /* COMPLETE emit function */
     Register x, y;
-    x = get_register(_tac_quadruple(ifge).c1);
-    y = get_register(_tac_quadruple(ifge).c2);
-    _mips_iprintf("bge %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifge).labelno->int_val);
+    if (_tac_quadruple(ifge).c1->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(ifge).c1->int_val);
+        y = get_register(_tac_quadruple(ifge).c2);
+        _mips_iprintf("bge $t3, %s, label%d", _reg_name(y), _tac_quadruple(ifge).labelno->int_val);
+    }
+    else if (_tac_quadruple(ifge).c2->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(ifge).c2->int_val);
+        x = get_register(_tac_quadruple(ifge).c1);
+        _mips_iprintf("bge %s, $t3, label%d", _reg_name(x), _tac_quadruple(ifge).labelno->int_val);
+    }
+    else
+    {
+        x = get_register(_tac_quadruple(ifge).c1);
+        y = get_register(_tac_quadruple(ifge).c2);
+        _mips_iprintf("bge %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifge).labelno->int_val);
+    }
     return ifge->next;
 }
 
@@ -316,9 +381,24 @@ tac *emit_ifne(tac *ifne)
 {
     /* COMPLETE emit function */
     Register x, y;
-    x = get_register(_tac_quadruple(ifne).c1);
-    y = get_register(_tac_quadruple(ifne).c2);
-    _mips_iprintf("bne %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifne).labelno->int_val);
+    if (_tac_quadruple(ifne).c1->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(ifne).c1->int_val);
+        y = get_register(_tac_quadruple(ifne).c2);
+        _mips_iprintf("bne $t3, %s, label%d", _reg_name(y), _tac_quadruple(ifne).labelno->int_val);
+    }
+    else if (_tac_quadruple(ifne).c2->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(ifne).c2->int_val);
+        x = get_register(_tac_quadruple(ifne).c1);
+        _mips_iprintf("bne %s, $t3, label%d", _reg_name(x), _tac_quadruple(ifne).labelno->int_val);
+    }
+    else
+    {
+        x = get_register(_tac_quadruple(ifne).c1);
+        y = get_register(_tac_quadruple(ifne).c2);
+        _mips_iprintf("bne %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifne).labelno->int_val);
+    }
     return ifne->next;
 }
 
@@ -326,25 +406,48 @@ tac *emit_ifeq(tac *ifeq)
 {
     /* COMPLETE emit function */
     Register x, y;
-    x = get_register(_tac_quadruple(ifeq).c1);
-    y = get_register(_tac_quadruple(ifeq).c2);
-    _mips_iprintf("beq %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifeq).labelno->int_val);
+    if (_tac_quadruple(ifeq).c1->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(ifeq).c1->int_val);
+        y = get_register(_tac_quadruple(ifeq).c2);
+        _mips_iprintf("beq $t3, %s, label%d", _reg_name(y), _tac_quadruple(ifeq).labelno->int_val);
+    }
+    else if (_tac_quadruple(ifeq).c2->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $t3, %d", _tac_quadruple(ifeq).c2->int_val);
+        x = get_register(_tac_quadruple(ifeq).c1);
+        _mips_iprintf("beq %s, $t3, label%d", _reg_name(x), _tac_quadruple(ifeq).labelno->int_val);
+    }
+    else
+    {
+        x = get_register(_tac_quadruple(ifeq).c1);
+        y = get_register(_tac_quadruple(ifeq).c2);
+        _mips_iprintf("beq %s, %s, label%d", _reg_name(x), _reg_name(y), _tac_quadruple(ifeq).labelno->int_val);
+    }
     return ifeq->next;
 }
 
 tac *emit_return(tac *return_)
 {
     /* COMPLETE emit function */
-    Register x = get_register(_tac_quadruple(return_).var);
-    _mips_iprintf("move $v0,%s", _reg_name(x));
-    if (TRUE)
-    { // main function
+    Register x;
+    if (_tac_quadruple(return_).var->kind == OP_CONSTANT)
+    {
+        _mips_iprintf("li $v0, %d", _tac_quadruple(return_).var->int_val);
+    }
+    else
+    {
+        x = get_register(_tac_quadruple(return_).var);
+        _mips_iprintf("move $v0, %s", _reg_name(x));
+    }
+    if (is_main)
+    {
         _mips_iprintf("move $a0,$v0");
         _mips_iprintf("li $v0, 17");
         _mips_iprintf("syscall");
     }
     else
-    { // not main function
+    {
         _mips_iprintf("jr $ra");
     }
     return return_->next;
