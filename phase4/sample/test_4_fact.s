@@ -20,7 +20,20 @@ write:
   move $v0, $0
   jr $ra
 fact:
-  move  $t0, $a0
+  lw $t3, 0($sp)
+  addi $sp, $sp, 4
+  lw $t4, 0($sp)
+  addi $sp, $sp, 4
+  lw $t5, 0($sp)
+  addi $sp, $sp, 4
+  lw $t0, 0($sp)
+  addi $sp, $sp, 4
+  addi $sp, $sp, -4
+  sw $t5, 0($sp)
+  addi $sp, $sp, -4
+  sw $t4, 0($sp)
+  addi $sp, $sp, -4
+  sw $t3, 0($sp)
   sw $t0, 0($gp)
   li $t3, 1
   lw $t2, 0($gp)
@@ -35,7 +48,8 @@ label2:
   addi $t0, $t2, -1
   sw $t0, 4($gp)
   lw $t1, 4($gp)
-  move $a0, $t1
+  addi $sp, $sp, -4
+  sw $t1, 0($sp)
   addi $sp, $sp, -4
   sw $ra, 0($sp)
   addi $sp, $sp, -4
@@ -76,7 +90,8 @@ main:
   j label4
 label3:
   lw $t1, 20($gp)
-  move $a0, $t1
+  addi $sp, $sp, -4
+  sw $t1, 0($sp)
   addi $sp, $sp, -4
   sw $ra, 0($sp)
   addi $sp, $sp, -4

@@ -501,29 +501,17 @@ tac *emit_arg(tac *arg)
     /* COMPLETE emit function */
     spill_register();
     Register x = get_register(_tac_quadruple(arg).var);
-    // if (args_cnt == 0)
+
+    // if (args_cnt < 4)
     // {
-    //     args_num = 1;
-    //     while (arg->next->code.kind == ARG)
-    //     {
-    //         if (args_num >= 4)
-    //         {
-    //             break;
-    //         }
-    //         args_num++;
-    //         arg = arg->next;
-    //     }
-    // }
-    if (args_cnt < 4)
-    {
         // _mips_iprintf("move $a%d, %s", args_num - args_cnt - 1, _reg_name(x));
-        _mips_iprintf("move $a%d, %s", args_cnt, _reg_name(x));
-    }
-    else
-    {
+        // _mips_iprintf("move $a%d, %s", args_cnt, _reg_name(x));
+    // }
+    // else
+    // {
         _mips_iprintf("addi $sp, $sp, -4");
         _mips_iprintf("sw %s, 0($sp)", _reg_name(x));
-    }
+    // }
     args_cnt++;
     return arg->next;
 }
@@ -557,9 +545,23 @@ tac *emit_param(tac *param)
 {
     /* COMPLETE emit function */
     Register x = get_register_w(_tac_quadruple(param).p);
-    if (params_cnt >= 4)
+    if (params_cnt == 0)
     {
-        if (params_cnt == 4)
+        tac *temp = param;
+        args_num = 1;
+        while (temp->next->code.kind == PARAM)
+        {
+            if (args_num >= 4)
+            {
+                break;
+            }
+            args_num++;
+            temp = temp->next;
+        }
+    }
+    // if (params_cnt >= 4)
+    // {
+        if (params_cnt == 0)
         {
             _mips_iprintf("lw $t3, 0($sp)");
             _mips_iprintf("addi $sp, $sp, 4");
@@ -579,11 +581,12 @@ tac *emit_param(tac *param)
             _mips_iprintf("addi $sp, $sp, -4");
             _mips_iprintf("sw $t3, 0($sp)");
         }
-    }
-    else
-    {
-        _mips_iprintf("move  %s, $a%d", _reg_name(x), params_cnt);
-    }
+    // }
+    // else
+    // {
+    //     // _mips_iprintf("move  %s, $a%d", _reg_name(x), params_cnt);
+    //     _mips_iprintf("move  %s, $a%d", _reg_name(x), args_num - params_cnt - 1);
+    // }
     params_cnt++;
     return param->next;
 }

@@ -20,13 +20,29 @@ write:
   move $v0, $0
   jr $ra
 hanoi:
-  move  $t0, $a0
+  lw $t3, 0($sp)
+  addi $sp, $sp, 4
+  lw $t4, 0($sp)
+  addi $sp, $sp, 4
+  lw $t5, 0($sp)
+  addi $sp, $sp, 4
+  lw $t0, 0($sp)
+  addi $sp, $sp, 4
   sw $t0, 0($gp)
-  move  $t0, $a1
+  lw $t0, 0($sp)
+  addi $sp, $sp, 4
   sw $t0, 4($gp)
-  move  $t0, $a2
+  lw $t0, 0($sp)
+  addi $sp, $sp, 4
   sw $t0, 8($gp)
-  move  $t0, $a3
+  lw $t0, 0($sp)
+  addi $sp, $sp, 4
+  addi $sp, $sp, -4
+  sw $t5, 0($sp)
+  addi $sp, $sp, -4
+  sw $t4, 0($sp)
+  addi $sp, $sp, -4
+  sw $t3, 0($sp)
   sw $t0, 12($gp)
   lw $t2, 0($gp)
   move $t0, $t2
@@ -82,13 +98,17 @@ label1:
   move $t0, $t1
   sw $t0, 64($gp)
   lw $t2, 64($gp)
-  move $a0, $t2
+  addi $sp, $sp, -4
+  sw $t2, 0($sp)
   lw $t1, 60($gp)
-  move $a1, $t1
+  addi $sp, $sp, -4
+  sw $t1, 0($sp)
   lw $t2, 56($gp)
-  move $a2, $t2
+  addi $sp, $sp, -4
+  sw $t2, 0($sp)
   lw $t1, 52($gp)
-  move $a3, $t1
+  addi $sp, $sp, -4
+  sw $t1, 0($sp)
   addi $sp, $sp, -4
   sw $ra, 0($sp)
   addi $sp, $sp, -4
@@ -147,13 +167,17 @@ label1:
   move $t0, $t2
   sw $t0, 112($gp)
   lw $t1, 112($gp)
-  move $a0, $t1
+  addi $sp, $sp, -4
+  sw $t1, 0($sp)
   lw $t2, 108($gp)
-  move $a1, $t2
+  addi $sp, $sp, -4
+  sw $t2, 0($sp)
   lw $t1, 104($gp)
-  move $a2, $t1
+  addi $sp, $sp, -4
+  sw $t1, 0($sp)
   lw $t2, 100($gp)
-  move $a3, $t2
+  addi $sp, $sp, -4
+  sw $t2, 0($sp)
   addi $sp, $sp, -4
   sw $ra, 0($sp)
   addi $sp, $sp, -4
@@ -192,13 +216,17 @@ main:
   li $t0, 3
   sw $t0, 144($gp)
   lw $t2, 144($gp)
-  move $a0, $t2
+  addi $sp, $sp, -4
+  sw $t2, 0($sp)
   lw $t1, 140($gp)
-  move $a1, $t1
+  addi $sp, $sp, -4
+  sw $t1, 0($sp)
   lw $t2, 136($gp)
-  move $a2, $t2
+  addi $sp, $sp, -4
+  sw $t2, 0($sp)
   lw $t1, 132($gp)
-  move $a3, $t1
+  addi $sp, $sp, -4
+  sw $t1, 0($sp)
   addi $sp, $sp, -4
   sw $ra, 0($sp)
   addi $sp, $sp, -4
